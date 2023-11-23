@@ -2,11 +2,11 @@
   type: map
   contents:
     - name: Full Name
-      value: Albert Einstein
+      value: Juwon Kim
     - name: Date of Birth
-      value: 14th March 1879
+      value: 21th November 1999
     - name: Languages
-      value: English, German
+      value: Korean, English
 
 - title: Education
   type: time_table
