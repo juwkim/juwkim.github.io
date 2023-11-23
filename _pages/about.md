@@ -6,7 +6,7 @@ subtitle: <a href='#'>Affiliations</a> Sungkyunkwan University
 
 profile:
   align: right
-  image: face.jpg
+  image: juwon_face.jpg
   image_circular: false # crops the image to make it circular
   # more_info: >
   #   <p>555 your office number</p>
