@@ -1,36 +1,36 @@
-name: Docker Image CI
+name: Docker Image CI # Name of the workflow
 
-on:
-  push:
-    branches: [ master ]
+on: # Set the event that will trigger the workflow
+  push: # Push event
+    branches: [ master ] # Push event branch
 
-jobs: 
+jobs: # Set a job
 
-  build:
+  build: # Set the job name
 
-    runs-on: ubuntu-latest
-    if: github.repository_owner == 'alshedivat'
+    runs-on: ubuntu-latest # Set the job to run on the latest version of Ubuntu
+    if: github.repository_owner == 'alshedivat' # Set the condition to run the job
 
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+    steps: # Set the job steps
+    - name: Checkout # Set the step name
+      uses: actions/checkout@v3 # Use the checkout action
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
+    - name: Set up QEMU # For ARM support
+      uses: docker/setup-qemu-action@v2 # Use the setup-qemu action
       
-    - name: Buildx
-      uses: docker/setup-buildx-action@v2
+    - name: Buildx # For ARM support
+      uses: docker/setup-buildx-action@v2 # Use the setup-buildx action
 
-    - name: Login
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Login # Set the step name
+      uses: docker/login-action@v2 # Use the login-action action
+      with: # Set the input parameter
+        username: ${{ secrets.DOCKER_USERNAME }} # Use the secrets.DOCKER_USERNAME secret
+        password: ${{ secrets.DOCKER_PASSWORD }} # Use the secrets.DOCKER_PASSWORD secret
          
-    - name: Build and push
-      uses: docker/build-push-action@v4
-      with:
-        context: .
-        push: true
-        platforms: linux/amd64,linux/arm64/v8
-        tags: amirpourmand/al-folio
+    - name: Build and push # Set the step name
+      uses: docker/build-push-action@v4 # Use the build-push-action action
+      with: # Set the input parameter
+        context: . # Set the build context
+        push: true # Push the image
+        platforms: linux/amd64,linux/arm64/v8 # Set the platforms
+        tags: amirpourmand/al-folio # Set the image name

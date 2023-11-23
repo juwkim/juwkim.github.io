@@ -1,40 +1,40 @@
-name: deploy
+name: deploy # Name of the workflow
 
-on:
-  push:
-    branches:
-      - master
-      - main
-  pull_request:
-    branches:
-      - master
-      - main
-  workflow_dispatch:
+on: # Set the event that will trigger the workflow
+  push: # Push event
+    branches: # Push event branch
+      - master # master
+      - main # main
+  pull_request: # Pull request event
+    branches: # Pull request event branch
+      - master # master
+      - main # main
+  workflow_dispatch: # Manual event
 
-permissions:
-  contents: write
+permissions: # Set the permissions
+  contents: write # Write permission
 
-jobs:
-  deploy:
+jobs: # Set a job
+  deploy: # Set the job name
     # available images: https://github.com/actions/runner-images#available-images
-    runs-on: ubuntu-latest
-    steps:
+    runs-on: ubuntu-latest # Set the job to run on the latest version of Ubuntu
+    steps: # Set the job steps
     - name: Checkout 🛎️
-      uses: actions/checkout@v3
-    - name: Setup Ruby
-      uses: ruby/setup-ruby@v1
+      uses: actions/checkout@v3 # Use the checkout action
+    - name: Setup Ruby 
+      uses: ruby/setup-ruby@v1 # Use the setup-ruby action
       with:
-        ruby-version: '3.2.2'
-        bundler-cache: true
-    - name: Update _config.yml ⚙️
-      uses: fjogeleit/yaml-update-action@v0.13.1
-      with:
-        commitChange: false
-        valueFile: '_config.yml'
-        propertyPath: 'giscus.repo'
-        value: ${{ github.repository }}
-    - name: Install and Build 🔧
-      run: |
+        ruby-version: '3.2.2' # Set the ruby version
+        bundler-cache: true # Cache the bundler
+    - name: Update _config.yml ⚙️ # Set the step name
+      uses: fjogeleit/yaml-update-action@v0.13.1 # Use the yaml-update-action action
+      with: # Set the input parameter
+        commitChange: false # Do not commit the change
+        valueFile: '_config.yml' # Set the value file
+        propertyPath: 'giscus.repo' # Set the property path
+        value: ${{ github.repository }} # Set the value
+    - name: Install and Build 🔧 # Set the step name
+      run: | # Set the step to run
         pip3 install --upgrade jupyter
         npm install -g mermaid.cli
         npm install -g purgecss
@@ -42,8 +42,8 @@ jobs:
         bundle exec jekyll build --lsi
         purgecss -c purgecss.config.js
     - name: Deploy 🚀
-      if: github.event_name != 'pull_request'
-      uses: JamesIves/github-pages-deploy-action@v4
-      with:
-        folder: _site
+      if: github.event_name != 'pull_request' # Set the condition to run the step
+      uses: JamesIves/github-pages-deploy-action@v4 # Use the github-pages-deploy-action action
+      with: # Set the input parameter
+        folder: _site # Set the folder to deploy
 
