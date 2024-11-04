@@ -23,10 +23,22 @@ Hello, I’m Juwon Kim, a graduate student in the School of Computing at KAIST. 
 
 - **C:** Proficient in using C for high-performance applications, with experience developing standard libraries in C.
 - **C++:** Knowledgeable in object-oriented design, currently working on a project to build an HTTP web server.
-- **Python:** Achieved 5000+ solved problems on BOJ (Baekjoon Online Judge) using Python as a productive tool.
+- **Python:** Achieved 6600+ solved problems on BOJ (Baekjoon Online Judge) using Python as a productive tool.
 - **Git:** Skilled in version control for documentation and collaborative projects.
-- **Docker:** Utilized for project version management.
 - **Makefile:** Experienced in building project build systems using Makefile.
+
+### Skills
+
+- **C:** Proficient in using C for high-performance applications, with experience developing standard libraries in C.
+- **C++:** Knowledgeable in object-oriented design, worked on a project to build an HTTP web server.
+- **Python:** Achieved 6600+ solved problems on BOJ (Baekjoon Online Judge) using Python.
+- **Git:** Skilled in version control for documentation and collaborative projects.
+- **Makefile:** Experienced in building project build systems.
+- **Algebra:** Solid foundation in algebra, with particular interest in algebraic complexity theory.
+- **Complexity Theory:** Knowledgeable in complexity theory, with experience in algorithmic problem-solving.
+- **Graph Theory:** Proficient in graph theory, including theoretical and algorithmic applications.
+- **Convex Optimization:** Understanding of convex optimization principles and applications.
+- **Programming Language Theory:** Knowledgeable in the theory of programming languages and their design principles.
 
 ### Education
 
