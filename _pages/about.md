@@ -1,70 +1,49 @@
 ---
 layout: about
-title: about
+title: About
 permalink: /
-subtitle: <a href='#'>Affiliations</a> Sungkyunkwan University
+subtitle: <a href='#'>Master's Program at the School of Computing, KAIST (Korea Advanced Institute of Science & Technology)</a>
 
 profile:
   align: right
   image: juwon_face.jpg
-  image_circular: false # crops the image to make it circular
-  # more_info: >
-  #   <p>555 your office number</p>
-  #   <p>123 your address street</p>
-  #   <p>Your City, State 12345</p>
+  image_circular: false
 
-news: false  # includes a list of news items
-latest_posts: false  # includes a list of the newest posts
-selected_papers: false # includes a list of papers marked as "selected={true}"
-social: true  # includes social icons at the bottom of the page
+news: false
+latest_posts: false
+selected_papers: false
+social: true
 ---
 
-Introduction:
+### Introduction
 
-안녕하세요. 저는 김주원입니다. 2023, 11월 현재 성균관대학교 4학년 2학기에 재학중입니다.
-2024년 봄학기에 카이스트 대학원 전산학부에 입학하여 네트워크 연구를 진행할 예정입니다.
-수학과 소프트웨어를 공부하고 있으며 달리기, 자전거 타기, 태권도, 수영을 좋아합니다.
+Hello, I’m Juwon Kim, a graduate student in the School of Computing at KAIST. My research focuses on algorithms, particularly algebraic complexity theory, with a strong interest in matrix multiplication.
 
-Skills:
+### Skills
 
-C, C++, Python, Git, Docker, Makefile
+- **C:** Proficient in using C for high-performance applications, with experience developing standard libraries in C.
+- **C++:** Knowledgeable in object-oriented design, currently working on a project to build an HTTP web server.
+- **Python:** Achieved 5000+ solved problems on BOJ (Baekjoon Online Judge) using Python as a productive tool.
+- **Git:** Skilled in version control for documentation and collaborative projects.
+- **Docker:** Utilized for project version management.
+- **Makefile:** Experienced in building project build systems using Makefile.
 
-C: 고성능을 필요한 분야에 적절하게 이용할 줄 알며, C의 표준라이브러리를 제작한 경험이 있습니다.
+### Education
 
-C++: 객체지향설계에 필요한 지식이 있으며, 이를 이용하여 http websever를 제작하는 프로젝트를 하고 있습니다.
+- **March 2019:** Admitted to the College of Natural Sciences, Sungkyunkwan University
+- **March 2020:** Advanced into the Mathematics Department, Sungkyunkwan University
+- **September 2020:** Began a double major in Software Engineering at Sungkyunkwan University
+- **March 2024:** Enrolled in the School of Computing graduate program, KAIST
 
-Python: python을 이용하여 BOJ 5000solved를 달성하였으며, 생산성 있는 도구로써 이용하고 있습니다.
+### Achievements
 
-Git: 문서 버전 관리 및 협업을 위한 도구로 사용하고 있습니다.
+- **September 2022:** First Place, Sungkyunkwan University Creative Comprehensive Design Competition
+- **November 2022:** First Place, Sungkyunkwan University Consortium Creative Comprehensive Design Competition
+- **November 2022:** Minister’s Award, Ministry of Trade, Industry, and Energy, at the Creative Comprehensive Design Competition
 
-Docker: 프로젝트 버전 관리를 위하여 사용하고 있습니다.
+### Contact
 
-Makefile: 프로젝트의 빌드 시스템을 구축하는데 사용하고 있습니다.
-
-Education:
-
-2019.3 - 성균관대학교 자연과학계열 입학
-
-2020.3 - 성균관대학교 수학과 진학
-
-2020.9 - 성균관대학교 소프트웨어학과 복수전공 시작
-
-2024.3 - 카이스트 대학원 전산학부 입학
-
-Achievement:
-
-2022.9 - 성균관대학교 창의적종합설계 경진대회 대상
-
-2022.11 - 성균관대학교 컨소시엄 창의적종합설계 경진대회 대상
-
-2022.11 - 창의적종합설계 경진대회 산업통상자원부 장관상
-
-Contact:
-
-Email - juwon35721@g.skku.edu
-
-Instagram - @11juwon11
-
-Linkedin - juwkim
-
-Github - juwkim
+- **Email:** juwon35721@g.skku.edu
+- **Instagram:** [@11juwon11](https://www.instagram.com/11juwon11)
+- **LinkedIn:** [juwkim](https://www.linkedin.com/in/juwkim)
+- **GitHub:** [juwkim](https://github.com/juwkim)
