@@ -43,7 +43,7 @@ Hello, I’m Juwon Kim, a graduate student in the School of Computing at KAIST. 
 
 ### Contact
 
-- **Email:** juwon35721@g.skku.edu
+- **Email:** [juwon35721@kaist.ac.kr](mailto:juwon35721@kaist.ac.kr)
 - **Instagram:** [@11juwon11](https://www.instagram.com/11juwon11)
 - **LinkedIn:** [juwkim](https://www.linkedin.com/in/juwkim)
 - **GitHub:** [juwkim](https://github.com/juwkim)
