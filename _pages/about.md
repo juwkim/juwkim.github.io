@@ -23,7 +23,7 @@ Hello, I’m Juwon Kim, a graduate student in the School of Computing at KAIST. 
 
 - **C:** Proficient in using C for high-performance applications, with experience developing standard libraries in C.
 - **C++:** Knowledgeable in object-oriented design, worked on a project to build an HTTP web server.
-- **Python:** Achieved 6600+ solved problems on BOJ (Baekjoon Online Judge) using Python.
+- **Python:** Achieved 6700+ solved problems on BOJ (Baekjoon Online Judge) using Python.
 - **Git:** Skilled in version control for documentation and collaborative projects.
 - **Makefile:** Experienced in building project build systems.
 - **Algebraic Complexity Theory:** Solid foundation in algebra, with particular interest in algebraic complexity theory.
