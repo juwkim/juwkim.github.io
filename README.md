@@ -4,11 +4,13 @@
 
 [Astro](https://astro.build)로 만든 개인 블로그입니다. `master`에 push하면 GitHub Actions가 빌드해서 GitHub Pages에 배포합니다.
 
+블로그: https://juwkim.github.io · 새 글 쓰는 법: [docs/writing-guide.md](docs/writing-guide.md)
+
 ## 자주 하는 일
 
 | 하고 싶은 것 | 어디를 고치면 되나 |
 |---|---|
-| 새 글 쓰기 | `src/content/posts/<카테고리>/<세부>/<영문-주소>/index.md` 폴더 만들고 작성 (이미지는 같은 폴더에) |
+| 새 글 쓰기 | `npm run new` → 질문에 답하면 글 틀이 생김 (자세히: `docs/writing-guide.md`) |
 | 카테고리 추가·이름 변경 | `src/site.config.ts`의 `CATEGORIES` |
 | About 내용 (꿈, 요즘의 나, 발걸음) | `src/data/about.ts` |
 | 홈 문구, 링크 | `src/site.config.ts` |
@@ -37,6 +39,7 @@ draft: true               # 선택: true면 사이트에 안 보임
 
 ```bash
 npm install        # 처음 한 번
+npm run new        # 새 글 틀 만들기
 npm run dev        # 미리보기 → http://localhost:4321 (저장하면 바로 반영)
 npm run build      # 검사 + 빌드 + 검색 색인 → dist/
 npm run preview    # 빌드 결과 미리보기 (검색 기능 확인용)
