@@ -11,10 +11,6 @@ tistoryId: 74
 >
 > 정상 사진·빈 사진·누락 사진이 섞여 있을 때, 장면별 사람·차량 탐지 수를 어떻게 요약할까요?
 
-> **핵심 요약**
->
-> 입력의 관측 단위·처리 규칙·결과 파일을 먼저 확인하고 직접 구현합니다. 풀이와 실행 결과는 연결된 풀이편에서 확인합니다.
-
 ## 1. 어떤 문제를 풀까요?
 
 Drive 실습 사진 세 장을 사용하고, 빈 화면·읽을 수 없는 파일·누락 파일을 별도 사례로 추가했습니다. 이미지 전체 분류와 달리 객체마다 클래스·Box를 얻습니다. 정답 Box Annotation은 제공되지 않으므로 탐지 정확도 대신 집계와 추적 가능성을 점검합니다.
@@ -45,12 +41,12 @@ Drive 실습 사진 세 장을 사용하고, 빈 화면·읽을 수 없는 파�
 
 CSV는 `results` 폴더, 그래프는 `plots` 폴더에 저장합니다. ID와 상태 열을 유지해 입력과 결과가 다시 연결되도록 합니다. 아래 열 목록은 풀이 결과의 파일 계약입니다.
 
-| 결과 파일 | 행의 기준 | 전체 열 |
-| --- | --- | --- |
-| `confidence_comparison.csv` | 요구사항의 관측 단위를 유지합니다. | `confidence_threshold`, `person_detections`, `vehicle_detections` |
-| `photo_counts.csv` | 요구사항의 관측 단위를 유지합니다. | `photo_id`, `filename`, `scene`, `person_count`, `vehicle_count`, `status` |
-| `photo_detections.csv` | 요구사항의 관측 단위를 유지합니다. | `photo_id`, `filename`, `detection_index`, `class_name`, `confidence`, `xmin`, `ymin`, `xmax`, `ymax` |
-| `scene_summary.csv` | 요구사항의 관측 단위를 유지합니다. | `scene`, `registered_images`, `processed_images`, `person_detections`, `vehicle_detections`, `mean_person_per_processed_image`, `failed_images` |
+| 결과 파일 | 전체 열 |
+| --- | --- |
+| `confidence_comparison.csv` | `confidence_threshold`, `person_detections`, `vehicle_detections` |
+| `photo_counts.csv` | `photo_id`, `filename`, `scene`, `person_count`, `vehicle_count`, `status` |
+| `photo_detections.csv` | `photo_id`, `filename`, `detection_index`, `class_name`, `confidence`, `xmin`, `ymin`, `xmax`, `ymax` |
+| `scene_summary.csv` | `scene`, `registered_images`, `processed_images`, `person_detections`, `vehicle_detections`, `mean_person_per_processed_image`, `failed_images` |
 
 ## 5. 연습용 채점 기준
 

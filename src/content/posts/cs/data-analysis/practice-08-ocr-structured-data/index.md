@@ -11,10 +11,6 @@ tistoryId: 78
 >
 > 이미지에서 읽은 날짜·수량·가격을 표로 옮길 때, 구분 기호와 음수 부호를 어떻게 보존할까요?
 
-> **핵심 요약**
->
-> 입력의 관측 단위·처리 규칙·결과 파일을 먼저 확인하고 직접 구현합니다. 풀이와 실행 결과는 연결된 풀이편에서 확인합니다.
-
 ## 1. 어떤 문제를 풀까요?
 
 동일한 서식의 보급 기록 이미지를 만들었습니다. 깨끗한 문서, 조금 회전한 문서, 해상도를 낮춘 문서를 포함합니다. 수량은 piece, 단가는 USD, `adjustment`는 합계에 더하는 USD 조정 금액입니다. 날짜의 하이픈·가격의 소수점·음수 부호를 모두 남겨야 올바른 값을 만들 수 있습니다.
@@ -44,13 +40,13 @@ tistoryId: 78
 
 CSV는 `results` 폴더, 그래프는 `plots` 폴더에 저장합니다. ID와 상태 열을 유지해 입력과 결과가 다시 연결되도록 합니다. 아래 열 목록은 풀이 결과의 파일 계약입니다.
 
-| 결과 파일 | 행의 기준 | 전체 열 |
-| --- | --- | --- |
-| `document_comparison.csv` | 요구사항의 관측 단위를 유지합니다. | `filename`, `document_id_true`, `date_true`, `sku_true`, `quantity_true`, `unit_price_true`, `adjustment_true`, `document_id_pred`, `date_pred`, `sku_pred`, `quantity_pred`, `unit_price_pred`, `adjustment_pred`, `status`, `total_value`, `all_fields_match` |
-| `document_fields.csv` | 요구사항의 관측 단위를 유지합니다. | `filename`, `document_id`, `date`, `sku`, `quantity`, `unit_price`, `adjustment`, `status`, `total_value` |
-| `field_accuracy.csv` | 요구사항의 관측 단위를 유지합니다. | `field`, `accuracy`, `correct`, `documents` |
-| `ocr_raw.csv` | 요구사항의 관측 단위를 유지합니다. | `filename`, `raw_text` |
-| `ocr_words.csv` | 요구사항의 관측 단위를 유지합니다. | `filename`, `text`, `conf`, `left`, `top`, `width`, `height` |
+| 결과 파일 | 전체 열 |
+| --- | --- |
+| `document_comparison.csv` | `filename`, `document_id_true`, `date_true`, `sku_true`, `quantity_true`, `unit_price_true`, `adjustment_true`, `document_id_pred`, `date_pred`, `sku_pred`, `quantity_pred`, `unit_price_pred`, `adjustment_pred`, `status`, `total_value`, `all_fields_match` |
+| `document_fields.csv` | `filename`, `document_id`, `date`, `sku`, `quantity`, `unit_price`, `adjustment`, `status`, `total_value` |
+| `field_accuracy.csv` | `field`, `accuracy`, `correct`, `documents` |
+| `ocr_raw.csv` | `filename`, `raw_text` |
+| `ocr_words.csv` | `filename`, `text`, `conf`, `left`, `top`, `width`, `height` |
 
 ## 5. 연습용 채점 기준
 

@@ -11,10 +11,6 @@ tistoryId: 72
 >
 > 사전 학습된 이미지 모델을 고정한 채, 사진이 개미인지 벌인지 분류하는 새 모델을 어떻게 만들까요?
 
-> **핵심 요약**
->
-> 입력의 관측 단위·처리 규칙·결과 파일을 먼저 확인하고 직접 구현합니다. 풀이와 실행 결과는 연결된 풀이편에서 확인합니다.
-
 ## 1. 어떤 문제를 풀까요?
 
 이미지 분류는 사진 전체에 클래스 하나를 붙입니다. PyTorch 공식 Transfer Learning 튜토리얼의 개미·벌 사진에서 140장을 골라 새 메타데이터와 문제를 구성했습니다. 원래 사진은 ImageNet에서 가져온 자료이므로, ImageNet으로 사전 학습한 모델과 사진이 겹칠 수 있습니다. 이 실습의 Test 점수는 전이학습 절차를 확인하는 결과이며 독립적으로 수집한 새 사진의 벤치마크로 확대하지 않습니다.
@@ -49,11 +45,11 @@ tistoryId: 72
 
 CSV는 `results` 폴더, 그래프는 `plots` 폴더에 저장합니다. ID와 상태 열을 유지해 입력과 결과가 다시 연결되도록 합니다. 아래 열 목록은 풀이 결과의 파일 계약입니다.
 
-| 결과 파일 | 행의 기준 | 전체 열 |
-| --- | --- | --- |
-| `photo_metrics.csv` | 요구사항의 관측 단위를 유지합니다. | `model`, `accuracy`, `macro_f1` |
-| `photo_test_predictions.csv` | 요구사항의 관측 단위를 유지합니다. | `image_id`, `path`, `label`, `prediction` |
-| `validation_scores.csv` | 요구사항의 관측 단위를 유지합니다. | `C`, `validation_macro_f1` |
+| 결과 파일 | 전체 열 |
+| --- | --- |
+| `photo_metrics.csv` | `model`, `accuracy`, `macro_f1` |
+| `photo_test_predictions.csv` | `image_id`, `path`, `label`, `prediction` |
+| `validation_scores.csv` | `C`, `validation_macro_f1` |
 
 ## 5. 연습용 채점 기준
 

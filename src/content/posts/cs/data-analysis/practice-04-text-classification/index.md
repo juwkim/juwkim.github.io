@@ -11,10 +11,6 @@ tistoryId: 70
 >
 > 표현이 조금씩 다른 접수 문장을 분류하면서, 같은 양식의 문장이 Train과 Test에 섞이는 문제를 어떻게 막을까요?
 
-> **핵심 요약**
->
-> 입력의 관측 단위·처리 규칙·결과 파일을 먼저 확인하고 직접 구현합니다. 풀이와 실행 결과는 연결된 풀이편에서 확인합니다.
-
 ## 1. 어떤 문제를 풀까요?
 
 정비·보급·네트워크 요청을 분류하는 접수 기록입니다. 핵심 요청과 다른 분야의 상황 설명이 한 문장에 함께 들어 있습니다. 같은 양식의 반복 문장과 완전히 같은 재접수 문장도 포함했습니다. 실제 접수 기록 대신 분류와 검증 방식을 연습하도록 작성한 문장 데이터입니다.
@@ -49,12 +45,12 @@ tistoryId: 70
 
 CSV는 `results` 폴더, 그래프는 `plots` 폴더에 저장합니다. ID와 상태 열을 유지해 입력과 결과가 다시 연결되도록 합니다. 아래 열 목록은 풀이 결과의 파일 계약입니다.
 
-| 결과 파일 | 행의 기준 | 전체 열 |
-| --- | --- | --- |
-| `empty_reports.csv` | 요구사항의 관측 단위를 유지합니다. | `report_id`, `template_group`, `text`, `label`, `team`, `split`, `clean_text`, `status` |
-| `text_errors.csv` | 요구사항의 관측 단위를 유지합니다. | `report_id`, `template_group`, `text`, `label`, `prediction`, `max_probability`, `status` |
-| `text_metrics.csv` | 요구사항의 관측 단위를 유지합니다. | `model`, `macro_f1` |
-| `text_predictions.csv` | 요구사항의 관측 단위를 유지합니다. | `report_id`, `template_group`, `text`, `label`, `prediction`, `max_probability`, `status` |
+| 결과 파일 | 전체 열 |
+| --- | --- |
+| `empty_reports.csv` | `report_id`, `template_group`, `text`, `label`, `team`, `split`, `clean_text`, `status` |
+| `text_errors.csv` | `report_id`, `template_group`, `text`, `label`, `prediction`, `max_probability`, `status` |
+| `text_metrics.csv` | `model`, `macro_f1` |
+| `text_predictions.csv` | `report_id`, `template_group`, `text`, `label`, `prediction`, `max_probability`, `status` |
 
 ## 5. 연습용 채점 기준
 

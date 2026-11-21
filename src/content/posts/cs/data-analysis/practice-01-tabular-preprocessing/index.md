@@ -11,10 +11,6 @@ tistoryId: 64
 >
 > 중복 거래와 단위가 다른 수량을 정리한 뒤, 팀별·일별 보급량을 어떻게 믿을 수 있게 계산할까요?
 
-> **핵심 요약**
->
-> 입력의 관측 단위·처리 규칙·결과 파일을 먼저 확인하고 직접 구현합니다. 풀이와 실행 결과는 연결된 풀이편에서 확인합니다.
-
 ## 1. 어떤 문제를 풀까요?
 
 보급 기록이 CSV와 JSON에 나뉘어 있습니다. 같은 `event_id`가 재전송됐고, 수량은 `piece`·`box`가 섞여 있습니다. 최신 수정본을 채택하고 등록 팀에 연결되는 유효한 기록으로 일별 수량을 계산합니다. 데이터는 이 문제의 오류 처리와 집계를 연습하기 위해 구성했습니다.
@@ -50,13 +46,13 @@ tistoryId: 64
 
 CSV는 `results` 폴더, 그래프는 `plots` 폴더에 저장합니다. ID와 상태 열을 유지해 입력과 결과가 다시 연결되도록 합니다. 아래 열 목록은 풀이 결과의 파일 계약입니다.
 
-| 결과 파일 | 행의 기준 | 전체 열 |
-| --- | --- | --- |
-| `clean_records.csv` | 요구사항의 관측 단위를 유지합니다. | `event_id`, `unit_id`, `timestamp`, `item_id`, `quantity`, `quantity_unit`, `updated_at`, `unit_name`, `region`, `unit_match`, `pieces_per_box`, `quantity_numeric`, `quantity_piece`, `reject_reason` |
-| `daily_unit_summary.csv` | 요구사항의 관측 단위를 유지합니다. | `day`, `unit_id`, `unit_name`, `quantity_piece`, `valid_records` |
-| `quality_report.csv` | 요구사항의 관측 단위를 유지합니다. | `check`, `value` |
-| `rejected_records.csv` | 요구사항의 관측 단위를 유지합니다. | `event_id`, `unit_id`, `timestamp`, `item_id`, `quantity`, `quantity_unit`, `updated_at`, `unit_name`, `region`, `unit_match`, `pieces_per_box`, `quantity_numeric`, `quantity_piece`, `reject_reason` |
-| `unit_totals.csv` | 요구사항의 관측 단위를 유지합니다. | `unit_id`, `unit_name`, `quantity_piece`, `valid_records` |
+| 결과 파일 | 전체 열 |
+| --- | --- |
+| `clean_records.csv` | `event_id`, `unit_id`, `timestamp`, `item_id`, `quantity`, `quantity_unit`, `updated_at`, `unit_name`, `region`, `unit_match`, `pieces_per_box`, `quantity_numeric`, `quantity_piece`, `reject_reason` |
+| `daily_unit_summary.csv` | `day`, `unit_id`, `unit_name`, `quantity_piece`, `valid_records` |
+| `quality_report.csv` | `check`, `value` |
+| `rejected_records.csv` | `event_id`, `unit_id`, `timestamp`, `item_id`, `quantity`, `quantity_unit`, `updated_at`, `unit_name`, `region`, `unit_match`, `pieces_per_box`, `quantity_numeric`, `quantity_piece`, `reject_reason` |
+| `unit_totals.csv` | `unit_id`, `unit_name`, `quantity_piece`, `valid_records` |
 
 ## 5. 연습용 채점 기준
 

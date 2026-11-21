@@ -182,8 +182,6 @@ fig.tight_layout();fig.savefig(PLOTS/"video_counts.png",dpi=150,bbox_inches="tig
 
 ![drone_mission.mp4의 초별 탐지 수와 moving_shapes.mp4의 초별 도형 수 그래프](./img-01.png)
 
-*영상 프레임 샘플링과 시계열 분석의 실행 결과를 보여 줍니다. 단위와 관측 대상을 본문의 기준으로 읽습니다.*
-
 ## 4. 처리 기준이 결과를 바꾸는 비교 예제
 
 ### 정수 프레임 간격을 반복하면 시간이 밀릴 수 있습니다

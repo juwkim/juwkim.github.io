@@ -11,10 +11,6 @@ tistoryId: 66
 >
 > 같은 장비의 반복 기록이 있을 때, 새로운 장비의 고장 여부와 정비 시간을 어떻게 평가할까요?
 
-> **핵심 요약**
->
-> 입력의 관측 단위·처리 규칙·결과 파일을 먼저 확인하고 직접 구현합니다. 풀이와 실행 결과는 연결된 풀이편에서 확인합니다.
-
 ## 1. 어떤 문제를 풀까요?
 
 장비 90개의 관측 기록 720행입니다. 다음 주 고장 여부는 분류, 정비 시간은 회귀로 예측합니다. 관측 시점의 Feature와 점검이 끝난 뒤 만들어진 `post_inspection_code`가 함께 있어 입력의 시점을 구분해야 합니다. 값은 반복 관측과 누수 방지를 연습하도록 구성한 합성 데이터입니다.
@@ -50,10 +46,10 @@ tistoryId: 66
 
 CSV는 `results` 폴더, 그래프는 `plots` 폴더에 저장합니다. ID와 상태 열을 유지해 입력과 결과가 다시 연결되도록 합니다. 아래 열 목록은 풀이 결과의 파일 계약입니다.
 
-| 결과 파일 | 행의 기준 | 전체 열 |
-| --- | --- | --- |
-| `asset_metrics.csv` | 요구사항의 관측 단위를 유지합니다. | `model`, `macro_f1`, `balanced_accuracy`, `RMSE_minutes`, `MAE_minutes`, `R2` |
-| `asset_test_predictions.csv` | 요구사항의 관측 단위를 유지합니다. | `record_id`, `asset_id`, `failure_next_week`, `maintenance_minutes`, `predicted_failure`, `predicted_minutes`, `absolute_error_minutes` |
+| 결과 파일 | 전체 열 |
+| --- | --- |
+| `asset_metrics.csv` | `model`, `macro_f1`, `balanced_accuracy`, `RMSE_minutes`, `MAE_minutes`, `R2` |
+| `asset_test_predictions.csv` | `record_id`, `asset_id`, `failure_next_week`, `maintenance_minutes`, `predicted_failure`, `predicted_minutes`, `absolute_error_minutes` |
 
 ## 5. 연습용 채점 기준
 

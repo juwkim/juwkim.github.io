@@ -11,10 +11,6 @@ tistoryId: 76
 >
 > 29.97 FPS 영상에서 1초마다 관측하려면 어떤 프레임을 골라야 하며, 빈 프레임은 그래프에 어떻게 남겨야 할까요?
 
-> **핵심 요약**
->
-> 입력의 관측 단위·처리 규칙·결과 파일을 먼저 확인하고 직접 구현합니다. 풀이와 실행 결과는 연결된 풀이편에서 확인합니다.
-
 ## 1. 어떤 문제를 풀까요?
 
 Drive의 짧은 영상에는 YOLO를 적용합니다. 따로 구성한 29.97 FPS 도형 영상은 프레임·시간·개수 계산을 정확한 정답과 비교하는 용도입니다. 도형은 사람이 아니므로 YOLO의 객체 정답으로 사용하지 않습니다. 모델 결과와 시간 처리 알고리즘을 분리해 검증합니다.
@@ -41,12 +37,12 @@ Drive의 짧은 영상에는 YOLO를 적용합니다. 따로 구성한 29.97 FPS
 
 CSV는 `results` 폴더, 그래프는 `plots` 폴더에 저장합니다. ID와 상태 열을 유지해 입력과 결과가 다시 연결되도록 합니다. 아래 열 목록은 풀이 결과의 파일 계약입니다.
 
-| 결과 파일 | 행의 기준 | 전체 열 |
-| --- | --- | --- |
-| `video_detections.csv` | 요구사항의 관측 단위를 유지합니다. | `video`, `frame_number`, `time_seconds`, `detection_index`, `class_name`, `confidence`, `xmin`, `ymin`, `xmax`, `ymax` |
-| `video_read_status.csv` | 요구사항의 관측 단위를 유지합니다. | `video`, `declared_frames`, `decoded_frames`, `status` |
-| `video_sample_counts.csv` | 요구사항의 관측 단위를 유지합니다. | `video`, `sample_number`, `requested_seconds`, `frame_number`, `time_seconds`, `backend_position_ms`, `total_count`, `person_count`, `status` |
-| `video_windows.csv` | 요구사항의 관측 단위를 유지합니다. | `elapsed_window`, `mean_count`, `max_count`, `sample_count`, `video` |
+| 결과 파일 | 전체 열 |
+| --- | --- |
+| `video_detections.csv` | `video`, `frame_number`, `time_seconds`, `detection_index`, `class_name`, `confidence`, `xmin`, `ymin`, `xmax`, `ymax` |
+| `video_read_status.csv` | `video`, `declared_frames`, `decoded_frames`, `status` |
+| `video_sample_counts.csv` | `video`, `sample_number`, `requested_seconds`, `frame_number`, `time_seconds`, `backend_position_ms`, `total_count`, `person_count`, `status` |
+| `video_windows.csv` | `elapsed_window`, `mean_count`, `max_count`, `sample_count`, `video` |
 
 ## 5. 연습용 채점 기준
 

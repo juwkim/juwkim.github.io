@@ -11,10 +11,6 @@ tistoryId: 68
 >
 > 누락된 센서 구간을 남기면서 다음 시간의 온도와 기준 초과 여부를 어떻게 함께 예측할까요?
 
-> **핵심 요약**
->
-> 입력의 관측 단위·처리 규칙·결과 파일을 먼저 확인하고 직접 구현합니다. 풀이와 실행 결과는 연결된 풀이편에서 확인합니다.
-
 ## 1. 어떤 문제를 풀까요?
 
 센서 여섯 개의 5분 주기 기록을 96시간 수집한 상황입니다. 일부 기록과 연속한 시간 구간이 빠졌고 비정상 측정값도 있습니다. 각 한 시간이 끝난 시점에 다음 한 시간의 평균 온도를 예측합니다. 시간 구간과 예측 시점의 관계를 연습하도록 구성한 합성 데이터입니다. 다음 시간 평균이 32°C 이상이면 기준 초과로 분류하는 문제도 함께 풉니다. 32°C는 이 연습에서 정한 가상의 운영 기준입니다.
@@ -51,14 +47,14 @@ tistoryId: 68
 
 CSV는 `results` 폴더, 그래프는 `plots` 폴더에 저장합니다. ID와 상태 열을 유지해 입력과 결과가 다시 연결되도록 합니다. 아래 열 목록은 풀이 결과의 파일 계약입니다.
 
-| 결과 파일 | 행의 기준 | 전체 열 |
-| --- | --- | --- |
-| `excluded_intervals.csv` | 요구사항의 관측 단위를 유지합니다. | `timestamp`, `temp_mean`, `obs_count`, `valid_temp_count`, `energy_sum`, `coverage`, `sensor_id`, `temp_lag1`, `temp_lag3`, `past_rolling3`, `next_hour_temp`, `hour_sin`, `hour_cos`, `forecast_issued_at`, `target_hour_start`, `target_hour_end`, `forecast_eligible`, `exclusion_reason`, `evaluation_period`, `status` |
-| `forecast_metrics.csv` | 요구사항의 관측 단위를 유지합니다. | `model`, `RMSE_C`, `MAE_C` |
-| `forecast_predictions.csv` | 요구사항의 관측 단위를 유지합니다. | `sensor_id`, `timestamp`, `forecast_issued_at`, `target_hour_start`, `target_hour_end`, `next_hour_temp`, `obs_count`, `coverage`, `prediction_for_hour`, `predicted_temp`, `baseline_temp`, `actual_threshold_exceeded`, `predicted_threshold_exceeded` |
-| `hourly_sensor.csv` | 요구사항의 관측 단위를 유지합니다. | `timestamp`, `temp_mean`, `obs_count`, `valid_temp_count`, `energy_sum`, `coverage`, `sensor_id`, `temp_lag1`, `temp_lag3`, `past_rolling3`, `next_hour_temp`, `hour_sin`, `hour_cos`, `forecast_issued_at`, `target_hour_start`, `target_hour_end`, `forecast_eligible`, `exclusion_reason`, `evaluation_period`, `status` |
-| `sensor_classification_metrics.csv` | 요구사항의 관측 단위를 유지합니다. | `model`, `macro_f1`, `balanced_accuracy` |
-| `time_cv_scores.csv` | 요구사항의 관측 단위를 유지합니다. | `model`, `CV_RMSE`, `settings` |
+| 결과 파일 | 전체 열 |
+| --- | --- |
+| `excluded_intervals.csv` | `timestamp`, `temp_mean`, `obs_count`, `valid_temp_count`, `energy_sum`, `coverage`, `sensor_id`, `temp_lag1`, `temp_lag3`, `past_rolling3`, `next_hour_temp`, `hour_sin`, `hour_cos`, `forecast_issued_at`, `target_hour_start`, `target_hour_end`, `forecast_eligible`, `exclusion_reason`, `evaluation_period`, `status` |
+| `forecast_metrics.csv` | `model`, `RMSE_C`, `MAE_C` |
+| `forecast_predictions.csv` | `sensor_id`, `timestamp`, `forecast_issued_at`, `target_hour_start`, `target_hour_end`, `next_hour_temp`, `obs_count`, `coverage`, `prediction_for_hour`, `predicted_temp`, `baseline_temp`, `actual_threshold_exceeded`, `predicted_threshold_exceeded` |
+| `hourly_sensor.csv` | `timestamp`, `temp_mean`, `obs_count`, `valid_temp_count`, `energy_sum`, `coverage`, `sensor_id`, `temp_lag1`, `temp_lag3`, `past_rolling3`, `next_hour_temp`, `hour_sin`, `hour_cos`, `forecast_issued_at`, `target_hour_start`, `target_hour_end`, `forecast_eligible`, `exclusion_reason`, `evaluation_period`, `status` |
+| `sensor_classification_metrics.csv` | `model`, `macro_f1`, `balanced_accuracy` |
+| `time_cv_scores.csv` | `model`, `CV_RMSE`, `settings` |
 
 ## 5. 연습용 채점 기준
 
