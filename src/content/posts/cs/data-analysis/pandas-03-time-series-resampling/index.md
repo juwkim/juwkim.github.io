@@ -4,7 +4,7 @@ date: 2026-10-06T19:12:23+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "시간이 뒤섞인 센서 로그를 한 시간 단위로 묶으려면 어떻게 해야 할까요? 기록이 없는 시간의 합계를 0이라고 해도 될까요? 중첩된 JSON을 분석하기 쉬운 DataFrame으로 바꾸려면 어떻게 해야 할까요? 시간…"
+description: "센서 로그의 시간을 datetime으로 바꿔 정렬하고 resample()로 한 시간 단위 합계를 구하며, 기록이 없는 시간과 관측된 0을 구분하는 방법을 정리합니다. 중첩된 보급 기록 JSON을 json_normalize()로 펼치는 과정도 다룹니다."
 tistoryId: 53
 ---
 > **이번 글의 질문**
@@ -470,11 +470,11 @@ print(json.dumps(raw_supply[0], ensure_ascii=False, indent=2))
 }
 ```
 
-파일의 최상위 구조는 List이고, 각 보급 기록은 Dictionary입니다. `unit`은 부대, `supply_date`는 보급 날짜이며 `items` 안에 `water`, `ration`, `medicine`이 들어 있습니다. 물과 식량이 하나의 water\_ration 열에 합쳐진 구조가 아니라 별도 항목입니다.
+파일의 최상위 구조는 List이고, 각 보급 기록은 Dictionary입니다. `unit`은 부대, `supply_date`는 보급 날짜이며 `items` 안에 `water`, `ration`, `medicine`이 들어 있습니다. 물과 식량이 하나의 water_ration 열에 합쳐진 구조가 아니라 별도 항목입니다.
 
 `with open()`은 파일을 읽는 범위를 정하고 블록을 벗어나면 파일을 닫습니다. `json.load(file)`은 열린 파일에서 읽고, `json.loads(text)`는 이미 메모리에 있는 JSON 문자열을 해석합니다. 위 출력에서 사용한 `json.dumps()`는 Python 객체를 JSON 문자열로 바꾸며, `ensure_ascii=False`는 한글을 읽을 수 있게 출력합니다.
 
-### 8-2. json\_normalize()로 중첩된 Dictionary를 펼칩니다
+### 8-2. json_normalize()로 중첩된 Dictionary를 펼칩니다
 
 ```python
 supply_flat = pd.json_normalize(raw_supply)
@@ -669,12 +669,12 @@ print(result.to_string(index=False))
 | 중첩 구조 펼치기 | `pd.json_normalize()` | Dictionary와 List 구조에 맞춰 사용합니다. |
 | 열 이름 정리 | `rename(columns={...})` | 기존 이름과 새 이름을 연결합니다. |
 
-1.  00시 라벨의 값은 00:00 한 시점의 기록인가요, 00\~01시 구간의 합계인가요?
-2.  현재 파일의 17시 값이 기본 `sum`에서 0이 되는 이유는 무엇인가요?
-3.  전체 초소 합계와 초소별 합계는 어떤 차이를 보여 주나요?
-4.  시간별 합계를 30분 간격으로 `ffill`하면 총합은 왜 달라질 수 있나요?
-5.  JSON에서 수량 0과 항목 누락은 표에서 어떻게 다르게 나타나나요?
-6.  08\~09시 합계를 08시 예측 입력에 넣으면 왜 미래 정보가 섞이나요?
+1. 00시 라벨의 값은 00:00 한 시점의 기록인가요, 00\~01시 구간의 합계인가요?
+2. 현재 파일의 17시 값이 기본 `sum`에서 0이 되는 이유는 무엇인가요?
+3. 전체 초소 합계와 초소별 합계는 어떤 차이를 보여 주나요?
+4. 시간별 합계를 30분 간격으로 `ffill`하면 총합은 왜 달라질 수 있나요?
+5. JSON에서 수량 0과 항목 누락은 표에서 어떻게 다르게 나타나나요?
+6. 08\~09시 합계를 08시 예측 입력에 넣으면 왜 미래 정보가 섞이나요?
 
 > **시간을 다룰 때는 순서·구간·관측 여부를 함께 확인합니다.** 데이터의 모양을 정리하는 데서 끝내지 않고, 그 시간에 무엇을 관측했고 언제 알 수 있었는지까지 남겨야 집계 결과를 제대로 해석할 수 있습니다.
 
@@ -682,42 +682,47 @@ print(result.to_string(index=False))
 
 ### 실습 데이터와 노트북
 
--   **실습 자료**: [Session03 실습 폴더](https://drive.google.com/drive/folders/1Q3xgvntygTTUFpkT4eefllX3ty8LxGEo) · [session03\_시계열-데이터-정렬-및-리샘플링.pdf](https://drive.google.com/file/d/1DUpfRilctH016jCniQXmdfNwVUc7k0_l/view) · [session03.ipynb](https://drive.google.com/file/d/1pZdYvpUIdLuNs5DjmvIF7NkFudC5ABQV/view)
--   **CSV 데이터**: [sensor\_log.csv](https://drive.google.com/file/d/10evPd4YGa38CT_hrua_82oijaDkU9gYL/view)
--   **JSON 데이터**: [supply.json](https://drive.google.com/file/d/13BGjfiadpF1EUGqhvOrMUPFNFz9ynBTx/view)
--   **심화 예제**: [심화 예제 자료](https://drive.google.com/file/d/1wG0fZ0uhBQ1tniHUVE42xxo2mhkdwzGf/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **실습 자료**: [session03_시계열-데이터-정렬-및-리샘플링.pdf](/files/maicon-2026/lectures/session03_%EC%8B%9C%EA%B3%84%EC%97%B4-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%A0%95%EB%A0%AC-%EB%B0%8F-%EB%A6%AC%EC%83%98%ED%94%8C%EB%A7%81.pdf) · [session03.ipynb](/files/maicon-2026/code/session03/session03.ipynb)
+- **CSV 데이터**: [sensor_log.csv](/files/maicon-2026/code/session03/sensor_log.csv)
+- **JSON 데이터**: [supply.json](/files/maicon-2026/code/session03/supply.json)
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip) — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 
--   **문제**: [유형 01 문제](/cs/data-analysis/practice-01-tabular-preprocessing/) — 중복 거래와 단위가 다른 수량을 정리한 뒤, 팀별·일별 보급량을 어떻게 믿을 수 있게 계산할까요?  
-    [유형 03 문제](/cs/data-analysis/practice-03-sensor-time-series/) — 누락된 센서 구간을 남기면서 다음 시간의 온도와 기준 초과 여부를 어떻게 함께 예측할까요?  
-    [유형 07 문제](/cs/data-analysis/practice-07-video-frame-sampling/) — 29.97 FPS 영상에서 1초마다 관측하려면 어떤 프레임을 골라야 하며, 빈 프레임은 그래프에 어떻게 남겨야 할까요?
--   **풀이**: [유형 01 풀이](/cs/data-analysis/practice-01-tabular-preprocessing-solution/) — 최신 거래를 선택하고 수량 단위를 맞춘 뒤, 오류 기록을 분리해 팀별·일별로 집계합니다.  
-    [유형 03 풀이](/cs/data-analysis/practice-03-sensor-time-series-solution/) — 센서별 시간 격자와 관측 수를 만들고 시간 순서대로 나눠 다음 시간 온도와 기준 초과를 예측합니다.  
-    [유형 07 풀이](/cs/data-analysis/practice-07-video-frame-sampling-solution/) — 목표 시각마다 프레임을 계산하고 객체가 없는 프레임도 포함해 시간 구간별 개수를 요약합니다.
+- **문제**
+  - [유형 01 문제](/cs/data-analysis/practice-01-tabular-preprocessing/) — 중복 거래와 단위가 다른 수량을 정리한 뒤, 팀별·일별 보급량을 어떻게 믿을 수 있게 계산할까요?
+  - [유형 03 문제](/cs/data-analysis/practice-03-sensor-time-series/) — 누락된 센서 구간을 남기면서 다음 시간의 온도와 기준 초과 여부를 어떻게 함께 예측할까요?
+  - [유형 07 문제](/cs/data-analysis/practice-07-video-frame-sampling/) — 29.97 FPS 영상에서 1초마다 관측하려면 어떤 프레임을 골라야 하며, 빈 프레임은 그래프에 어떻게 남겨야 할까요?
+- **풀이**
+  - [유형 01 풀이](/cs/data-analysis/practice-01-tabular-preprocessing-solution/) — 최신 거래를 선택하고 수량 단위를 맞춘 뒤, 오류 기록을 분리해 팀별·일별로 집계합니다.
+  - [유형 03 풀이](/cs/data-analysis/practice-03-sensor-time-series-solution/) — 센서별 시간 격자와 관측 수를 만들고 시간 순서대로 나눠 다음 시간 온도와 기준 초과를 예측합니다.
+  - [유형 07 풀이](/cs/data-analysis/practice-07-video-frame-sampling-solution/) — 목표 시각마다 프레임을 계산하고 객체가 없는 프레임도 포함해 시간 구간별 개수를 요약합니다.
 
 ### 공식 문서
 
--   **pandas**: [to\_datetime](https://pandas.pydata.org/docs/reference/api/pandas.to_datetime.html) — 날짜 형식, NaT, 변환 오류와 UTC 처리  
-    [sort\_values](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html) — 시간 열 정렬과 안정 정렬  
-    [duplicated](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.duplicated.html) — 열 조합으로 중복 기록 확인  
-    [resample](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.resample.html) — 주기, on, closed, label, origin, offset  
-    [시간 주기 표기](https://pandas.pydata.org/docs/user_guide/timeseries.html#offset-aliases) — h, min, ME, QE, YE와 달력 기준  
-    [Resampler.sum](https://pandas.pydata.org/docs/reference/api/pandas.api.typing.Resampler.sum.html) — 빈 구간과 min\_count  
-    [reindex](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reindex.html) — 공통 시간 축으로 정리  
-    [asfreq](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.asfreq.html) — 집계 없이 시간 간격 맞추기  
-    [interpolate](https://pandas.pydata.org/docs/reference/api/pandas.Series.interpolate.html) — 시간 간격을 반영하는 보간  
-    [tz\_localize](https://pandas.pydata.org/docs/reference/api/pandas.Series.dt.tz_localize.html) — Timezone이 없는 시간에 기준 지정  
-    [tz\_convert](https://pandas.pydata.org/docs/reference/api/pandas.Series.dt.tz_convert.html) — 같은 순간을 다른 Timezone으로 표현  
-    [json\_normalize](https://pandas.pydata.org/docs/reference/api/pandas.json_normalize.html) — 중첩 Dictionary와 List를 표로 펼치기  
-    [rename](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.rename.html) — 열 이름 변경과 errors 옵션  
-    [Series.to\_csv](https://pandas.pydata.org/docs/reference/api/pandas.Series.to_csv.html) — 시간 인덱스와 Series 이름 저장  
-    [DataFrame.to\_csv](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html) — 인코딩과 날짜 출력 형식
--   **Matplotlib**: [subplots](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html) — Figure와 Axes 생성  
-    [Figure.savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html) — PNG 저장과 해상도·여백  
-    [font\_manager](https://matplotlib.org/stable/api/font_manager_api.html) — 폰트 목록 확인과 폰트 파일 등록
--   **Python**: [json](https://docs.python.org/3/library/json.html) — JSON 파일과 문자열 읽기·쓰기
--   **scikit-learn**: [TimeSeriesSplit](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html) — 시간 순서 교차 검증과 gap  
-    [데이터 누수와 전처리 주의점](https://scikit-learn.org/stable/common_pitfalls.html) — Train과 Test 분리 및 Pipeline 원칙
--   **시점 이동**: [Series.shift](https://pandas.pydata.org/docs/reference/api/pandas.Series.shift.html) — 값을 옮기는 periods와 시간 인덱스를 옮기는 freq를 구분합니다.
--   **이동 창**: [Series.rolling](https://pandas.pydata.org/docs/reference/api/pandas.Series.rolling.html) — window·min\_periods·center의 의미를 확인합니다.
+- **pandas**
+  - [to_datetime](https://pandas.pydata.org/docs/reference/api/pandas.to_datetime.html) — 날짜 형식, NaT, 변환 오류와 UTC 처리
+  - [sort_values](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html) — 시간 열 정렬과 안정 정렬
+  - [duplicated](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.duplicated.html) — 열 조합으로 중복 기록 확인
+  - [resample](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.resample.html) — 주기, on, closed, label, origin, offset
+  - [시간 주기 표기](https://pandas.pydata.org/docs/user_guide/timeseries.html#offset-aliases) — h, min, ME, QE, YE와 달력 기준
+  - [Resampler.sum](https://pandas.pydata.org/docs/reference/api/pandas.api.typing.Resampler.sum.html) — 빈 구간과 min_count
+  - [reindex](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reindex.html) — 공통 시간 축으로 정리
+  - [asfreq](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.asfreq.html) — 집계 없이 시간 간격 맞추기
+  - [interpolate](https://pandas.pydata.org/docs/reference/api/pandas.Series.interpolate.html) — 시간 간격을 반영하는 보간
+  - [tz_localize](https://pandas.pydata.org/docs/reference/api/pandas.Series.dt.tz_localize.html) — Timezone이 없는 시간에 기준 지정
+  - [tz_convert](https://pandas.pydata.org/docs/reference/api/pandas.Series.dt.tz_convert.html) — 같은 순간을 다른 Timezone으로 표현
+  - [json_normalize](https://pandas.pydata.org/docs/reference/api/pandas.json_normalize.html) — 중첩 Dictionary와 List를 표로 펼치기
+  - [rename](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.rename.html) — 열 이름 변경과 errors 옵션
+  - [Series.to_csv](https://pandas.pydata.org/docs/reference/api/pandas.Series.to_csv.html) — 시간 인덱스와 Series 이름 저장
+  - [DataFrame.to_csv](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html) — 인코딩과 날짜 출력 형식
+- **Matplotlib**
+  - [subplots](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html) — Figure와 Axes 생성
+  - [Figure.savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html) — PNG 저장과 해상도·여백
+  - [font_manager](https://matplotlib.org/stable/api/font_manager_api.html) — 폰트 목록 확인과 폰트 파일 등록
+- **Python**: [json](https://docs.python.org/3/library/json.html) — JSON 파일과 문자열 읽기·쓰기
+- **scikit-learn**
+  - [TimeSeriesSplit](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html) — 시간 순서 교차 검증과 gap
+  - [데이터 누수와 전처리 주의점](https://scikit-learn.org/stable/common_pitfalls.html) — Train과 Test 분리 및 Pipeline 원칙
+- **시점 이동**: [Series.shift](https://pandas.pydata.org/docs/reference/api/pandas.Series.shift.html) — 값을 옮기는 periods와 시간 인덱스를 옮기는 freq를 구분합니다.
+- **이동 창**: [Series.rolling](https://pandas.pydata.org/docs/reference/api/pandas.Series.rolling.html) — window·min_periods·center의 의미를 확인합니다.

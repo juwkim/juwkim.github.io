@@ -4,7 +4,7 @@ date: 2026-10-09T19:10:41+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "사전 학습된 이미지 모델을 고정한 채, 사진이 개미인지 벌인지 분류하는 새 모델을 어떻게 만들까요? 실제 사진 140장을 Train·Validation·Test로 나눕니다. MobileNet의 고정된 특징을…"
+description: "MobileNet에서 추출한 고정 특징 위에 분류기를 학습하고, Validation으로 C를 고른 뒤 Test를 한 번 평가하는 풀이입니다. Test에서 다시 fit하는 실수와 Test로 모델을 고르는 문제도 비교합니다."
 tistoryId: 73
 ---
 > **이번 글의 질문**
@@ -19,12 +19,12 @@ tistoryId: 73
 
 이미지 분류는 사진 전체에 클래스 하나를 붙입니다. PyTorch 공식 Transfer Learning 튜토리얼의 개미·벌 사진에서 140장을 골라 새 메타데이터와 문제를 구성했습니다. 원래 사진은 ImageNet에서 가져온 자료이므로, ImageNet으로 사전 학습한 모델과 사진이 겹칠 수 있습니다. 이 실습의 Test 점수는 전이학습 절차를 확인하는 결과이며 독립적으로 수집한 새 사진의 벤치마크로 확대하지 않습니다.
 
--   사진과 Split을 검증합니다
--   고정한 CNN에서 특징을 추출합니다
--   Validation에서 새 분류기를 선택합니다
--   선택을 끝낸 뒤 Test를 평가합니다
+- 사진과 Split을 검증합니다
+- 고정한 CNN에서 특징을 추출합니다
+- Validation에서 새 분류기를 선택합니다
+- 선택을 끝낸 뒤 Test를 평가합니다
 
-아래 기본 풀이의 출력은 첨부한 solution.ipynb와 결과 CSV에 기록된 실제 실행 결과입니다. 추가 비교 예제는 별도 Notebook에서 실행했으며, 가상 예제는 그 범위를 표시했습니다.
+아래 기본 풀이의 출력은 첨부한 `solution.ipynb`와 결과 CSV에 기록된 실제 실행 결과입니다. 추가 비교 예제는 별도 Notebook에서 실행했으며, 가상 예제는 그 범위를 표시했습니다.
 
 ## 2. 단계별 코드와 실행 결과
 
@@ -185,13 +185,11 @@ frozen_mobilenet_logistic     0.867     0.867
 
 CNN은 이미 학습한 특징을 제공하고, 새 데이터에서는 분류기만 학습했습니다. 이것도 Transfer Learning의 한 방식입니다.
 
-`eval()`은 Dropout·BatchNorm의 동작을 추론 모드로 바꾸며, `inference_mode()`는 Gradient 기록을 줄입니다. 학습할 파라미터를 고정하는 설정과 각각의 역할이 다릅니다.
+`eval()`은 Dropout·BatchNorm의 동작을 추론 모드로 바꾸며, `inference_mode()`는 Gradient 기록을 끕니다. 학습할 파라미터를 고정하는 설정과 각각의 역할이 다릅니다.
 
 이미지 전처리의 평균·표준편차는 사전 학습 가중치가 요구하는 고정 기준입니다. 추출한 특징에 적용한 StandardScaler는 새 Train에서 학습한 기준입니다.
 
-![사진 분류와 Transfer Learning의 실행 결과를 보여 줍니다. 단위와 관측 대상을 본문의 기준으로 읽습니다.](./img-01.png)
-
-*사진 분류와 Transfer Learning의 실행 결과를 보여 줍니다. 단위와 관측 대상을 본문의 기준으로 읽습니다.*
+![개미·벌 Test 사진 30장의 혼동 행렬과 개미를 벌로 잘못 분류한 꽃 사진](./img-01.png)
 
 ## 4. 처리 기준이 결과를 바꾸는 비교 예제
 
@@ -294,26 +292,26 @@ python check_outputs.py --types 5
 
 ### 실습 데이터와 노트북
 
--   **문제 자료**: [문제 자료](https://drive.google.com/file/d/1updLzgtbWqVHmg9lbNxHXM0mQCf_RvNo/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 입력 데이터와 starter.ipynb로 직접 구현을 시작합니다.
--   **풀이 자료**: [풀이와 결과](https://drive.google.com/file/d/1dafIGbQLQ8Xky-UcGU5NUZTSqFCtTrcZ/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 전체 Python 코드, 노트북과 실행 결과를 함께 받습니다.
--   **공통 자료**: [실습 공통 자료](https://drive.google.com/file/d/1-W9cVOlqQ4BUYRX3AGH3qbC9CsUQjf-g/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
--   **예선 가이드**: [국방AI경진대회 예선가이드](https://drive.google.com/file/d/1YDxg9ngucdJR7y4zUaBuW5bEYhzh1EJl/view) — 제공된 가이드의 범위를 바탕으로 만든 연습문제입니다.
--   **실행 안내**: — 같은 작업 폴더에 압축을 푼 뒤 유형 폴더에서 solution.ipynb 또는 solution.py를 실행합니다. blog\_comparison.ipynb에는 본문에서 추가한 두 비교 예제와 실제 출력이 들어 있습니다.
--   **데이터 출처**: — PyTorch Transfer Learning 튜토리얼의 실제 개미·벌 사진 중 140장을 사용했습니다. 원본이 ImageNet 자료에서 왔으므로 ImageNet 사전 학습 모델과의 중복 가능성을 남겨 둡니다. 사진의 원본 출처와 이용 조건은 함께 확인합니다.
+- **문제 자료**: [문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_05_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — 입력 데이터와 `starter.ipynb`로 직접 구현을 시작합니다.
+- **풀이 자료**: [풀이와 결과](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_05_%ED%92%80%EC%9D%B4%EC%99%80_%EA%B2%B0%EA%B3%BC.zip) — 전체 Python 코드, 노트북과 실행 결과를 함께 받습니다.
+- **공통 자료**: [실습 공통 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_%EA%B3%B5%ED%86%B5%EC%A4%80%EB%B9%84.zip) — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
+- **예선 가이드**: [국방AI경진대회 예선가이드](/files/maicon-2026/%EA%B5%AD%EB%B0%A9AI%EA%B2%BD%EC%A7%84%EB%8C%80%ED%9A%8C%20%EC%98%88%EC%84%A0%EA%B0%80%EC%9D%B4%EB%93%9C.pdf) — 제공된 가이드의 범위를 바탕으로 만든 연습문제입니다.
+- **실행 안내**: 같은 작업 폴더에 압축을 푼 뒤 유형 폴더에서 `solution.ipynb` 또는 `solution.py`를 실행합니다. `blog_comparison.ipynb`에는 본문에서 추가한 두 비교 예제와 실제 출력이 들어 있습니다.
+- **데이터 출처**: PyTorch Transfer Learning 튜토리얼의 실제 개미·벌 사진 중 140장을 사용했습니다. 원본이 ImageNet 자료에서 왔으므로 ImageNet 사전 학습 모델과의 중복 가능성을 남겨 둡니다. 사진의 원본 출처와 이용 조건은 함께 확인합니다.
 
 ### 연습문제
 
--   **문제**: [유형 05 문제](/cs/data-analysis/practice-05-image-transfer-learning/) — 사전 학습된 이미지 모델을 고정한 채, 사진이 개미인지 벌인지 분류하는 새 모델을 어떻게 만들까요?
--   **모의 실습**: [모의 실습 C](/cs/data-analysis/mock-exam-c-90-min-review/) — 세 문항을 20·35·45점으로 묶어 입력부터 저장까지 연습합니다.
+- **문제**: [유형 05 문제](/cs/data-analysis/practice-05-image-transfer-learning/) — 사전 학습된 이미지 모델을 고정한 채, 사진이 개미인지 벌인지 분류하는 새 모델을 어떻게 만들까요?
+- **모의 실습**: [모의 실습 C](/cs/data-analysis/mock-exam-c-90-min-review/) — 세 문항을 20·35·45점으로 묶어 입력부터 저장까지 연습합니다.
 
 ### 관련 공부노트
 
--   **공부노트 07**: [지도 학습 및 평가](/cs/data-analysis/pandas-07-supervised-learning/)
--   **공부노트 09**: [이미지 처리 및 객체 탐지](/cs/data-analysis/pandas-09-image-object-detection/)
--   **공부노트 13**: [데이터 분석의 흔한 착각과 실수](/cs/data-analysis/pandas-13-common-pitfalls/)
+- **공부노트 07**: [지도 학습 및 평가](/cs/data-analysis/pandas-07-supervised-learning/)
+- **공부노트 09**: [이미지 처리 및 객체 탐지](/cs/data-analysis/pandas-09-image-object-detection/)
+- **공부노트 13**: [데이터 분석의 흔한 착각과 실수](/cs/data-analysis/pandas-13-common-pitfalls/)
 
 ### 공식 문서
 
--   **사용한 도구**: [PyTorch Transfer Learning](https://docs.pytorch.org/tutorials/beginner/transfer_learning_tutorial.html) — 고정 특징 추출기와 Fine-tuning을 비교합니다. — 개미·벌 원본 사진의 출처입니다.  
-    [MobileNet V3 Small](https://docs.pytorch.org/vision/stable/models/generated/torchvision.models.mobilenet_v3_small.html) — 사전 학습 가중치와 transforms를 확인합니다.  
-    [ImageNet 자료 안내](https://www.image-net.org/download.php) — 원본 자료의 출처와 이용 조건을 확인합니다.
+- **사용한 도구**: [PyTorch Transfer Learning](https://docs.pytorch.org/tutorials/beginner/transfer_learning_tutorial.html) — 고정 특징 추출기와 Fine-tuning을 비교하며, 개미·벌 원본 사진의 출처입니다.  
+  [MobileNet V3 Small](https://docs.pytorch.org/vision/stable/models/generated/torchvision.models.mobilenet_v3_small.html) — 사전 학습 가중치와 transforms를 확인합니다.  
+  [ImageNet 자료 안내](https://www.image-net.org/download.php) — 원본 자료의 출처와 이용 조건을 확인합니다.

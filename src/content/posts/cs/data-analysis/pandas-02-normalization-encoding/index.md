@@ -4,7 +4,7 @@ date: 2026-10-05T19:55:40+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "횟수와 초 단위 기록을 같은 기준으로 비교하려면 어떻게 해야 할까요? 보직에 붙인 숫자가 순위를 뜻해도 될까요? CSV에 적힌 영상 경로는 실제로 사용할 수 있는 파일을 가리킬까요? Scaling은 숫자의 크기…"
+description: "MinMaxScaler와 StandardScaler로 단위가 다른 체력 기록의 크기를 맞추고, LabelEncoder·OneHotEncoder·OrdinalEncoder로 범주를 표현하는 방법을 정리합니다. CSV의 영상 경로가 실제 파일을 가리키는지 확인하는 방법도 다룹니다."
 tistoryId: 52
 ---
 > **이번 글의 질문**
@@ -369,7 +369,7 @@ print("저장할 데이터 크기:", encoded_soldiers.shape)
 저장할 데이터 크기: (100, 10)
 ```
 
-| 지역 | region\_강원도 | region\_경기도 | region\_경상도 | region\_전라도 | region\_충청도 |
+| 지역 | region_강원도 | region_경기도 | region_경상도 | region_전라도 | region_충청도 |
 | --- | --- | --- | --- | --- | --- |
 | 경상도 | 0 | 0 | 1 | 0 | 0 |
 | 경상도 | 0 | 0 | 1 | 0 | 0 |
@@ -421,7 +421,7 @@ print(level_encoder.fit_transform(level_example).ravel())
 
 이 예제의 0·1·2는 초급·중급·고급의 순서를 나타냅니다. `categories`를 직접 지정하면 문자열 정렬 순서 대신 원하는 순서를 사용합니다. 다만 0→1과 1→2의 실제 능력 차이까지 같은 것은 아닙니다. 모델이 숫자 간 간격을 어떻게 이용하는지도 살펴봅니다.
 
-### 7-3. get\_dummies()를 각각 실행하면 열 구성이 달라질 수 있습니다
+### 7-3. get_dummies()를 각각 실행하면 열 구성이 달라질 수 있습니다
 
 모델을 만들 때는 훈련 데이터(Train)로 학습하고, 별도로 나눈 테스트 데이터(Test)로 성능을 확인합니다. 이후 실제 예측에 사용할 데이터도 들어옵니다. 이때 **학습할 때와 예측할 때 각 열이 같은 의미를 가져야 합니다.** 아래 예제의 새 데이터는 Test 데이터나 이후 들어오는 예측 데이터를 떠올리면 됩니다.
 
@@ -500,10 +500,10 @@ print("열 이름과 순서 일치:", new_dummies_aligned.columns.equals(train_d
 열 이름과 순서 일치: True
 ```
 
--   `columns=train_dummies.columns`: 훈련 데이터의 `[region_강원도, region_경기도]`를 출력 열 목록과 순서로 사용합니다.
--   `fill_value=0`: 새로 추가하는 `region_강원도` 열을 0으로 채웁니다. 새 데이터에는 강원도가 없으므로 이 값이 맞습니다.
--   `region_경기도`: 기존 값을 열 이름에 맞춰 유지합니다. 경기도 행은 `[0, 1]`이 됩니다.
--   `region_제주도`: 훈련 데이터의 열 목록에 없으므로 결과에서 제외됩니다. 제주도 행은 `[0, 0]`이 됩니다.
+- `columns=train_dummies.columns`: 훈련 데이터의 `[region_강원도, region_경기도]`를 출력 열 목록과 순서로 사용합니다.
+- `fill_value=0`: 새로 추가하는 `region_강원도` 열을 0으로 채웁니다. 새 데이터에는 강원도가 없으므로 이 값이 맞습니다.
+- `region_경기도`: 기존 값을 열 이름에 맞춰 유지합니다. 경기도 행은 `[0, 1]`이 됩니다.
+- `region_제주도`: 훈련 데이터의 열 목록에 없으므로 결과에서 제외됩니다. 제주도 행은 `[0, 0]`이 됩니다.
 
 이제 경기도는 올바르게 표현되지만, 제주도를 학습한 것은 아닙니다. 이 예제처럼 모든 범주 열을 유지하고 결측치가 없는 설정에서 `[0, 0]`은 “강원도도 경기도도 아닌 값”입니다. 제주도, 서울 등 어떤 새로운 지역인지는 이 배열만으로 구분할 수 없습니다.
 
@@ -599,9 +599,9 @@ print("출력 열:", preprocessor.get_feature_names_out().tolist())
 
 변환 결과는 나이 1열, 보직 5열, 지역 5열로 총 11열입니다. `numeric__age`처럼 이름 앞에 붙은 부분은 어느 전처리에서 나온 열인지 알려 줍니다. `remainder="drop"`은 따로 지정하지 않은 열을 결과에서 제외합니다.
 
--   `fit_transform(X_train)`: 훈련 데이터의 나이 평균·표준편차와 범주 목록을 학습하고 변환합니다.
--   `transform(X_test)`: 저장한 평균·표준편차와 같은 범주 열을 테스트 데이터에 적용합니다.
--   실제 예측 모델과 교차 검증을 구성할 때는 이 전처리를 모델과 함께 Pipeline에 넣습니다. Fold마다 전처리를 훈련 부분에서 학습해야 합니다.
+- `fit_transform(X_train)`: 훈련 데이터의 나이 평균·표준편차와 범주 목록을 학습하고 변환합니다.
+- `transform(X_test)`: 저장한 평균·표준편차와 같은 범주 열을 테스트 데이터에 적용합니다.
+- 실제 예측 모델과 교차 검증을 구성할 때는 이 전처리를 모델과 함께 Pipeline에 넣습니다. Fold마다 전처리를 훈련 부분에서 학습해야 합니다.
 
 > **입력 열을 선택하고 데이터를 나눈 뒤 전처리 기준을 학습합니다.** 테스트 데이터를 보고 Scaler나 Encoder를 다시 `fit`하면 평가할 데이터의 정보가 전처리에 섞입니다.
 
@@ -648,7 +648,7 @@ print("확인되지 않는 경로:", len(missing_videos))
 
 존재하는 파일 수는 실제 폴더에 어떤 파일이 있는지에 따라 달라집니다. 모두 `False`라면 파일이 빠졌는지와 기준 폴더가 맞는지를 함께 확인합니다. 권한 문제로 존재 여부를 확인하지 못하는 경우도 있습니다.
 
-### 9-3. exists()와 is\_file()은 확인 범위가 다릅니다
+### 9-3. exists()와 is_file()은 확인 범위가 다릅니다
 
 | 함수 | 확인하는 대상 | 영상 목록에서의 의미 |
 | --- | --- | --- |
@@ -765,49 +765,54 @@ print(result.to_string(index=False))
 | 일반 파일 확인 | `Path(path).is_file()` | 정상 재생 여부는 별도 확인합니다. |
 | 한글 CSV 저장 | `to_csv(..., encoding="utf-8-sig")` | 문자 인코딩과 범주 인코딩은 다른 개념입니다. |
 
-1.  팔굽혀펴기와 달리기의 변환값은 모두 클수록 좋은 기록인가요?
-2.  부대마다 최소·최대값을 따로 구해도 같은 체력 기록이 같은 숫자가 되나요?
-3.  변환 결과를 원본 옆에 붙일 때 인덱스가 유지되어 있나요?
-4.  보직에 붙인 0·1·2를 모델이 순서나 거리로 해석해도 되나요?
-5.  훈련 때 없던 지역이 들어오면 열 구성과 값이 어떻게 처리되나요?
-6.  영상의 상대 경로는 어느 폴더를 기준으로 찾으며, Directory까지 `True`로 분류하고 있지는 않나요?
+1. 팔굽혀펴기와 달리기의 변환값은 모두 클수록 좋은 기록인가요?
+2. 부대마다 최소·최대값을 따로 구해도 같은 체력 기록이 같은 숫자가 되나요?
+3. 변환 결과를 원본 옆에 붙일 때 인덱스가 유지되어 있나요?
+4. 보직에 붙인 0·1·2를 모델이 순서나 거리로 해석해도 되나요?
+5. 훈련 때 없던 지역이 들어오면 열 구성과 값이 어떻게 처리되나요?
+6. 영상의 상대 경로는 어느 폴더를 기준으로 찾으며, Directory까지 `True`로 분류하고 있지는 않나요?
 
-스케일링은 숫자의 비교 기준을, Encoding은 범주의 표현 방식을 정합니다. Train에서 정한 기준과 새 데이터에 적용한 기준이 같은지부터 확인하면 코드의 흐름이 다시 떠오릅니다.
+Scaling은 숫자의 비교 기준을, Encoding은 범주의 표현 방식을 정합니다. Train에서 정한 기준과 새 데이터에 적용한 기준이 같은지부터 확인하면 코드의 흐름이 다시 떠오릅니다.
 
 ## 참고자료
 
 ### 실습 데이터와 노트북
 
--   **실습 자료**: [Session02 실습 폴더](https://drive.google.com/drive/folders/1TK9kCC1H317SvRwT9E3heCI-o9MqWN-r) · [session02\_정규화-및-인코딩.pdf](https://drive.google.com/file/d/16g6ny-ykGQYIUzSBWNw0I78pnlWVTe5n/view) · [session02.ipynb](https://drive.google.com/file/d/1a85vbF-rl59qCK8Ua-VTCkQ8i0uA06Uv/view)
--   **CSV 데이터**: [fitness\_test.csv](https://drive.google.com/file/d/1uWaHx20fOHkaVkHGsxe2dwvytwodHqCr/view) · [soldier\_info.csv](https://drive.google.com/file/d/1khYFnzYRtFEnT7X1wxcstezlT-3rbLoE/view) · [video\_metadata.csv](https://drive.google.com/file/d/1hC7ZwfKUmyqF4WIguYqoSyAu7Tofkmhd/view)
--   **심화 예제**: [심화 예제 자료](https://drive.google.com/file/d/1wG0fZ0uhBQ1tniHUVE42xxo2mhkdwzGf/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **실습 자료**: [session02_정규화-및-인코딩.pdf](/files/maicon-2026/lectures/session02_%EC%A0%95%EA%B7%9C%ED%99%94-%EB%B0%8F-%EC%9D%B8%EC%BD%94%EB%94%A9.pdf) · [session02.ipynb](/files/maicon-2026/code/session02/session02.ipynb)
+- **CSV 데이터**: [fitness_test.csv](/files/maicon-2026/code/session02/fitness_test.csv) · [soldier_info.csv](/files/maicon-2026/code/session02/soldier_info.csv) · [video_metadata.csv](/files/maicon-2026/code/session02/video_metadata.csv)
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip) — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 
--   **문제**: [유형 02 문제](/cs/data-analysis/practice-02-tabular-modeling/) — 같은 장비의 반복 기록이 있을 때, 새로운 장비의 고장 여부와 정비 시간을 어떻게 평가할까요?
--   **풀이**: [유형 02 풀이](/cs/data-analysis/practice-02-tabular-modeling-solution/) — 장비별로 데이터를 나누고 전처리 Pipeline과 그룹 CV로 고장 분류·정비 시간 회귀 모델을 평가합니다.
+- **문제**: [유형 02 문제](/cs/data-analysis/practice-02-tabular-modeling/) — 같은 장비의 반복 기록이 있을 때, 새로운 장비의 고장 여부와 정비 시간을 어떻게 평가할까요?
+- **풀이**: [유형 02 풀이](/cs/data-analysis/practice-02-tabular-modeling-solution/) — 장비별로 데이터를 나누고 전처리 Pipeline과 그룹 CV로 고장 분류·정비 시간 회귀 모델을 평가합니다.
 
 ### 공식 문서
 
--   **Scaling**: scikit-learn[MinMaxScaler](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html) — feature\_range, clip, 학습한 최소·최대값  
-    scikit-learn[StandardScaler](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html) — 평균·표준편차를 이용하는 표준화와 ddof=0  
-    scikit-learn[RobustScaler](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.RobustScaler.html) — 중앙값·IQR을 사용하는 대안  
-    scikit-learn[전처리 가이드](https://scikit-learn.org/stable/modules/preprocessing.html) — Scaling, 행 단위 Normalization, 범주 인코딩  
-    scikit-learn[Feature Scaling의 영향](https://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html) — KNN과 PCA 등에 Scaling이 미치는 영향  
-    scikit-learn[Scaler 비교](https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html) — 이상치가 있는 데이터에서 각 방법의 차이
--   **pandas 출력**: pandas[concat](https://pandas.pydata.org/docs/reference/api/pandas.concat.html) — axis와 인덱스 정렬  
-    scikit-learn[set\_output](https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_set_output.html) — 변환 결과를 DataFrame으로 받는 설정  
-    NumPy[assert\_allclose](https://numpy.org/doc/stable/reference/generated/numpy.testing.assert_allclose.html) — 허용 오차를 두고 소수점 결과를 검증하는 방법  
-    pandas[DataFrame.std](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.std.html) — 표준편차의 ddof 기본값과 변경 방법  
-    pandas[DataFrame.to\_csv](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html) — index와 encoding 옵션
--   **Encoding**: scikit-learn[LabelEncoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html) — Target 라벨과 정수 코드의 대응  
-    scikit-learn[OrdinalEncoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OrdinalEncoder.html) — 입력 범주의 순서를 지정하는 방법  
-    pandas[get\_dummies](https://pandas.pydata.org/docs/reference/api/pandas.get_dummies.html) — bool 기본 dtype, dummy\_na, sparse, drop\_first  
-    scikit-learn[OneHotEncoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html) — 새 범주, Sparse 출력, 드문 범주와 기준 열 처리
--   **전처리 구성**: scikit-learn[ColumnTransformer](https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html) — 열마다 다른 변환과 remainder 옵션  
-    scikit-learn[데이터 누수와 전처리 주의점](https://scikit-learn.org/stable/common_pitfalls.html) — 훈련 데이터에서만 전처리 기준을 학습하는 이유
--   **파일 경로**: Python[os.path](https://docs.python.org/3/library/os.path.html) — exists와 isfile, 경로와 권한의 영향  
-    Python[pathlib](https://docs.python.org/3/library/pathlib.html) — Path 결합, 절대·상대 경로, 일반 파일 검사  
-    Python[tempfile](https://docs.python.org/3/library/tempfile.html) — TemporaryDirectory로 임시 폴더를 관리하는 방법  
-    pandas[Series.map](https://pandas.pydata.org/docs/reference/api/pandas.Series.map.html) — 각 값에 함수를 적용하는 방법
--   **인덱스 정렬**: [DataFrame.reindex](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reindex.html) — 본문에서 사용한 함수와 옵션을 확인합니다.
+- **Scaling**
+  - scikit-learn [MinMaxScaler](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html) — feature_range, clip, 학습한 최소·최대값
+  - scikit-learn [StandardScaler](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html) — 평균·표준편차를 이용하는 표준화와 `ddof=0`
+  - scikit-learn [RobustScaler](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.RobustScaler.html) — 중앙값·IQR을 사용하는 대안
+  - scikit-learn [전처리 가이드](https://scikit-learn.org/stable/modules/preprocessing.html) — Scaling, 행 단위 Normalization, 범주 인코딩
+  - scikit-learn [Feature Scaling의 영향](https://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html) — KNN과 PCA 등에 Scaling이 미치는 영향
+  - scikit-learn [Scaler 비교](https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html) — 이상치가 있는 데이터에서 각 방법의 차이
+- **pandas 출력**
+  - pandas [concat](https://pandas.pydata.org/docs/reference/api/pandas.concat.html) — axis와 인덱스 정렬
+  - scikit-learn [set_output](https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_set_output.html) — 변환 결과를 DataFrame으로 받는 설정
+  - NumPy [assert_allclose](https://numpy.org/doc/stable/reference/generated/numpy.testing.assert_allclose.html) — 허용 오차를 두고 소수점 결과를 검증하는 방법
+  - pandas [DataFrame.std](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.std.html) — 표준편차의 ddof 기본값과 변경 방법
+  - pandas [DataFrame.to_csv](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html) — index와 encoding 옵션
+- **Encoding**
+  - scikit-learn [LabelEncoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html) — Target 라벨과 정수 코드의 대응
+  - scikit-learn [OrdinalEncoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OrdinalEncoder.html) — 입력 범주의 순서를 지정하는 방법
+  - pandas [get_dummies](https://pandas.pydata.org/docs/reference/api/pandas.get_dummies.html) — bool 기본 dtype, dummy_na, sparse, drop_first
+  - scikit-learn [OneHotEncoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html) — 새 범주, Sparse 출력, 드문 범주와 기준 열 처리
+- **전처리 구성**
+  - scikit-learn [ColumnTransformer](https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html) — 열마다 다른 변환과 remainder 옵션
+  - scikit-learn [데이터 누수와 전처리 주의점](https://scikit-learn.org/stable/common_pitfalls.html) — 훈련 데이터에서만 전처리 기준을 학습하는 이유
+- **파일 경로**
+  - Python [os.path](https://docs.python.org/3/library/os.path.html) — exists와 isfile, 경로와 권한의 영향
+  - Python [pathlib](https://docs.python.org/3/library/pathlib.html) — Path 결합, 절대·상대 경로, 일반 파일 검사
+  - Python [tempfile](https://docs.python.org/3/library/tempfile.html) — TemporaryDirectory로 임시 폴더를 관리하는 방법
+  - pandas [Series.map](https://pandas.pydata.org/docs/reference/api/pandas.Series.map.html) — 각 값에 함수를 적용하는 방법
+- **인덱스 정렬**: [DataFrame.reindex](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reindex.html) — 본문에서 사용한 함수와 옵션을 확인합니다.

@@ -4,7 +4,7 @@ date: 2026-10-05T14:32:26+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "비어 있는 값은 무엇으로 채우면 좋을까요? 유난히 큰 값은 지워도 될까요? 서로 다른 파일의 기록은 어떤 기준으로 합쳐야 할까요? 결측치와 이상치를 처리할 때는 값의 의미를, 데이터를 병합할 때는 시간과 대상의…"
+description: "결측치를 평균과 중앙값으로 채우고, Z-score와 IQR로 이상치 후보를 찾고, 센서 로그를 병합하는 과정을 정리합니다. 전처리 기준을 훈련 데이터에서만 학습하는 데이터 누수 방지와 Pipeline도 다룹니다."
 tistoryId: 49
 ---
 > **이번 글의 질문**
@@ -55,7 +55,7 @@ print(df.isna().sum())
 
 `describe()`는 숫자형 열이 있는 경우 기본적으로 숫자형 열을 요약합니다. 전체 열의 요약이 필요하면 `df.describe(include="all")`을 사용할 수 있습니다. 숫자로 보이는 열이 문자열로 읽혔는지도 `info()`로 확인해 봅니다.
 
-### DataFrame과 Series
+### 2-1. DataFrame과 Series
 
 DataFrame은 행과 열로 구성된 2차원 구조이고, Series는 인덱스가 있는 1차원 구조입니다.
 
@@ -72,9 +72,9 @@ df[["repair_count"]]     # 열이 하나인 DataFrame
 
 이번 실습의 처리 조건은 다음과 같습니다.
 
--   `repair_count`: 해당 열의 평균으로 대체
--   `repair_duration`: 해당 열의 평균으로 대체
--   `last_check_day`: 해당 열의 중앙값으로 대체
+- `repair_count`: 해당 열의 평균으로 대체
+- `repair_duration`: 해당 열의 평균으로 대체
+- `last_check_day`: 해당 열의 중앙값으로 대체
 
 `maintenance_log.csv`는 100행이며, 처리 전 결측치 개수는 다음과 같습니다.
 
@@ -234,9 +234,9 @@ True
 
 Z-score와 비교할 방법으로 사분위 범위(IQR)를 이용할 수 있습니다.
 
--   IQR = Q3 − Q1
--   하한 = Q1 − 1.5 × IQR
--   상한 = Q3 + 1.5 × IQR
+- IQR = Q3 − Q1
+- 하한 = Q1 − 1.5 × IQR
+- 상한 = Q3 + 1.5 × IQR
 
 ```python
 q1, q3 = health["bmi"].quantile([0.25, 0.75])
@@ -467,7 +467,7 @@ print("테스트 데이터:", test_filled.ravel())
 
 SimpleImputer는 대체할 값을 계산해 저장하고, 이후 데이터에도 같은 값을 적용할 수 있게 해 줍니다. `statistics_`를 확인하면 각 열에 사용할 대체 값을 볼 수 있습니다.
 
-### 8-3. fit, transform, fit\_transform 구분하기
+### 8-3. fit, transform, fit_transform 구분하기
 
 전처리 객체에서 세 메서드는 다음 역할을 합니다.
 
@@ -561,9 +561,9 @@ model.fit(X_train, y_train)
 
 `fit()`에서는 다음 작업이 이루어집니다.
 
-1.  훈련 데이터의 중앙값을 계산하고 결측치를 채웁니다.
-2.  채워진 훈련 데이터에서 평균과 표준편차를 계산하고 Scaling합니다.
-3.  변환된 데이터로 Ridge 모델을 학습합니다.
+1. 훈련 데이터의 중앙값을 계산하고 결측치를 채웁니다.
+2. 채워진 훈련 데이터에서 평균과 표준편차를 계산하고 Scaling합니다.
+3. 변환된 데이터로 Ridge 모델을 학습합니다.
 
 나중에 `model.predict(X_test)`를 호출하면 저장된 중앙값과 Scaling 기준을 적용한 뒤 예측합니다. 테스트 데이터로 전처리 기준을 다시 계산하지 않습니다.
 
@@ -715,10 +715,10 @@ print(example.to_string(index=False))
 
 복습할 때는 다음 네 가지를 확인해 보면 좋습니다.
 
-1.  **결측치:** 값이 왜 비었으며, 평균·중앙값·삭제 중 어떤 방법이 적절한가요?
-2.  **이상치:** 유난히 크거나 작은 값이 입력 오류인가요, 실제로 측정된 값인가요?
-3.  **데이터 병합:** 한 행으로 합친 움직임 기록과 온도 기록은 시간과 초소 ID가 모두 일치하나요?
-4.  **데이터 누수:** 평균·중앙값·Scaling 기준을 훈련 데이터에서만 계산했나요?
+1. **결측치:** 값이 왜 비었으며, 평균·중앙값·삭제 중 어떤 방법이 적절한가요?
+2. **이상치:** 유난히 크거나 작은 값이 입력 오류인가요, 실제로 측정된 값인가요?
+3. **데이터 병합:** 한 행으로 합친 움직임 기록과 온도 기록은 시간과 초소 ID가 모두 일치하나요?
+4. **데이터 누수:** 평균·중앙값·Scaling 기준을 훈련 데이터에서만 계산했나요?
 
 다시 펼쳐볼 때는 대체한 값과 삭제한 행의 이유부터 확인합니다. 원본 값과 처리 상태가 남아 있으면 같은 기준으로 다시 분석할 수 있습니다.
 
@@ -726,35 +726,39 @@ print(example.to_string(index=False))
 
 ### 실습 데이터와 노트북
 
--   **실습 자료**: [Session01 실습 폴더](https://drive.google.com/drive/folders/1Fu5JgVIoHdMunlysDgiUuOvKHLeby41-) · [session01\_결측치-및-이상치-처리.pdf](https://drive.google.com/file/d/1kBOmpKI8LhQdj2vhzfqjmDq2q9lqmT05/view) · [session01.ipynb](https://drive.google.com/file/d/1_QZliAIoSoYCZtSJxJ6L9uDn096WBoAb/view)
--   **CSV 데이터**: [maintenance\_log.csv](https://drive.google.com/file/d/1TGioTxCNxy10lNva4qa5dWgn0Sb7zPzu/view) · [health\_check.csv](https://drive.google.com/file/d/1CI2Ee-ihz2yENaWV1FCB4yGqo2SSlh1U/view) · [motion\_sensor.csv](https://drive.google.com/file/d/1P-0WnTKaXtjOEzQIZGv8uwLHiNrUgt_I/view) · [temp\_sensor.csv](https://drive.google.com/file/d/1cq0jxc6WmG9Z725OlDZRi5HBLuSoLAM5/view)
--   **심화 예제**: [심화 예제 자료](https://drive.google.com/file/d/1wG0fZ0uhBQ1tniHUVE42xxo2mhkdwzGf/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **실습 자료**: [session01_결측치-및-이상치-처리.pdf](/files/maicon-2026/lectures/session01_%EA%B2%B0%EC%B8%A1%EC%B9%98-%EB%B0%8F-%EC%9D%B4%EC%83%81%EC%B9%98-%EC%B2%98%EB%A6%AC.pdf) · [session01.ipynb](/files/maicon-2026/code/session01/session01.ipynb)
+- **CSV 데이터**: [maintenance_log.csv](/files/maicon-2026/code/session01/maintenance_log.csv) · [health_check.csv](/files/maicon-2026/code/session01/health_check.csv) · [motion_sensor.csv](/files/maicon-2026/code/session01/motion_sensor.csv) · [temp_sensor.csv](/files/maicon-2026/code/session01/temp_sensor.csv)
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip) — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 
--   **문제**: [유형 01 문제](/cs/data-analysis/practice-01-tabular-preprocessing/) — 중복 거래와 단위가 다른 수량을 정리한 뒤, 팀별·일별 보급량을 어떻게 믿을 수 있게 계산할까요?
--   **풀이**: [유형 01 풀이](/cs/data-analysis/practice-01-tabular-preprocessing-solution/) — 최신 거래를 선택하고 수량 단위를 맞춘 뒤, 오류 기록을 분리해 팀별·일별로 집계합니다.
+- **문제**: [유형 01 문제](/cs/data-analysis/practice-01-tabular-preprocessing/) — 중복 거래와 단위가 다른 수량을 정리한 뒤, 팀별·일별 보급량을 어떻게 믿을 수 있게 계산할까요?
+- **풀이**: [유형 01 풀이](/cs/data-analysis/practice-01-tabular-preprocessing-solution/) — 최신 거래를 선택하고 수량 단위를 맞춘 뒤, 오류 기록을 분리해 팀별·일별로 집계합니다.
 
 ### 공식 문서
 
--   **데이터 확인**: pandas[DataFrame.describe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html) — 숫자형 열의 요약 통계를 보고, include="all"로 전체 열을 요약할 때
--   **결측치**: pandas[결측치 처리](https://pandas.pydata.org/docs/user_guide/missing_data.html) — isna, fillna, dropna와 결측치 판별 방식을 정리한 가이드  
-    pandas[Series.mean](https://pandas.pydata.org/docs/reference/api/pandas.Series.mean.html) — 결측치를 건너뛰고 평균을 계산하는 기본 동작(skipna)  
-    pandas[DataFrame.dropna](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.dropna.html) — how, subset 옵션으로 삭제할 행의 범위를 정할 때  
-    pandas[Copy-on-Write](https://pandas.pydata.org/docs/user_guide/copy_on_write.html) — inplace 대신 결과를 열에 다시 대입해야 하는 이유(pandas 3.0)  
-    scikit-learn[결측치 대체](https://scikit-learn.org/stable/modules/impute.html) — 평균·중앙값 같은 대체 값을 훈련 데이터에서 계산해 적용하는 방법  
-    scikit-learn[SimpleImputer](https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html) — 대체 값을 fit으로 저장해 두고 새 데이터에 재사용할 때
--   **이상치**: SciPy[scipy.stats.zscore](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.zscore.html) — ddof와 nan\_policy 기본값을 확인할 때  
-    pandas[Series.std](https://pandas.pydata.org/docs/reference/api/pandas.Series.std.html) — 표준편차의 기본 ddof는 1(N − 1)  
-    NumPy[numpy.std](https://numpy.org/doc/stable/reference/generated/numpy.std.html) — 표준편차의 기본 ddof는 0(N)
--   **병합·변환**: pandas[merge](https://pandas.pydata.org/docs/reference/api/pandas.merge.html) — on, how, validate, indicator 옵션으로 병합 결과를 점검할 때  
-    pandas[to\_numeric](https://pandas.pydata.org/docs/reference/api/pandas.to_numeric.html) — errors="coerce"로 숫자가 아닌 값을 결측치로 바꾸는 방법
--   **누수·평가**: scikit-learn[데이터 누수와 전처리 주의점](https://scikit-learn.org/stable/common_pitfalls.html) — 전처리 단계에서 누수가 생기는 대표적인 경우  
-    scikit-learn[StandardScaler](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html) — 훈련 데이터의 평균·표준편차를 저장해 이후 변환에 재사용  
-    scikit-learn[Pipeline](https://scikit-learn.org/stable/modules/compose.html) — 전처리와 모델을 묶어 학습과 예측에 같은 순서로 적용  
-    scikit-learn[Cross-validation](https://scikit-learn.org/stable/modules/cross_validation.html) — Fold마다 전처리를 새로 학습하도록 Pipeline째 넘기는 방법  
-    scikit-learn[cross\_val\_score](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_val_score.html) — Pipeline을 넘겨 Fold별 점수를 계산하는 함수  
-    scikit-learn[TimeSeriesSplit](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html) — 시간 순서를 유지하며 나누는 교차 검증  
-    scikit-learn[GroupKFold](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GroupKFold.html) — 같은 그룹이 훈련·검증에 겹치지 않게 나누는 교차 검증  
-    scikit-learn[Metrics and scoring](https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-string-names) — neg\_mean\_absolute\_error 같은 scoring 이름 정리  
-    scikit-learn[mean\_absolute\_error](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html) — MAE 계산 방법, 값은 Target과 같은 단위
+- **데이터 확인**: pandas [DataFrame.describe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html) — 숫자형 열의 요약 통계를 보고, `include="all"`로 전체 열을 요약할 때
+- **결측치**
+  - pandas [결측치 처리](https://pandas.pydata.org/docs/user_guide/missing_data.html) — isna, fillna, dropna와 결측치 판별 방식을 정리한 가이드
+  - pandas [Series.mean](https://pandas.pydata.org/docs/reference/api/pandas.Series.mean.html) — 결측치를 건너뛰고 평균을 계산하는 기본 동작(skipna)
+  - pandas [DataFrame.dropna](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.dropna.html) — how, subset 옵션으로 삭제할 행의 범위를 정할 때
+  - pandas [Copy-on-Write](https://pandas.pydata.org/docs/user_guide/copy_on_write.html) — inplace 대신 결과를 열에 다시 대입해야 하는 이유(pandas 3.0)
+  - scikit-learn [결측치 대체](https://scikit-learn.org/stable/modules/impute.html) — 평균·중앙값 같은 대체 값을 훈련 데이터에서 계산해 적용하는 방법
+  - scikit-learn [SimpleImputer](https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html) — 대체 값을 fit으로 저장해 두고 새 데이터에 재사용할 때
+- **이상치**
+  - SciPy [scipy.stats.zscore](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.zscore.html) — ddof와 nan_policy 기본값을 확인할 때
+  - pandas [Series.std](https://pandas.pydata.org/docs/reference/api/pandas.Series.std.html) — 표준편차의 기본 ddof는 1(N − 1)
+  - NumPy [numpy.std](https://numpy.org/doc/stable/reference/generated/numpy.std.html) — 표준편차의 기본 ddof는 0(N)
+- **병합·변환**
+  - pandas [merge](https://pandas.pydata.org/docs/reference/api/pandas.merge.html) — on, how, validate, indicator 옵션으로 병합 결과를 점검할 때
+  - pandas [to_numeric](https://pandas.pydata.org/docs/reference/api/pandas.to_numeric.html) — `errors="coerce"`로 숫자가 아닌 값을 결측치로 바꾸는 방법
+- **누수·평가**
+  - scikit-learn [데이터 누수와 전처리 주의점](https://scikit-learn.org/stable/common_pitfalls.html) — 전처리 단계에서 누수가 생기는 대표적인 경우
+  - scikit-learn [StandardScaler](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html) — 훈련 데이터의 평균·표준편차를 저장해 이후 변환에 재사용
+  - scikit-learn [Pipeline](https://scikit-learn.org/stable/modules/compose.html) — 전처리와 모델을 묶어 학습과 예측에 같은 순서로 적용
+  - scikit-learn [Cross-validation](https://scikit-learn.org/stable/modules/cross_validation.html) — Fold마다 전처리를 새로 학습하도록 Pipeline째 넘기는 방법
+  - scikit-learn [cross_val_score](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_val_score.html) — Pipeline을 넘겨 Fold별 점수를 계산하는 함수
+  - scikit-learn [TimeSeriesSplit](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html) — 시간 순서를 유지하며 나누는 교차 검증
+  - scikit-learn [GroupKFold](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GroupKFold.html) — 같은 그룹이 훈련·검증에 겹치지 않게 나누는 교차 검증
+  - scikit-learn [Metrics and scoring](https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-string-names) — neg_mean_absolute_error 같은 scoring 이름 정리
+  - scikit-learn [mean_absolute_error](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html) — MAE 계산 방법, 값은 Target과 같은 단위

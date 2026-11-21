@@ -1,5 +1,5 @@
 // About 페이지 내용. 여기만 고치면 About 페이지에 반영됩니다.
-// 주의: steps의 내용은 아직 예시입니다 → docs/discussion-backlog.md 참고
+// 출처: 구글 드라이브 'Who is 김주원' 문서, '내일을 그리다' 만다라트, 사용자 답변 (2026-11-21)
 
 export const profile = {
   name: '김주원',
@@ -7,6 +7,20 @@ export const profile = {
   tagline: ['큰 꿈을 품고, 오늘도 작은 한 걸음을 내딛습니다.', '가끔은 신나서 뛰다가 넘어지기도 하지만요.'],
   // 프로필 사진: src/assets/avatar.jpg (GitHub 프로필 사진). 바꾸려면 이 파일만 교체
 };
+
+/** 그리는 내일 — 작은 목표들보다 위에 있는, 더 멀리 보는 포부 */
+export const aspirations = [
+  {
+    label: '일',
+    title: '기술로 사람의 시간을 돌려주는, 창업가형 기술 리더',
+    body: '제로 투 원으로 서비스를 만들고, 사람들이 더 중요한 일에 시간을 쓸 수 있게 돕고 싶습니다.',
+  },
+  {
+    label: '삶',
+    title: '가족과 함께 웃으며, 오래도록',
+    body: '사랑하는 사람들과 한 식탁에 둘러앉아 하루를 나누며 웃는 일상을 지키고 싶습니다.',
+  },
+];
 
 /** 아직 남은 꿈 — 이루면 done: true (빈 원 → 채운 원) */
 export const dreams = [
@@ -43,11 +57,55 @@ export const now = {
   ],
 };
 
-/** 지나온 발걸음 — 최신이 위로. link는 관련 글 주소(선택) */
-export const steps: { date: string; title: string; note: string; link?: string }[] = [
-  { date: '2026.11', title: '정보처리기사', note: 'CS를 처음부터 다시 훑어본 시간.' },
-  { date: '2026.10', title: '한국사능력검정시험 심화 3급', note: '시험 전날 4시간의 벼락치기, 그래도 해냈다.' },
-  { date: '2026.10', title: '지게차운전기능사', note: '책상 밖에서 배운 첫 기술.' },
-  { date: '2022.11', title: '산업통상자원부 장관상', note: '창의적 종합설계 경진대회 · 팀과 함께 끝까지 간 첫 경험' },
-  { date: '2022.09', title: '성균관대 창의적 종합설계 경진대회 대상', note: '밤새 만든 것이 처음으로 인정받은 날' },
+/** 지나온 발걸음 — 최신이 위로. link가 있으면 오른쪽에 링크 표시 (linkLabel 기본값: 후기) */
+export const steps: { date: string; title: string; note: string; link?: string; linkLabel?: string }[] = [
+  {
+    date: '2026.11',
+    title: '국방 AI 경진대회(MAICON) 스페이스뱅크 대표상',
+    note: '피지컬A100 팀. 로봇에 AI를 입혀 모의 군사 임무를 수행한 본선',
+    link: 'https://www.news1.kr/photos/8225773',
+    linkLabel: '뉴스 사진',
+  },
+  { date: '2026.10', title: 'SK하이닉스 AI 해커톤 2차 예선 진출', note: '1차 예선을 통과하고 2차 예선까지' },
+  {
+    date: '2026.10',
+    title: '정보처리기사 실기 응시',
+    note: '가채점 83점, 12월 18일 발표를 기다리는 중',
+    link: '/cs/software-engineering/engineer-exam-2026-3-practical-review/',
+  },
+  {
+    date: '2026.10',
+    title: '헌혈 70회',
+    note: '2019년부터 이어 온 나눔. 사회복지 봉사 82회, 348시간과 함께',
+    link: '/life/daily/blood-donation-70-times/',
+    linkLabel: '기록',
+  },
+  {
+    date: '2026.08',
+    title: 'SCPC 본선 진출',
+    note: '2025년에 이어 2년 연속',
+    link: '/cs/algorithm/scpc-2026-finals-review/',
+  },
+  {
+    date: '2026',
+    title: '자격증 8개 취득',
+    note: '시험을 이정표 삼아 데이터, AI, 소프트웨어 테스트까지 공부의 폭을 넓힌 해. CSTS, ADsP, 빅데이터분석기사, AICE Associate, PCCP Lv.4, SQLD, COS Pro 1급, 한국사능력검정시험 3급',
+    link: '/posts/',
+    linkLabel: '글 보기',
+  },
+  { date: '꾸준히', title: '백준 9,000문제 해결', note: '문제를 풀고, 풀이를 기록으로 남기는 습관' },
+  { date: '2024.09', title: '42서울 7기 본과정 수료', note: 'C, Unix, OS, 그래픽스를 동료들과 부딪히며 배운 2년' },
+  { date: '2023', title: '성균관대 SW 창업 지원 사업 선정', note: '스타트업 창업 프로젝트 진행' },
+  {
+    date: '2022.11',
+    title: '창의적 종합설계 경진대회 산업통상자원부 장관상',
+    note: "팀 '매의 눈' 팀장. 카메라로 만드는 전자칠판",
+  },
+  { date: '2021~24', title: '러닝 동아리 스꾸런 회장', note: '마라톤 풀코스 완주' },
+  { date: '2021.10', title: '특허 출원', note: '딥러닝 기반 변형 악플 탐지 및 순화어 추천 시스템' },
+  {
+    date: '2019~23',
+    title: '교육 멘토링 9회',
+    note: 'KT 랜선야학, The가꿈, 아인슈타인 클래스, 대학생 재능봉사 캠프 등에서 학습과 진로를 함께 고민',
+  },
 ];

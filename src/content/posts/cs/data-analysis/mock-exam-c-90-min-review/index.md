@@ -4,7 +4,7 @@ date: 2026-10-09T19:30:54+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "90분 안에 세 문제의 입력·분석·결과 저장까지 끝낼 수 있을까요? 문항 배점은 20·35·45점입니다. 유형별 문제를 묶어 제한 시간 안에 풀고, 결과 파일과 놓친 조건을 복기합니다. 유형 배치는 연습을 위한…"
+description: "90분 모의 실습 C입니다. OCR 문서에서 구조화 데이터 만들기(20점), 영상 프레임 샘플링과 시계열 분석(35점), 사진 분류와 Transfer Learning(45점)을 제한 시간 안에 풀고, 결과 파일과 놓친 조건을 복기합니다."
 tistoryId: 82
 ---
 > **이번 글의 질문**
@@ -27,15 +27,15 @@ tistoryId: 82
 | 문항 3 | 35분 | 45점 처리·평가·저장 |
 | 최종 확인 | 10분 | CSV 재읽기·Notebook 재실행·설명 |
 
-## 2-1. 문항 1: OCR 문서에서 구조화 데이터 만들기 (20점)
+## 2. 문항 1: OCR 문서에서 구조화 데이터 만들기 (20점)
 
 동일한 서식의 보급 기록 이미지를 만들었습니다. 깨끗한 문서, 조금 회전한 문서, 해상도를 낮춘 문서를 포함합니다. 수량은 piece, 단가는 USD, `adjustment`는 합계에 더하는 USD 조정 금액입니다. 날짜의 하이픈·가격의 소수점·음수 부호를 모두 남겨야 올바른 값을 만들 수 있습니다.
 
--   Tesseract 영어 OCR로 단어·좌표·Confidence를 읽고 원문을 재구성합니다. 문서 결과 한 행에 파일명을 반드시 남깁니다.
--   정규 표현식은 항목의 전체 형식을 검사합니다. 모든 특수문자를 지우는 공통 정리 함수로 숫자·날짜를 만들지 않습니다.
--   빈 필드·잘못된 타입·음수 수량·음수 단가는 review로 남깁니다. `adjustment`의 음수는 유효합니다.
--   `total_value` = `quantity` × `unit_price` + `adjustment`를 계산하되 검토가 필요한 문서의 금액은 결측값으로 둡니다.
--   ocr\_raw.csv·ocr\_words.csv·document\_fields.csv·field\_accuracy.csv·document\_comparison.csv를 저장합니다.
+- Tesseract 영어 OCR로 단어·좌표·Confidence를 읽고 원문을 재구성합니다. 문서 결과 한 행에 파일명을 반드시 남깁니다.
+- 정규 표현식은 항목의 전체 형식을 검사합니다. 모든 특수문자를 지우는 공통 정리 함수로 숫자·날짜를 만들지 않습니다.
+- 빈 필드·잘못된 타입·음수 수량·음수 단가는 review로 남깁니다. `adjustment`의 음수는 유효합니다.
+- `total_value` = `quantity` × `unit_price` + `adjustment`를 계산하되 검토가 필요한 문서의 금액은 결측값으로 둡니다.
+- `ocr_raw.csv`·`ocr_words.csv`·`document_fields.csv`·`field_accuracy.csv`·`document_comparison.csv`를 저장합니다.
 
 | 연습용 평가 기준 | 배점 |
 | --- | --- |
@@ -44,15 +44,15 @@ tistoryId: 82
 | 검증·정답 비교 | 5 |
 | 출력·오류 검토 | 4 |
 
-## 2-2. 문항 2: 영상 프레임 샘플링과 시계열 분석 (35점)
+## 3. 문항 2: 영상 프레임 샘플링과 시계열 분석 (35점)
 
 Drive의 짧은 영상에는 YOLO를 적용합니다. 따로 구성한 29.97 FPS 도형 영상은 프레임·시간·개수 계산을 정확한 정답과 비교하는 용도입니다. 도형은 사람이 아니므로 YOLO의 객체 정답으로 사용하지 않습니다. 모델 결과와 시간 처리 알고리즘을 분리해 검증합니다.
 
--   FPS와 열기·읽기 성공 여부를 확인합니다. round(샘플 번호 × FPS × 1초)로 목표 프레임을 계산합니다.
--   실제 영상은 YOLOv5u로 전체 클래스 탐지, 도형 영상은 색상 Mask와 연결 요소 개수로 분석합니다.
--   정상적으로 분석한 모든 프레임을 남깁니다. 개수가 0인 프레임도 요약 표에 포함합니다.
--   샘플의 요청 시각·실제 프레임 번호·FPS 기준 경과 시각을 모두 남깁니다. 같은 2초 구간의 `mean`·`max`·`sample_count`를 계산합니다.
--   video\_sample\_counts.csv·video\_detections.csv·video\_windows.csv·video\_read\_status.csv와 시간 그래프를 저장합니다.
+- FPS와 열기·읽기 성공 여부를 확인합니다. round(샘플 번호 × FPS × 1초)로 목표 프레임을 계산합니다.
+- 실제 영상은 YOLOv5u로 전체 클래스 탐지, 도형 영상은 색상 Mask와 연결 요소 개수로 분석합니다.
+- 정상적으로 분석한 모든 프레임을 남깁니다. 개수가 0인 프레임도 요약 표에 포함합니다.
+- 샘플의 요청 시각·실제 프레임 번호·FPS 기준 경과 시각을 모두 남깁니다. 같은 2초 구간의 `mean`·`max`·`sample_count`를 계산합니다.
+- `video_sample_counts.csv`·`video_detections.csv`·`video_windows.csv`·`video_read_status.csv`와 시간 그래프를 저장합니다.
 
 | 연습용 평가 기준 | 배점 |
 | --- | --- |
@@ -61,15 +61,15 @@ Drive의 짧은 영상에는 YOLO를 적용합니다. 따로 구성한 29.97 FPS
 | 0건·읽기 상태·집계 | 10 |
 | 정답 비교·그래프·출력 | 7 |
 
-## 2-3. 문항 3: 사진 분류와 Transfer Learning (45점)
+## 4. 문항 3: 사진 분류와 Transfer Learning (45점)
 
 이미지 분류는 사진 전체에 클래스 하나를 붙입니다. PyTorch 공식 Transfer Learning 튜토리얼의 개미·벌 사진에서 140장을 골라 새 메타데이터와 문제를 구성했습니다. 원래 사진은 ImageNet에서 가져온 자료이므로, ImageNet으로 사전 학습한 모델과 사진이 겹칠 수 있습니다. 이 실습의 Test 점수는 전이학습 절차를 확인하는 결과이며 독립적으로 수집한 새 사진의 벤치마크로 확대하지 않습니다.
 
--   파일 경로와 Hash를 확인합니다. 같은 바이트의 사진이 여러 Split에 없음을 검사합니다. 원본과 증강 이미지를 다른 Split으로 보내지 않습니다.
--   제공된 공식 가중치를 로드하고 모델을 eval 모드로 둡니다. weights.transforms()로 RGB 사진을 전처리합니다.
--   특징 추출기는 고정하고 분류기의 C는 Validation macro F1로 고릅니다. Test 점수로 다시 선택하지 않습니다.
--   선택한 C로 Train+Validation에서 분류기를 다시 학습한 뒤 Test를 한 번 평가합니다.
--   photo\_test\_predictions.csv·photo\_metrics.csv·validation\_scores.csv와 Confusion Matrix를 저장합니다.
+- 파일 경로와 Hash를 확인합니다. 같은 바이트의 사진이 여러 Split에 없음을 검사합니다. 원본과 증강 이미지를 다른 Split으로 보내지 않습니다.
+- 제공된 공식 가중치를 로드하고 모델을 eval 모드로 둡니다. `weights.transforms()`로 RGB 사진을 전처리합니다.
+- 특징 추출기는 고정하고 분류기의 C는 Validation macro F1로 고릅니다. Test 점수로 다시 선택하지 않습니다.
+- 선택한 C로 Train+Validation에서 분류기를 다시 학습한 뒤 Test를 한 번 평가합니다.
+- `photo_test_predictions.csv`·`photo_metrics.csv`·`validation_scores.csv`와 Confusion Matrix를 저장합니다.
 
 | 연습용 평가 기준 | 배점 |
 | --- | --- |
@@ -78,7 +78,7 @@ Drive의 짧은 영상에는 YOLO를 적용합니다. 따로 구성한 29.97 FPS
 | Validation 선택·Test 분리 | 13 |
 | 평가·파일·오류 이미지 | 9 |
 
-## 3. 제출 결과를 점검합니다
+## 5. 제출 결과를 점검합니다
 
 ```bash
 # 예선_유형별_실습 폴더에서 실행합니다.
@@ -87,7 +87,7 @@ python check_outputs.py --types 8 7 5
 
 검사 통과 여부와 별개로 분할·Feature 생성 시점·평가 기준을 설명합니다. 시간 내 결과를 저장하지 못했다면 어느 단계에서 멈췄는지도 적습니다.
 
-## 4. 풀이를 확인하고 복기합니다
+## 6. 풀이를 확인하고 복기합니다
 
 | 기록할 항목 | 적을 내용 |
 | --- | --- |
@@ -105,21 +105,21 @@ python check_outputs.py --types 8 7 5
 
 ### 실습 데이터와 노트북
 
--   **모의 실습**: [모의 C 자료](https://drive.google.com/file/d/1_dOUPCFL4BpU0dKMp4ZeDJF-NQG32UjV/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 세 문항의 구성과 90분 실습 진행 자료를 확인합니다.
--   **공통 자료**: [실습 공통 자료](https://drive.google.com/file/d/1-W9cVOlqQ4BUYRX3AGH3qbC9CsUQjf-g/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
--   **문항 1 자료**: [유형 08 문제 자료](https://drive.google.com/file/d/15D_mgVi8CTkkk9D1A2Wbo0uUob9YmQiJ/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — OCR 문서에서 구조화 데이터 만들기 실습에 사용할 입력 자료입니다.
--   **문항 2 자료**: [유형 07 문제 자료](https://drive.google.com/file/d/1WjA2x9HHh7rPQ0kd9xeyyfpzdm4r7cZc/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 영상 프레임 샘플링과 시계열 분석 실습에 사용할 입력 자료입니다.
--   **문항 3 자료**: [유형 05 문제 자료](https://drive.google.com/file/d/1updLzgtbWqVHmg9lbNxHXM0mQCf_RvNo/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 사진 분류와 Transfer Learning 실습에 사용할 입력 자료입니다.
+- **모의 실습**: [모의 C 자료](/files/maicon-2026/practice/%EB%AA%A8%EC%9D%98_C_%EB%AC%B8%EC%A0%9C%EC%99%80_%EA%B5%AC%EC%84%B1.zip) — 세 문항의 구성과 90분 실습 진행 자료를 확인합니다.
+- **공통 자료**: [실습 공통 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_%EA%B3%B5%ED%86%B5%EC%A4%80%EB%B9%84.zip) — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
+- **문항 1 자료**: [유형 08 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_08_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — OCR 문서에서 구조화 데이터 만들기 실습에 사용할 입력 자료입니다.
+- **문항 2 자료**: [유형 07 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_07_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — 영상 프레임 샘플링과 시계열 분석 실습에 사용할 입력 자료입니다.
+- **문항 3 자료**: [유형 05 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_05_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — 사진 분류와 Transfer Learning 실습에 사용할 입력 자료입니다.
 
 ### 연습문제
 
--   **문항 1 문제**: [유형 08 문제](/cs/data-analysis/practice-08-ocr-structured-data/) — 이미지에서 읽은 날짜·수량·가격을 표로 옮길 때, 구분 기호와 음수 부호를 어떻게 보존할까요?
--   **문항 1 풀이**: [유형 08 풀이](/cs/data-analysis/practice-08-ocr-structured-data-solution/) — OCR 원문과 좌표를 보관하고 항목별 값을 추출·검증한 뒤, 정답 표와 필드별 일치도를 비교합니다.
--   **문항 2 문제**: [유형 07 문제](/cs/data-analysis/practice-07-video-frame-sampling/) — 29.97 FPS 영상에서 1초마다 관측하려면 어떤 프레임을 골라야 하며, 빈 프레임은 그래프에 어떻게 남겨야 할까요?
--   **문항 2 풀이**: [유형 07 풀이](/cs/data-analysis/practice-07-video-frame-sampling-solution/) — 목표 시각마다 프레임을 계산하고 객체가 없는 프레임도 포함해 시간 구간별 개수를 요약합니다.
--   **문항 3 문제**: [유형 05 문제](/cs/data-analysis/practice-05-image-transfer-learning/) — 사전 학습된 이미지 모델을 고정한 채, 사진이 개미인지 벌인지 분류하는 새 모델을 어떻게 만들까요?
--   **문항 3 풀이**: [유형 05 풀이](/cs/data-analysis/practice-05-image-transfer-learning-solution/) — 고정한 MobileNet에서 특징을 추출하고 Validation에서 분류기를 선택한 뒤 Test 사진을 평가합니다.
+- **문항 1 문제**: [유형 08 문제](/cs/data-analysis/practice-08-ocr-structured-data/) — 이미지에서 읽은 날짜·수량·가격을 표로 옮길 때, 구분 기호와 음수 부호를 어떻게 보존할까요?
+- **문항 1 풀이**: [유형 08 풀이](/cs/data-analysis/practice-08-ocr-structured-data-solution/) — OCR 원문과 좌표를 보관하고 항목별 값을 추출·검증한 뒤, 정답 표와 필드별 일치도를 비교합니다.
+- **문항 2 문제**: [유형 07 문제](/cs/data-analysis/practice-07-video-frame-sampling/) — 29.97 FPS 영상에서 1초마다 관측하려면 어떤 프레임을 골라야 하며, 빈 프레임은 그래프에 어떻게 남겨야 할까요?
+- **문항 2 풀이**: [유형 07 풀이](/cs/data-analysis/practice-07-video-frame-sampling-solution/) — 목표 시각마다 프레임을 계산하고 객체가 없는 프레임도 포함해 시간 구간별 개수를 요약합니다.
+- **문항 3 문제**: [유형 05 문제](/cs/data-analysis/practice-05-image-transfer-learning/) — 사전 학습된 이미지 모델을 고정한 채, 사진이 개미인지 벌인지 분류하는 새 모델을 어떻게 만들까요?
+- **문항 3 풀이**: [유형 05 풀이](/cs/data-analysis/practice-05-image-transfer-learning-solution/) — 고정한 MobileNet에서 특징을 추출하고 Validation에서 분류기를 선택한 뒤 Test 사진을 평가합니다.
 
 ### 범위와 배점
 
--   **예선 가이드**: [국방AI경진대회 예선가이드](https://drive.google.com/file/d/1YDxg9ngucdJR7y4zUaBuW5bEYhzh1EJl/view) — 제공된 가이드 9·25·26쪽을 기준으로 구성했습니다.
+- **예선 가이드**: [국방AI경진대회 예선가이드](/files/maicon-2026/%EA%B5%AD%EB%B0%A9AI%EA%B2%BD%EC%A7%84%EB%8C%80%ED%9A%8C%20%EC%98%88%EC%84%A0%EA%B0%80%EC%9D%B4%EB%93%9C.pdf) — 제공된 가이드 9·25·26쪽을 기준으로 구성했습니다.

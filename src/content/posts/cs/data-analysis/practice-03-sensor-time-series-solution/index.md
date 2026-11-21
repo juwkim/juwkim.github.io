@@ -4,7 +4,7 @@ date: 2026-10-09T19:06:50+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "누락된 센서 구간을 남기면서 다음 시간의 온도와 기준 초과 여부를 어떻게 함께 예측할까요? 센서별 시간 표와 관측 수를 만들고 시간 블록으로 검증합니다. 회귀와 분류를 같은 Test 구간에서 평가하고, 제외한…"
+description: "센서별 시간 표와 관측 수를 만들고 시간 블록으로 나눠, 다음 시간 온도 회귀와 기준 초과 분류를 Persistence Baseline과 비교하는 풀이입니다. 중앙 이동평균에 섞이는 미래 정보도 확인합니다."
 tistoryId: 69
 ---
 > **이번 글의 질문**
@@ -19,14 +19,14 @@ tistoryId: 69
 
 센서 여섯 개의 5분 주기 기록을 96시간 수집한 상황입니다. 일부 기록과 연속한 시간 구간이 빠졌고 비정상 측정값도 있습니다. 각 한 시간이 끝난 시점에 다음 한 시간의 평균 온도를 예측합니다. 시간 구간과 예측 시점의 관계를 연습하도록 구성한 합성 데이터입니다. 다음 시간 평균이 32°C 이상이면 기준 초과로 분류하는 문제도 함께 풉니다. 32°C는 이 연습에서 정한 가상의 운영 기준입니다.
 
--   원본의 순서와 유효 측정값을 확인합니다
--   빈 시간도 포함한 센서별 표를 만듭니다
--   Feature와 Target이 가리키는 시점을 맞춥니다
--   시간을 먼저 나누고 해당 시간의 모든 센서를 함께 이동합니다
--   마지막 기간과 Persistence Baseline을 비교합니다
--   다음 시간의 기준 초과를 분류합니다
+- 원본의 순서와 유효 측정값을 확인합니다
+- 빈 시간도 포함한 센서별 표를 만듭니다
+- Feature와 Target이 가리키는 시점을 맞춥니다
+- 시간을 먼저 나누고 해당 시간의 모든 센서를 함께 이동합니다
+- 마지막 기간과 Persistence Baseline을 비교합니다
+- 다음 시간의 기준 초과를 분류합니다
 
-아래 기본 풀이의 출력은 첨부한 solution.ipynb와 결과 CSV에 기록된 실제 실행 결과입니다. 추가 비교 예제는 별도 Notebook에서 실행했으며, 가상 예제는 그 범위를 표시했습니다.
+아래 기본 풀이의 출력은 첨부한 `solution.ipynb`와 결과 CSV에 기록된 실제 실행 결과입니다. 추가 비교 예제는 별도 Notebook에서 실행했으며, 가상 예제는 그 범위를 표시했습니다.
 
 ## 2. 단계별 코드와 실행 결과
 
@@ -278,13 +278,11 @@ Test는 입력 구간의 시작이 마지막 24시간에 속하는 경우입니�
 
 분류 Target은 다음 시간 평균이 32°C 이상인지입니다. 입력 시점에 이미 아는 현재 온도를 그대로 정답으로 쓰지 않습니다. 같은 시간에도 센서별로 클래스가 달라질 수 있어 시간 블록을 먼저 분리합니다.
 
-![센서 시계열 정리와 분류·예측의 실행 결과를 보여 줍니다. 단위와 관측 대상을 본문의 기준으로 읽습니다.](./img-01.png)
+![다음 시간 32°C 기준 초과 여부를 분류한 혼동 행렬](./img-01.png)
 
 *다음 시간 평균이 가상 기준 32°C 이상인지 분류한 Test 결과입니다. 현재 시간의 기준 초과 여부와 구분합니다.*
 
-![센서 시계열 정리와 분류·예측의 실행 결과를 보여 줍니다. 단위와 관측 대상을 본문의 기준으로 읽습니다.](./img-02.png)
-
-*센서 시계열 정리와 분류·예측의 실행 결과를 보여 줍니다. 단위와 관측 대상을 본문의 기준으로 읽습니다.*
+![센서 S02의 빈 구간을 끊어 그린 시간별 평균 온도와 다음 시간 평균의 실제값·예측값 그래프](./img-02.png)
 
 ## 4. 처리 기준이 결과를 바꾸는 비교 예제
 
@@ -387,26 +385,26 @@ Target을 다음 세 완료 구간의 평균으로 정의하고 Target 시작·�
 
 ### 실습 데이터와 노트북
 
--   **문제 자료**: [문제 자료](https://drive.google.com/file/d/1n8qTp4-vILRAfVINEsRoHgudsLE5yDwT/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 입력 데이터와 starter.ipynb로 직접 구현을 시작합니다.
--   **풀이 자료**: [풀이와 결과](https://drive.google.com/file/d/1z2u6-lldSdlreel5Ot-Q0HnaWeidHVe1/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 전체 Python 코드, 노트북과 실행 결과를 함께 받습니다.
--   **공통 자료**: [실습 공통 자료](https://drive.google.com/file/d/1-W9cVOlqQ4BUYRX3AGH3qbC9CsUQjf-g/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
--   **예선 가이드**: [국방AI경진대회 예선가이드](https://drive.google.com/file/d/1YDxg9ngucdJR7y4zUaBuW5bEYhzh1EJl/view) — 제공된 가이드의 범위를 바탕으로 만든 연습문제입니다.
--   **실행 안내**: — 같은 작업 폴더에 압축을 푼 뒤 유형 폴더에서 solution.ipynb 또는 solution.py를 실행합니다. blog\_comparison.ipynb에는 본문에서 추가한 두 비교 예제와 실제 출력이 들어 있습니다.
--   **데이터 출처**: — 센서 로그는 이 실습을 위해 만든 합성 데이터입니다. 32°C는 가상의 운영 기준이며 실제 장비의 경보 기준을 뜻하지 않습니다.
+- **문제 자료**: [문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_03_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — 입력 데이터와 `starter.ipynb`로 직접 구현을 시작합니다.
+- **풀이 자료**: [풀이와 결과](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_03_%ED%92%80%EC%9D%B4%EC%99%80_%EA%B2%B0%EA%B3%BC.zip) — 전체 Python 코드, 노트북과 실행 결과를 함께 받습니다.
+- **공통 자료**: [실습 공통 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_%EA%B3%B5%ED%86%B5%EC%A4%80%EB%B9%84.zip) — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
+- **예선 가이드**: [국방AI경진대회 예선가이드](/files/maicon-2026/%EA%B5%AD%EB%B0%A9AI%EA%B2%BD%EC%A7%84%EB%8C%80%ED%9A%8C%20%EC%98%88%EC%84%A0%EA%B0%80%EC%9D%B4%EB%93%9C.pdf) — 제공된 가이드의 범위를 바탕으로 만든 연습문제입니다.
+- **실행 안내**: 같은 작업 폴더에 압축을 푼 뒤 유형 폴더에서 `solution.ipynb` 또는 `solution.py`를 실행합니다. `blog_comparison.ipynb`에는 본문에서 추가한 두 비교 예제와 실제 출력이 들어 있습니다.
+- **데이터 출처**: 센서 로그는 이 실습을 위해 만든 합성 데이터입니다. 32°C는 가상의 운영 기준이며 실제 장비의 경보 기준을 뜻하지 않습니다.
 
 ### 연습문제
 
--   **문제**: [유형 03 문제](/cs/data-analysis/practice-03-sensor-time-series/) — 누락된 센서 구간을 남기면서 다음 시간의 온도와 기준 초과 여부를 어떻게 함께 예측할까요?
--   **모의 실습**: [모의 실습 A](/cs/data-analysis/mock-exam-a-90-min-review/) — 세 문항을 20·35·45점으로 묶어 입력부터 저장까지 연습합니다.
+- **문제**: [유형 03 문제](/cs/data-analysis/practice-03-sensor-time-series/) — 누락된 센서 구간을 남기면서 다음 시간의 온도와 기준 초과 여부를 어떻게 함께 예측할까요?
+- **모의 실습**: [모의 실습 A](/cs/data-analysis/mock-exam-a-90-min-review/) — 세 문항을 20·35·45점으로 묶어 입력부터 저장까지 연습합니다.
 
 ### 관련 공부노트
 
--   **공부노트 03**: [시계열 데이터 정렬 및 리샘플링](/cs/data-analysis/pandas-03-time-series-resampling/)
--   **공부노트 07**: [지도 학습 및 평가](/cs/data-analysis/pandas-07-supervised-learning/)
--   **공부노트 13**: [데이터 분석의 흔한 착각과 실수](/cs/data-analysis/pandas-13-common-pitfalls/)
+- **공부노트 03**: [시계열 데이터 정렬 및 리샘플링](/cs/data-analysis/pandas-03-time-series-resampling/)
+- **공부노트 07**: [지도 학습 및 평가](/cs/data-analysis/pandas-07-supervised-learning/)
+- **공부노트 13**: [데이터 분석의 흔한 착각과 실수](/cs/data-analysis/pandas-13-common-pitfalls/)
 
 ### 공식 문서
 
--   **사용한 도구**: [DataFrame.resample](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.resample.html) — 그룹별 시간 구간과 closed·label을 확인합니다.  
-    [TimeSeriesSplit](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html) — 과거에서 이후 시점으로 검증하고 gap을 둡니다.  
-    [모델 평가 지표](https://scikit-learn.org/stable/modules/model_evaluation.html) — 같은 시계열 Test에서 분류·회귀의 지표를 각각 읽습니다.
+- **사용한 도구**: [DataFrame.resample](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.resample.html) — 그룹별 시간 구간과 closed·label을 확인합니다.  
+  [TimeSeriesSplit](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html) — 과거에서 이후 시점으로 검증하고 gap을 둡니다.  
+  [모델 평가 지표](https://scikit-learn.org/stable/modules/model_evaluation.html) — 같은 시계열 Test에서 분류·회귀의 지표를 각각 읽습니다.

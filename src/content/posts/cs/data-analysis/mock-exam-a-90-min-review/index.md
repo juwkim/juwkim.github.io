@@ -4,7 +4,7 @@ date: 2026-10-09T19:16:20+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "90분 안에 세 문제의 입력·분석·결과 저장까지 끝낼 수 있을까요? 문항 배점은 20·35·45점입니다. 유형별 문제를 묶어 제한 시간 안에 풀고, 결과 파일과 놓친 조건을 복기합니다. 유형 배치는 연습을 위한…"
+description: "90분 모의 실습 A입니다. 정형 데이터 전처리와 집계(20점), 센서 시계열 정리와 분류·예측(35점), 비정형 텍스트 분류(45점)를 제한 시간 안에 풀고, 결과 파일과 놓친 조건을 복기합니다."
 tistoryId: 80
 ---
 > **이번 글의 질문**
@@ -27,14 +27,14 @@ tistoryId: 80
 | 문항 3 | 35분 | 45점 처리·평가·저장 |
 | 최종 확인 | 10분 | CSV 재읽기·Notebook 재실행·설명 |
 
-## 2-1. 문항 1: 정형 데이터 전처리와 집계 (20점)
+## 2. 문항 1: 정형 데이터 전처리와 집계 (20점)
 
 보급 기록이 CSV와 JSON에 나뉘어 있습니다. 같은 `event_id`가 재전송됐고, 수량은 piece·box가 섞여 있습니다. 최신 수정본을 채택하고 등록 팀에 연결되는 유효한 기록으로 일별 수량을 계산합니다. 데이터는 이 문제의 오류 처리와 집계를 연습하기 위해 구성했습니다.
 
--   `event_id`·`unit_id`는 같은 키의 `updated_at`이 가장 늦은 행을 선택합니다. 동일 시각의 충돌은 이 데이터에 없습니다.
--   `quantity`는 0 이상이고 piece로 바꾼 값은 정수여야 합니다. box는 품목별 `pieces_per_box`를 곱합니다.
--   누락된 키, 미등록 키, 잘못된 날짜·수량·단위는 이유를 표시하고 집계에서 제외합니다. 값은 임의 대체하지 않습니다.
--   clean\_records.csv·rejected\_records.csv·daily\_unit\_summary.csv·unit\_totals.csv·quality\_report.csv를 저장합니다. 등록만 있고 유효 기록이 없는 팀의 총량은 결측값으로 남깁니다.
+- `event_id`·`unit_id`는 같은 키의 `updated_at`이 가장 늦은 행을 선택합니다. 동일 시각의 충돌은 이 데이터에 없습니다.
+- `quantity`는 0 이상이고 piece로 바꾼 값은 정수여야 합니다. box는 품목별 `pieces_per_box`를 곱합니다.
+- 누락된 키, 미등록 키, 잘못된 날짜·수량·단위는 이유를 표시하고 집계에서 제외합니다. 값은 임의 대체하지 않습니다.
+- `clean_records.csv`·`rejected_records.csv`·`daily_unit_summary.csv`·`unit_totals.csv`·`quality_report.csv`를 저장합니다. 등록만 있고 유효 기록이 없는 팀의 총량은 결측값으로 남깁니다.
 
 | 연습용 평가 기준 | 배점 |
 | --- | --- |
@@ -43,16 +43,16 @@ tistoryId: 80
 | 행 수와 집계 검증 | 6 |
 | 출력 파일·시각화 | 4 |
 
-## 2-2. 문항 2: 센서 시계열 정리와 분류·예측 (35점)
+## 3. 문항 2: 센서 시계열 정리와 분류·예측 (35점)
 
 센서 여섯 개의 5분 주기 기록을 96시간 수집한 상황입니다. 일부 기록과 연속한 시간 구간이 빠졌고 비정상 측정값도 있습니다. 각 한 시간이 끝난 시점에 다음 한 시간의 평균 온도를 예측합니다. 시간 구간과 예측 시점의 관계를 연습하도록 구성한 합성 데이터입니다. 다음 시간 평균이 32°C 이상이면 기준 초과로 분류하는 문제도 함께 풉니다. 32°C는 이 연습에서 정한 가상의 운영 기준입니다.
 
--   시간은 UTC로 변환하고 센서별로 정렬합니다. `temperature_c`의 허용 범위는 설정 파일을 따릅니다.
--   시간 구간은 \[시작, 다음 시작)으로 묶습니다. 기록이 없는 시간도 남기고 `obs_count=0`, 평균 온도와 에너지 합계는 결측값으로 둡니다.
--   t구간 종료 시점에 t+1구간 평균 온도를 예측합니다. 현재 완료한 t구간의 평균·에너지는 Feature로 쓸 수 있습니다.
--   Test는 설정한 마지막 24시간입니다. Train과 각 CV Fold 사이에 Target이 넘어가지 않도록 시간 간격을 둡니다.
--   가상 운영 기준 32°C의 초과 여부를 같은 시간 분할에서 분류합니다. 분류 지표·Dummy Baseline과 Confusion Matrix도 저장합니다.
--   hourly\_sensor.csv·forecast\_predictions.csv·forecast\_metrics.csv·time\_cv\_scores.csv·sensor\_classification\_metrics.csv·excluded\_intervals.csv와 시간·혼동 행렬 그래프를 저장합니다.
+- 시간은 UTC로 변환하고 센서별로 정렬합니다. `temperature_c`의 허용 범위는 설정 파일을 따릅니다.
+- 시간 구간은 `[시작, 다음 시작)`으로 묶습니다. 기록이 없는 시간도 남기고 `obs_count=0`, 평균 온도와 에너지 합계는 결측값으로 둡니다.
+- t구간 종료 시점에 t+1구간 평균 온도를 예측합니다. 현재 완료한 t구간의 평균·에너지는 Feature로 쓸 수 있습니다.
+- Test는 설정한 마지막 24시간입니다. Train과 각 CV Fold 사이에 Target이 넘어가지 않도록 시간 간격을 둡니다.
+- 가상 운영 기준 32°C의 초과 여부를 같은 시간 분할에서 분류합니다. 분류 지표·Dummy Baseline과 Confusion Matrix도 저장합니다.
+- `hourly_sensor.csv`·`forecast_predictions.csv`·`forecast_metrics.csv`·`time_cv_scores.csv`·`sensor_classification_metrics.csv`·`excluded_intervals.csv`와 시간·혼동 행렬 그래프를 저장합니다.
 
 | 연습용 평가 기준 | 배점 |
 | --- | --- |
@@ -61,15 +61,15 @@ tistoryId: 80
 | 시간 CV·분류·회귀·Baseline | 10 |
 | 예측·상태·출력 검증 | 7 |
 
-## 2-3. 문항 3: 비정형 텍스트 분류 (45점)
+## 4. 문항 3: 비정형 텍스트 분류 (45점)
 
 정비·보급·네트워크 요청을 분류하는 접수 기록입니다. 핵심 요청과 다른 분야의 상황 설명이 한 문장에 함께 들어 있습니다. 같은 양식의 반복 문장과 완전히 같은 재접수 문장도 포함했습니다. 실제 접수 기록 대신 분류와 검증 방식을 연습하도록 작성한 문장 데이터입니다.
 
--   `None`·빈 `text`는 empty\_text로 남기고 학습·평가에서 제외합니다. 부정 표현과 소수점·날짜를 무조건 지우지 않습니다.
--   제공된 `split`을 사용합니다. `template_group`과 동일한 원문이 Train/Test 양쪽에 있는지 검사합니다.
--   TF-IDF의 vocabulary와 idf도 Fold의 Training 부분에서 학습합니다. `template_group`·`team`·`label`은 텍스트 Feature에 붙이지 않습니다.
--   Train 그룹 CV로 C를 정하고 Test macro F1, 클래스별 Precision·Recall·F1, Baseline을 계산합니다.
--   text\_predictions.csv·text\_errors.csv·text\_metrics.csv·empty\_reports.csv를 저장합니다.
+- `None`·빈 `text`는 `empty_text`로 남기고 학습·평가에서 제외합니다. 부정 표현과 소수점·날짜를 무조건 지우지 않습니다.
+- 제공된 `split`을 사용합니다. `template_group`과 동일한 원문이 Train/Test 양쪽에 있는지 검사합니다.
+- TF-IDF의 vocabulary와 idf도 Fold의 Training 부분에서 학습합니다. `template_group`·`team`·`label`은 텍스트 Feature에 붙이지 않습니다.
+- Train 그룹 CV로 C를 정하고 Test macro F1, 클래스별 Precision·Recall·F1, Baseline을 계산합니다.
+- `text_predictions.csv`·`text_errors.csv`·`text_metrics.csv`·`empty_reports.csv`를 저장합니다.
 
 | 연습용 평가 기준 | 배점 |
 | --- | --- |
@@ -78,7 +78,7 @@ tistoryId: 80
 | Train-only TF-IDF·CV | 14 |
 | 평가·오류 분석·출력 | 11 |
 
-## 3. 제출 결과를 점검합니다
+## 5. 제출 결과를 점검합니다
 
 ```bash
 # 예선_유형별_실습 폴더에서 실행합니다.
@@ -87,7 +87,7 @@ python check_outputs.py --types 1 3 4
 
 검사 통과 여부와 별개로 분할·Feature 생성 시점·평가 기준을 설명합니다. 시간 내 결과를 저장하지 못했다면 어느 단계에서 멈췄는지도 적습니다.
 
-## 4. 풀이를 확인하고 복기합니다
+## 6. 풀이를 확인하고 복기합니다
 
 | 기록할 항목 | 적을 내용 |
 | --- | --- |
@@ -105,21 +105,21 @@ python check_outputs.py --types 1 3 4
 
 ### 실습 데이터와 노트북
 
--   **모의 실습**: [모의 A 자료](https://drive.google.com/file/d/1Mmn5CqhYH8-QsgIu1dOQvhzi8VV8qD4s/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 세 문항의 구성과 90분 실습 진행 자료를 확인합니다.
--   **공통 자료**: [실습 공통 자료](https://drive.google.com/file/d/1-W9cVOlqQ4BUYRX3AGH3qbC9CsUQjf-g/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
--   **문항 1 자료**: [유형 01 문제 자료](https://drive.google.com/file/d/1c8e81JfqWay79yqJS3SmExlAjzQ8LS5w/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 정형 데이터 전처리와 집계 실습에 사용할 입력 자료입니다.
--   **문항 2 자료**: [유형 03 문제 자료](https://drive.google.com/file/d/1n8qTp4-vILRAfVINEsRoHgudsLE5yDwT/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 센서 시계열 정리와 분류·예측 실습에 사용할 입력 자료입니다.
--   **문항 3 자료**: [유형 04 문제 자료](https://drive.google.com/file/d/1ZJ0Or7ZgaxOOODqDFb7KpUClHd9yQJTM/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 비정형 텍스트 분류 실습에 사용할 입력 자료입니다.
+- **모의 실습**: [모의 A 자료](/files/maicon-2026/practice/%EB%AA%A8%EC%9D%98_A_%EB%AC%B8%EC%A0%9C%EC%99%80_%EA%B5%AC%EC%84%B1.zip) — 세 문항의 구성과 90분 실습 진행 자료를 확인합니다.
+- **공통 자료**: [실습 공통 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_%EA%B3%B5%ED%86%B5%EC%A4%80%EB%B9%84.zip) — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
+- **문항 1 자료**: [유형 01 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_01_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — 정형 데이터 전처리와 집계 실습에 사용할 입력 자료입니다.
+- **문항 2 자료**: [유형 03 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_03_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — 센서 시계열 정리와 분류·예측 실습에 사용할 입력 자료입니다.
+- **문항 3 자료**: [유형 04 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_04_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — 비정형 텍스트 분류 실습에 사용할 입력 자료입니다.
 
 ### 연습문제
 
--   **문항 1 문제**: [유형 01 문제](/cs/data-analysis/practice-01-tabular-preprocessing/) — 중복 거래와 단위가 다른 수량을 정리한 뒤, 팀별·일별 보급량을 어떻게 믿을 수 있게 계산할까요?
--   **문항 1 풀이**: [유형 01 풀이](/cs/data-analysis/practice-01-tabular-preprocessing-solution/) — 최신 거래를 선택하고 수량 단위를 맞춘 뒤, 오류 기록을 분리해 팀별·일별로 집계합니다.
--   **문항 2 문제**: [유형 03 문제](/cs/data-analysis/practice-03-sensor-time-series/) — 누락된 센서 구간을 남기면서 다음 시간의 온도와 기준 초과 여부를 어떻게 함께 예측할까요?
--   **문항 2 풀이**: [유형 03 풀이](/cs/data-analysis/practice-03-sensor-time-series-solution/) — 센서별 시간 격자와 관측 수를 만들고 시간 순서대로 나눠 다음 시간 온도와 기준 초과를 예측합니다.
--   **문항 3 문제**: [유형 04 문제](/cs/data-analysis/practice-04-text-classification/) — 표현이 조금씩 다른 접수 문장을 분류하면서, 같은 양식의 문장이 Train과 Test에 섞이는 문제를 어떻게 막을까요?
--   **문항 3 풀이**: [유형 04 풀이](/cs/data-analysis/practice-04-text-classification-solution/) — 문장 양식별로 데이터를 나누고 TF-IDF와 Logistic Regression을 Pipeline으로 연결해 그룹 CV로 검증합니다.
+- **문항 1 문제**: [유형 01 문제](/cs/data-analysis/practice-01-tabular-preprocessing/) — 중복 거래와 단위가 다른 수량을 정리한 뒤, 팀별·일별 보급량을 어떻게 믿을 수 있게 계산할까요?
+- **문항 1 풀이**: [유형 01 풀이](/cs/data-analysis/practice-01-tabular-preprocessing-solution/) — 최신 거래를 선택하고 수량 단위를 맞춘 뒤, 오류 기록을 분리해 팀별·일별로 집계합니다.
+- **문항 2 문제**: [유형 03 문제](/cs/data-analysis/practice-03-sensor-time-series/) — 누락된 센서 구간을 남기면서 다음 시간의 온도와 기준 초과 여부를 어떻게 함께 예측할까요?
+- **문항 2 풀이**: [유형 03 풀이](/cs/data-analysis/practice-03-sensor-time-series-solution/) — 센서별 시간 격자와 관측 수를 만들고 시간 순서대로 나눠 다음 시간 온도와 기준 초과를 예측합니다.
+- **문항 3 문제**: [유형 04 문제](/cs/data-analysis/practice-04-text-classification/) — 표현이 조금씩 다른 접수 문장을 분류하면서, 같은 양식의 문장이 Train과 Test에 섞이는 문제를 어떻게 막을까요?
+- **문항 3 풀이**: [유형 04 풀이](/cs/data-analysis/practice-04-text-classification-solution/) — 문장 양식별로 데이터를 나누고 TF-IDF와 Logistic Regression을 Pipeline으로 연결해 그룹 CV로 검증합니다.
 
 ### 범위와 배점
 
--   **예선 가이드**: [국방AI경진대회 예선가이드](https://drive.google.com/file/d/1YDxg9ngucdJR7y4zUaBuW5bEYhzh1EJl/view) — 제공된 가이드 9·25·26쪽을 기준으로 구성했습니다.
+- **예선 가이드**: [국방AI경진대회 예선가이드](/files/maicon-2026/%EA%B5%AD%EB%B0%A9AI%EA%B2%BD%EC%A7%84%EB%8C%80%ED%9A%8C%20%EC%98%88%EC%84%A0%EA%B0%80%EC%9D%B4%EB%93%9C.pdf) — 제공된 가이드 9·25·26쪽을 기준으로 구성했습니다.

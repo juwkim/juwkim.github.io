@@ -4,7 +4,7 @@ date: 2026-10-07T18:55:23+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "피로도를 예측한 RMSE가 3.756이면 어느 정도 잘 맞춘 걸까요? 행사 사진 세 장에서 사람을 56건 탐지했다면 참석자는 56명일까요? 식사 점수의 변수 중요도가 가장 높다면 식사 개선의 효과까지 알 수…"
+description: "생활 패턴으로 피로도를 예측해 평균 예측 Baseline과 비교하고, 행사 사진의 person 탐지 수를 처리 상태와 함께 부대별로 집계하며, 복무 만족도 모델의 MDI와 Permutation Importance를 비교합니다."
 tistoryId: 61
 ---
 > **이번 글의 질문**
@@ -142,7 +142,7 @@ Pipeline의 `fit`은 Train으로 평균·표준편차를 학습해 변환하고,
 
 평균과 표준편차도 데이터에서 학습하는 기준이라는 점은 [파이썬 데이터 분석 공부노트 01](/cs/data-analysis/pandas-01-missing-values-outliers/)에서, StandardScaler와 MinMaxScaler의 차이는 [파이썬 데이터 분석 공부노트 02](/cs/data-analysis/pandas-02-normalization-encoding/)에서 이어서 복습할 수 있습니다.
 
-Random Forest Regressor는 여러 Decision Tree의 예측을 평균해 결과를 만듭니다. 기본 bootstrap 설정에서는 각 Tree가 복원 추출한 학습 표본을 사용하고, 노드의 분할 후보 Feature도 max\_features 설정으로 제어합니다. `n_estimators=100`은 Tree를 100개 만든다는 뜻입니다.
+Random Forest Regressor는 여러 Decision Tree의 예측을 평균해 결과를 만듭니다. 기본 `bootstrap` 설정에서는 각 Tree가 복원 추출한 학습 표본을 사용하고, 노드의 분할 후보 Feature도 `max_features` 설정으로 제어합니다. `n_estimators=100`은 Tree를 100개 만든다는 뜻입니다.
 
 **Random Forest에는 Scaling이 보통 필수는 아닙니다.** Tree는 Feature의 임계값으로 데이터를 나누므로, 거리의 크기를 직접 비교하는 모델과 다릅니다. 여기서는 표준화 과정까지 Pipeline으로 연결해 연습합니다. StandardScaler가 분포를 정규분포로 만드는 것도 아닙니다.
 
@@ -309,7 +309,7 @@ print("파일명 중복:", int(event_meta["filename"].duplicated().sum()))
 
 메타데이터에는 사진 **20장**이 등록되어 있지만 현재 이미지 폴더에는 **3장**만 있습니다. 파일이 없는 17장을 건너뛰기만 하면, 결과 표에서 어느 부대의 자료가 빠졌는지 알기 어렵습니다. 모든 메타데이터 행을 유지하고 처리 상태를 남깁니다.
 
-| 상태 | person\_count | 집계에서의 의미 |
+| 상태 | person_count | 집계에서의 의미 |
 | --- | --- | --- |
 | `ok` | 0 이상의 정수 | 정상 처리한 사진입니다. 탐지 0건도 평균의 분모에 포함합니다. |
 | `missing_file` | 결측값 | 파일이 없어 사람 수를 계산하지 못했습니다. |
@@ -410,9 +410,9 @@ ok               3
 
 OpenCV의 `imread`는 BGR 배열을 반환하므로 RGB로 변환해 YOLOv5 Hub 모델에 전달합니다. 같은 변환을 슬라이싱으로 쓰면 `bgr[:, :, ::-1]`입니다. **`bgr[::-1]`은 첫 번째 축을 뒤집어 이미지를 상하 반전**하므로 색상 변환이 아닙니다.
 
-`results.pandas().xyxy[0]` 형태의 결과에서 name이 `person`인 행의 수를 셉니다. 파일명별 한 행으로 만든 탐지 수를 메타데이터와 `left` `merge`하고, `validate="one_to_one"`으로 양쪽 파일명이 고유한지 검사합니다. 중복 키 때문에 사진 한 장이 여러 행으로 늘어나는 문제도 확인할 수 있습니다.
+`results.pandas().xyxy[0]` 형태의 결과에서 `name`이 `person`인 행의 수를 셉니다. 파일명별 한 행으로 만든 탐지 수를 메타데이터와 `left` `merge`하고, `validate="one_to_one"`으로 양쪽 파일명이 고유한지 검사합니다. 중복 키 때문에 사진 한 장이 여러 행으로 늘어나는 문제도 확인할 수 있습니다.
 
-`person_count`의 자료형 `Int64`는 정수와 결측값을 함께 담는 Pandas Nullable Integer입니다. 소문자 `int64`와 구분합니다. 사진별 요약 표와 객체별 좌표 표를 따로 저장하면, 집계 결과를 확인한 뒤 특정 사진의 탐지 Box로 돌아갈 수 있습니다.
+`person_count`의 자료형 `Int64`는 정수와 결측값을 함께 담는 pandas Nullable Integer입니다. 소문자 `int64`와 구분합니다. 사진별 요약 표와 객체별 좌표 표를 따로 저장하면, 집계 결과를 확인한 뒤 특정 사진의 탐지 Box로 돌아갈 수 있습니다.
 
 ```python
 fig, axes = plt.subplots(1, 3, figsize=(15, 4))
@@ -480,7 +480,7 @@ unit_name
 
 전체 응답자 평균과 그룹 평균의 단순 평균이 다른 이유는 [파이썬 데이터 분석 공부노트 06](/cs/data-analysis/pandas-06-data-interpretation/)의 집계 기준과 같습니다. 이번에는 분모가 병사 수 대신 정상 처리한 사진 수입니다.
 
-> **56건은 사진 세 장의 `person` 탐지 수를 더한 값입니다.** 같은 사람이 여러 사진에 등장할 수 있으므로 고유 참석자 56명으로 바꾸어 말하지 않습니다. event\_date가 같다고 같은 행사를 유일하게 식별할 수 있는 것도 아닙니다.
+> **56건은 사진 세 장의 `person` 탐지 수를 더한 값입니다.** 같은 사람이 여러 사진에 등장할 수 있으므로 고유 참석자 56명으로 바꾸어 말하지 않습니다. `event_date`가 같다고 같은 행사를 유일하게 식별할 수 있는 것도 아닙니다.
 
 행사별 평균 참석자를 구하려면 먼저 `event_id`처럼 행사 하나를 식별하는 기준과 여러 사진의 중복 인원 처리 방법이 필요합니다. 현재 결과는 **사진당 평균 `person` 탐지 수**입니다. 처리된 사진이 없는 부대는 비교에 넣지 않고, 다른 부대도 자료가 일부만 남아 있다는 점을 처리 사진 수와 함께 읽습니다.
 
@@ -590,7 +590,7 @@ soldier_id  actual  predicted  residual
 
 ## 5. 변수 중요도는 무엇을 설명할까요?
 
-### 5-1. feature\_importances\_로 학습한 모델의 분할을 요약합니다
+### 5-1. feature_importances_로 학습한 모델의 분할을 요약합니다
 
 ```python
 mdi_importance = pd.Series(
@@ -626,7 +626,7 @@ rest_time_score     0.131
 
 *`meal_score`의 MDI 중요도는 약 0.468입니다. 합계가 1이 되도록 정규화한 **학습 중 불순도 감소량의 비중**이며, 만족도 46.8%를 설명한다는 뜻은 아닙니다.*
 
-회귀 Tree는 분할 전후의 불순도 감소를 기준으로 Feature를 사용합니다. `feature_importances_`는 여러 Tree의 감소 기여를 모아 정규화한 값으로, <strong>MDI(Mean Decrease in Impurity)</strong>라고 부릅니다. 이 모델에서는 식사 점수, 리더십 점수, 시설 점수, 휴식 시간 점수 순입니다.
+회귀 Tree는 분할 전후의 불순도 감소를 기준으로 Feature를 사용합니다. `feature_importances_`는 여러 Tree의 감소 기여를 모아 정규화한 값으로, **MDI**(Mean Decrease in Impurity)라고 부릅니다. 이 모델에서는 식사 점수, 리더십 점수, 시설 점수, 휴식 시간 점수 순입니다.
 
 중요도가 크다는 것은 이 모델이 예측할 때 해당 Feature를 많이 활용했다는 뜻입니다. 이 값에는 점수가 높아질 때 만족도가 오르는지 내려가는지에 대한 방향 정보도 없습니다. **식사를 개선하면 전체 만족도가 얼마나 올라가는지**를 알려주는 효과 크기로 읽지 않습니다.
 
@@ -739,9 +739,9 @@ plt.close(fig)
 
 *점 하나는 원본 설문 응답 한 명입니다. 색상은 **실제 전체 만족도**이며, 예측값이나 Confidence가 아닙니다. 전체 100명의 데이터 분포를 보여 줍니다.*
 
-x축은 `meal_score`, `y`축은 `leadership_score`입니다. 식사 점수가 높은 오른쪽에서 상대적으로 밝은 색의 점이 더 많이 보입니다. 같은 점수에서도 색이 완전히 같지는 않으므로 두 Feature만으로 전체 만족도를 모두 설명하지는 않습니다.
+`x`축은 `meal_score`, `y`축은 `leadership_score`입니다. 식사 점수가 높은 오른쪽에서 상대적으로 밝은 색의 점이 더 많이 보입니다. 같은 점수에서도 색이 완전히 같지는 않으므로 두 Feature만으로 전체 만족도를 모두 설명하지는 않습니다.
 
-`c`에 실제 만족도를 전달하면 cmap이 그 값을 색으로 매핑합니다. `vmin=0, vmax=10`은 점수 척도를 일정하게 표시하고, `alpha=0.8`은 겹친 점을 보기 위한 투명도입니다. hatch는 채움 무늬를 지정하는 옵션이므로 투명도와 구분합니다.
+`c`에 실제 만족도를 전달하면 `cmap`이 그 값을 색으로 매핑합니다. `vmin=0, vmax=10`은 점수 척도를 일정하게 표시하고, `alpha=0.8`은 겹친 점을 보기 위한 투명도입니다. `hatch`는 채움 무늬를 지정하는 옵션이므로 투명도와 구분합니다.
 
 > **예측에 유용한 정보와 원인은 구분합니다.** 여기서 확인한 것은 식사 점수가 이 모델의 예측에 유용하고, 원본 설문에서도 전체 만족도와 함께 달라지는 패턴입니다. 식사 개선의 효과를 판단하려면 개입 전후 비교와 다른 요인에 대한 검토가 추가로 필요합니다.
 
@@ -789,7 +789,7 @@ OOF 오차가 큰 ID를 찾아 입력과 Label을 검토하거나 오류 유형�
 | `satisfaction_metrics.csv` | 만족도 모델 한 개의 평가 결과 | Target 단위와 RMSE·MAE·R²를 함께 봅니다. |
 | `service_importance.csv` | Feature 한 개의 중요도 | MDI와 Permutation의 기준이 다릅니다. |
 
-### 기억할 문법
+### 8-1. 기억할 문법
 
 | 문법 | 이번 실습에서의 역할 |
 | --- | --- |
@@ -804,14 +804,14 @@ OOF 오차가 큰 ID를 찾아 입력과 Label을 검토하거나 오류 유형�
 | `np.argsort()` | 정렬에 사용할 원래 위치를 가져옵니다. |
 | `permutation_importance()` | Feature를 섞었을 때 모델의 성능 변화를 계산합니다. |
 
-### 다시 읽을 때 확인할 질문
+### 8-2. 다시 읽을 때 확인할 질문
 
--   Scaler는 전체 101행이 아니라 Train 80행으로 학습했나요?
--   RMSE와 MAE는 각각 어떤 오차를 요약하고, Baseline은 같은 Test에서 비교했나요?
--   예측 CSV의 ID·실제값·예측값은 같은 병사의 기록인가요?
--   사진이 없는 경우를 0건으로 처리하지 않았나요? 평균의 분모는 정상 사진 수인가요?
--   여러 사진의 탐지 합계를 고유 참석자 수로 읽고 있지는 않나요?
--   변수 중요도가 어느 모델·데이터·평가 기준에서 나온 값인지 설명할 수 있나요?
+- Scaler는 전체 101행이 아니라 Train 80행으로 학습했나요?
+- RMSE와 MAE는 각각 어떤 오차를 요약하고, Baseline은 같은 Test에서 비교했나요?
+- 예측 CSV의 ID·실제값·예측값은 같은 병사의 기록인가요?
+- 사진이 없는 경우를 0건으로 처리하지 않았나요? 평균의 분모는 정상 사진 수인가요?
+- 여러 사진의 탐지 합계를 고유 참석자 수로 읽고 있지는 않나요?
+- 변수 중요도가 어느 모델·데이터·평가 기준에서 나온 값인지 설명할 수 있나요?
 
 완성한 CSV의 한 행을 말로 설명해 봅니다. 어떤 입력에서 얻었고, 무엇과 비교했고, 값의 분모가 무엇인지 설명할 수 있으면 풀이의 흐름도 다시 떠오릅니다.
 
@@ -819,34 +819,40 @@ OOF 오차가 큰 ID를 찾아 입력과 Label을 검토하거나 오류 유형�
 
 ### 실습 데이터와 노트북
 
--   **실습 자료**: [Session11 실습 폴더](https://drive.google.com/drive/folders/1xhJDb2XtqoAiGRA7uYayANGMO4Adxxkc) · [session11\_종합문제풀이(1).pdf](https://drive.google.com/file/d/19WHR_07KjL7ZPqEt6maOSnOgyQhnRAQZ/view) · [session11.ipynb](https://drive.google.com/file/d/11zpNqPduZUHz1IjQIiE5PUCQkcxEU8gs/view)
--   **CSV 데이터**: [sleep\_fatigue.csv](https://drive.google.com/file/d/1a0lpboe3nopWcg0NIlMpDNkg8FLuPQru/view) · [event\_meta.csv](https://drive.google.com/file/d/1k6lmMSZnWqextWhyON3rp8huzh7ioYUA/view) · [service\_survey.csv](https://drive.google.com/file/d/1C_uFG_4mDgh_LWc8N4Ch6IDA3TvIlPhK/view)
--   **이미지 데이터**: [unit\_events: event\_001\~003.png](https://drive.google.com/drive/folders/15i2FuG3mlOpwGWJ-lLAu1ztmJ0YRju3a)
--   **심화 예제**: [심화 예제 자료](https://drive.google.com/file/d/1wG0fZ0uhBQ1tniHUVE42xxo2mhkdwzGf/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **실습 자료**: [session11_종합문제풀이(1).pdf](/files/maicon-2026/lectures/session11_%EC%A2%85%ED%95%A9%EB%AC%B8%EC%A0%9C%ED%92%80%EC%9D%B4%281%29.pdf) · [session11.ipynb](/files/maicon-2026/code/session11/session11.ipynb)
+- **CSV 데이터**: [sleep_fatigue.csv](/files/maicon-2026/code/session11/sleep_fatigue.csv) · [event_meta.csv](/files/maicon-2026/code/session11/event_meta.csv) · [service_survey.csv](/files/maicon-2026/code/session11/service_survey.csv)
+- **이미지 데이터**: unit_events: [event_001.png](/files/maicon-2026/code/session11/images/unit_events/event_001.png) · [event_002.png](/files/maicon-2026/code/session11/images/unit_events/event_002.png) · [event_003.png](/files/maicon-2026/code/session11/images/unit_events/event_003.png)
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip) — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 
--   **문제**: [유형 02 문제](/cs/data-analysis/practice-02-tabular-modeling/) — 같은 장비의 반복 기록이 있을 때, 새로운 장비의 고장 여부와 정비 시간을 어떻게 평가할까요?  
-    [유형 06 문제](/cs/data-analysis/practice-06-object-detection/) — 정상 사진·빈 사진·누락 사진이 섞여 있을 때, 장면별 사람·차량 탐지 수를 어떻게 요약할까요?
--   **풀이**: [유형 02 풀이](/cs/data-analysis/practice-02-tabular-modeling-solution/) — 장비별로 데이터를 나누고 전처리 Pipeline과 그룹 CV로 고장 분류·정비 시간 회귀 모델을 평가합니다.  
-    [유형 06 풀이](/cs/data-analysis/practice-06-object-detection-solution/) — YOLO 탐지 결과와 사진별 처리 상태를 저장하고, 탐지 0건과 처리 실패를 구분해 장면별로 집계합니다.
+- **문제**
+  - [유형 02 문제](/cs/data-analysis/practice-02-tabular-modeling/) — 같은 장비의 반복 기록이 있을 때, 새로운 장비의 고장 여부와 정비 시간을 어떻게 평가할까요?
+  - [유형 06 문제](/cs/data-analysis/practice-06-object-detection/) — 정상 사진·빈 사진·누락 사진이 섞여 있을 때, 장면별 사람·차량 탐지 수를 어떻게 요약할까요?
+- **풀이**
+  - [유형 02 풀이](/cs/data-analysis/practice-02-tabular-modeling-solution/) — 장비별로 데이터를 나누고 전처리 Pipeline과 그룹 CV로 고장 분류·정비 시간 회귀 모델을 평가합니다.
+  - [유형 06 풀이](/cs/data-analysis/practice-06-object-detection-solution/) — YOLO 탐지 결과와 사진별 처리 상태를 저장하고, 탐지 0건과 처리 실패를 구분해 장면별로 집계합니다.
 
 ### 공식 문서
 
--   **전처리·학습**: [scikit-learn Common pitfalls](https://scikit-learn.org/stable/common_pitfalls.html) — Train에서 전처리를 학습하고 데이터 누수를 방지하는 방법  
-    [Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) — 전처리와 모델의 fit·predict 흐름  
-    [train\_test\_split](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html) — 여러 입력의 일치하는 분할과 random\_state  
-    [RandomForestRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html) — Tree·bootstrap·n\_estimators·feature\_importances\_  
-    [Importance of Feature Scaling](https://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html) — 모델에 따른 Scaling의 영향
--   **회귀 평가**: [DummyRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyRegressor.html) — Train 평균을 사용하는 Baseline  
-    [root\_mean\_squared\_error](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html) — RMSE 계산과 반환값  
-    [Regression metrics](https://scikit-learn.org/stable/modules/model_evaluation.html#regression-metrics) — MAE·RMSE·R²의 평가 기준
--   **탐지·집계**: [YOLOv5 PyTorch Hub](https://docs.ultralytics.com/yolov5/tutorials/pytorch-hub-model-loading) — 클래스 필터·색상 입력·Pandas 결과 변환  
-    [Pandas DataFrame.merge](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.merge.html) — left merge와 validate의 키 관계 검사  
-    [Pandas GroupBy.sum](https://pandas.pydata.org/docs/reference/api/pandas.api.typing.SeriesGroupBy.sum.html) — min\_count로 관측값 없는 그룹을 구분
--   **모델 해석**: [Forest feature importances](https://scikit-learn.org/stable/auto_examples/ensemble/plot_forest_importances.html) — MDI와 Permutation Importance의 비교  
-    [Permutation feature importance](https://scikit-learn.org/stable/modules/permutation_importance.html) — 점수 변화의 계산·상관된 Feature·해석 기준  
-    [permutation\_importance API](https://scikit-learn.org/stable/modules/generated/sklearn.inspection.permutation_importance.html) — scoring·n\_repeats·반환 평균과 표준편차  
-    [NumPy argsort](https://numpy.org/doc/stable/reference/generated/numpy.argsort.html) — 정렬 순서에 해당하는 Index 반환  
-    [Matplotlib Axes.scatter](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html) — c·cmap·vmin·vmax·alpha의 의미
--   **CV 예측**: [cross\_val\_predict](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_val_predict.html) — 각 관측값의 Fold 외부 예측과 평가 지표 사용 시 주의점을 확인합니다.
+- **전처리·학습**
+  - [scikit-learn Common pitfalls](https://scikit-learn.org/stable/common_pitfalls.html) — Train에서 전처리를 학습하고 데이터 누수를 방지하는 방법
+  - [Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) — 전처리와 모델의 fit·predict 흐름
+  - [train_test_split](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html) — 여러 입력의 일치하는 분할과 random_state
+  - [RandomForestRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html) — Tree·bootstrap·n_estimators·feature_importances_
+  - [Importance of Feature Scaling](https://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html) — 모델에 따른 Scaling의 영향
+- **회귀 평가**
+  - [DummyRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyRegressor.html) — Train 평균을 사용하는 Baseline
+  - [root_mean_squared_error](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html) — RMSE 계산과 반환값
+  - [Regression metrics](https://scikit-learn.org/stable/modules/model_evaluation.html#regression-metrics) — MAE·RMSE·R²의 평가 기준
+- **탐지·집계**
+  - [YOLOv5 PyTorch Hub](https://docs.ultralytics.com/yolov5/tutorials/pytorch-hub-model-loading) — 클래스 필터·색상 입력·Pandas 결과 변환
+  - [pandas DataFrame.merge](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.merge.html) — left merge와 validate의 키 관계 검사
+  - [pandas GroupBy.sum](https://pandas.pydata.org/docs/reference/api/pandas.api.typing.SeriesGroupBy.sum.html) — min_count로 관측값 없는 그룹을 구분
+- **모델 해석**
+  - [Forest feature importances](https://scikit-learn.org/stable/auto_examples/ensemble/plot_forest_importances.html) — MDI와 Permutation Importance의 비교
+  - [Permutation feature importance](https://scikit-learn.org/stable/modules/permutation_importance.html) — 점수 변화의 계산·상관된 Feature·해석 기준
+  - [permutation_importance API](https://scikit-learn.org/stable/modules/generated/sklearn.inspection.permutation_importance.html) — scoring·n_repeats·반환 평균과 표준편차
+  - [NumPy argsort](https://numpy.org/doc/stable/reference/generated/numpy.argsort.html) — 정렬 순서에 해당하는 Index 반환
+  - [Matplotlib Axes.scatter](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html) — c·cmap·vmin·vmax·alpha의 의미
+- **CV 예측**: [cross_val_predict](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_val_predict.html) — 각 관측값의 Fold 외부 예측과 평가 지표 사용 시 주의점을 확인합니다.

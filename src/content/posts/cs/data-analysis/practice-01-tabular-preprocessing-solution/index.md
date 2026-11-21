@@ -4,7 +4,7 @@ date: 2026-10-09T18:09:37+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "중복 거래와 단위가 다른 수량을 정리한 뒤, 팀별·일별 보급량을 어떻게 믿을 수 있게 계산할까요? 키의 버전을 먼저 정하고 JSON을 평탄화합니다. 오류를 0으로 바꾸지 않고 상태를 남긴 뒤, 단위를 piece로…"
+description: "보급 기록의 최신 버전을 고르고 JSON을 평탄화한 뒤, 오류 기록을 이유와 함께 분리하고 수량을 piece로 맞춰 팀별·일별로 집계하는 풀이입니다. 중복 기준표와 0 채우기의 함정도 비교합니다."
 tistoryId: 65
 ---
 > **이번 글의 질문**
@@ -19,12 +19,12 @@ tistoryId: 65
 
 보급 기록이 CSV와 JSON에 나뉘어 있습니다. 같은 `event_id`가 재전송됐고, 수량은 `piece`·`box`가 섞여 있습니다. 최신 수정본을 채택하고 등록 팀에 연결되는 유효한 기록으로 일별 수량을 계산합니다. 데이터는 이 문제의 오류 처리와 집계를 연습하기 위해 구성했습니다.
 
--   입력 구조와 중복을 확인합니다
--   버전과 Join의 대응 관계를 정합니다
--   수량과 단위를 검증하고 Reject 이유를 남깁니다
--   일별·팀별로 요약하고 합계가 보존되는지 봅니다
+- 입력 구조와 중복을 확인합니다
+- 버전과 Join의 대응 관계를 정합니다
+- 수량과 단위를 검증하고 Reject 이유를 남깁니다
+- 일별·팀별로 요약하고 합계가 보존되는지 봅니다
 
-아래 기본 풀이의 출력은 첨부한 solution.ipynb와 결과 CSV에 기록된 실제 실행 결과입니다. 추가 비교 예제는 별도 Notebook에서 실행했으며, 가상 예제는 그 범위를 표시했습니다.
+아래 기본 풀이의 출력은 첨부한 `solution.ipynb`와 결과 CSV에 기록된 실제 실행 결과입니다. 추가 비교 예제는 별도 Notebook에서 실행했으며, 가상 예제는 그 범위를 표시했습니다.
 
 ## 2. 단계별 코드와 실행 결과
 
@@ -83,7 +83,7 @@ print("최신 event:", len(events), "등록 팀:", len(units))
 최신 event: 180 등록 팀: 6
 ```
 
-`validate="many_to_one"`은 기준표의 키가 하나씩 있는지 검사합니다. Join 뒤에도 거래 수가 그대로인지 확인해, 연결 과정에서 생긴 행 증식을 찾습니다.
+`validate="many_to_one"`은 기준표의 키가 중복 없이 하나씩만 있는지 검사합니다. Join 뒤에도 거래 수가 그대로인지 확인해, 연결 과정에서 생긴 행 증식을 찾습니다.
 
 ### 수량과 단위를 검증하고 Reject 이유를 남깁니다
 
@@ -171,9 +171,7 @@ Reject 사유는 한 행에 여러 개 붙을 수 있습니다. 사유 개수를
 
 시각화는 유효 기록의 보급량입니다. 누락된 수량까지 추정한 전체 실적은 아니므로 유효 기록 수와 함께 읽습니다.
 
-![정형 데이터 전처리와 집계의 실행 결과를 보여 줍니다. 단위와 관측 대상을 본문의 기준으로 읽습니다.](./img-01.png)
-
-*정형 데이터 전처리와 집계의 실행 결과를 보여 줍니다. 단위와 관측 대상을 본문의 기준으로 읽습니다.*
+![팀 U001~U005의 유효 보급량(piece)을 나타낸 막대그래프](./img-01.png)
 
 ## 4. 처리 기준이 결과를 바꾸는 비교 예제
 
@@ -207,7 +205,7 @@ assert len(correct) == len(events)
 최신 기준표 연결: 180
 ```
 
-Join의 방향을 정하는 일과 키의 유일성을 확인하는 일은 함께 필요합니다. validate는 행 수가 늘어난 뒤 원인을 추측하는 대신 연결 조건을 바로 검사하게 해 줍니다.
+Join의 방향을 정하는 일과 키의 유일성을 확인하는 일은 함께 필요합니다. `validate`는 행 수가 늘어난 뒤 원인을 추측하는 대신 연결 조건을 바로 검사하게 해 줍니다.
 
 ### 관측하지 못한 팀과 수량 0인 팀을 구분합니다
 
@@ -264,7 +262,7 @@ python check_outputs.py --types 1
 
 ### 한 거래에 여러 품목이 들어오면 키는 어떻게 정할까요?
 
-거래 헤더의 `event_id`와 품목 행의 line\_id를 구분합니다. 여러 품목 행이 존재하는 자료라면 두 필드를 함께 행 키로 사용합니다. 같은 거래의 품목을 정정한 수정본이라면 `event_id`의 최신 버전을 채택해야 하며, 바뀐 `item_id`를 새 키로 추가하면 이전 품목과 수정 품목을 동시에 셀 수 있습니다.
+거래 헤더의 `event_id`와 품목 행의 `line_id`를 구분합니다. 여러 품목 행이 존재하는 자료라면 두 필드를 함께 행 키로 사용합니다. 같은 거래의 품목을 정정한 수정본이라면 `event_id`의 최신 버전을 채택해야 하며, 바뀐 `item_id`를 새 키로 추가하면 이전 품목과 수정 품목을 동시에 셀 수 있습니다.
 
 남길 결과: 거래 수정본과 품목별 행이 섞인 작은 표를 만들고 최신 버전 선택 전후의 거래·품목 행 수를 비교합니다.
 
@@ -272,33 +270,33 @@ python check_outputs.py --types 1
 
 날짜별 전체 입력·유효 입력·제외 입력을 같은 분모로 집계합니다. 여러 오류 이유가 한 행에 붙을 수 있으므로 사유별 합계를 제외 행 수와 혼동하지 않습니다.
 
-남길 결과: daily\_quality.csv에 날짜·입력 건수·유효 건수·제외 비율을 저장하고, 입력이 없는 날의 상태도 구분합니다.
+남길 결과: `daily_quality.csv`에 날짜·입력 건수·유효 건수·제외 비율을 저장하고, 입력이 없는 날의 상태도 구분합니다.
 
 ## 참고자료
 
 ### 실습 데이터와 노트북
 
--   **문제 자료**: [문제 자료](https://drive.google.com/file/d/1c8e81JfqWay79yqJS3SmExlAjzQ8LS5w/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 입력 데이터와 starter.ipynb로 직접 구현을 시작합니다.
--   **풀이 자료**: [풀이와 결과](https://drive.google.com/file/d/1wEORVp7fULcjnikD-V0go51GDkz5gKiu/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 전체 Python 코드, 노트북과 실행 결과를 함께 받습니다.
--   **공통 자료**: [실습 공통 자료](https://drive.google.com/file/d/1-W9cVOlqQ4BUYRX3AGH3qbC9CsUQjf-g/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
--   **예선 가이드**: [국방AI경진대회 예선가이드](https://drive.google.com/file/d/1YDxg9ngucdJR7y4zUaBuW5bEYhzh1EJl/view) — 제공된 가이드의 범위를 바탕으로 만든 연습문제입니다.
--   **실행 안내**: — 같은 작업 폴더에 압축을 푼 뒤 유형 폴더에서 solution.ipynb 또는 solution.py를 실행합니다. blog\_comparison.ipynb에는 본문에서 추가한 두 비교 예제와 실제 출력이 들어 있습니다.
--   **데이터 출처**: — 거래·팀·품목 데이터는 이 실습을 위해 Seed 2026으로 구성한 합성 데이터입니다. 실제 부대의 보급 기록이 아닙니다.
+- **문제 자료**: [문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_01_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — 입력 데이터와 `starter.ipynb`로 직접 구현을 시작합니다.
+- **풀이 자료**: [풀이와 결과](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_01_%ED%92%80%EC%9D%B4%EC%99%80_%EA%B2%B0%EA%B3%BC.zip) — 전체 Python 코드, 노트북과 실행 결과를 함께 받습니다.
+- **공통 자료**: [실습 공통 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_%EA%B3%B5%ED%86%B5%EC%A4%80%EB%B9%84.zip) — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
+- **예선 가이드**: [국방AI경진대회 예선가이드](/files/maicon-2026/%EA%B5%AD%EB%B0%A9AI%EA%B2%BD%EC%A7%84%EB%8C%80%ED%9A%8C%20%EC%98%88%EC%84%A0%EA%B0%80%EC%9D%B4%EB%93%9C.pdf) — 제공된 가이드의 범위를 바탕으로 만든 연습문제입니다.
+- **실행 안내**: 같은 작업 폴더에 압축을 푼 뒤 유형 폴더에서 `solution.ipynb` 또는 `solution.py`를 실행합니다. `blog_comparison.ipynb`에는 본문에서 추가한 두 비교 예제와 실제 출력이 들어 있습니다.
+- **데이터 출처**: 거래·팀·품목 데이터는 이 실습을 위해 Seed 2026으로 구성한 합성 데이터입니다. 실제 부대의 보급 기록이 아닙니다.
 
 ### 연습문제
 
--   **문제**: [유형 01 문제](/cs/data-analysis/practice-01-tabular-preprocessing/) — 중복 거래와 단위가 다른 수량을 정리한 뒤, 팀별·일별 보급량을 어떻게 믿을 수 있게 계산할까요?
--   **모의 실습**: [모의 실습 A](/cs/data-analysis/mock-exam-a-90-min-review/) — 세 문항을 20·35·45점으로 묶어 입력부터 저장까지 연습합니다.  
-    [모의 실습 B](/cs/data-analysis/mock-exam-b-90-min-review/) — 세 문항을 20·35·45점으로 묶어 입력부터 저장까지 연습합니다.
+- **문제**: [유형 01 문제](/cs/data-analysis/practice-01-tabular-preprocessing/) — 중복 거래와 단위가 다른 수량을 정리한 뒤, 팀별·일별 보급량을 어떻게 믿을 수 있게 계산할까요?
+- **모의 실습**: [모의 실습 A](/cs/data-analysis/mock-exam-a-90-min-review/) — 세 문항을 20·35·45점으로 묶어 입력부터 저장까지 연습합니다.  
+  [모의 실습 B](/cs/data-analysis/mock-exam-b-90-min-review/) — 세 문항을 20·35·45점으로 묶어 입력부터 저장까지 연습합니다.
 
 ### 관련 공부노트
 
--   **공부노트 01**: [결측치와 이상치 처리](/cs/data-analysis/pandas-01-missing-values-outliers/)
--   **공부노트 03**: [시계열 데이터 정렬 및 리샘플링](/cs/data-analysis/pandas-03-time-series-resampling/)
--   **공부노트 04**: [데이터 통계량](/cs/data-analysis/pandas-04-descriptive-statistics/)
--   **공부노트 06**: [데이터 해석](/cs/data-analysis/pandas-06-data-interpretation/)
+- **공부노트 01**: [결측치와 이상치 처리](/cs/data-analysis/pandas-01-missing-values-outliers/)
+- **공부노트 03**: [시계열 데이터 정렬 및 리샘플링](/cs/data-analysis/pandas-03-time-series-resampling/)
+- **공부노트 04**: [데이터 통계량](/cs/data-analysis/pandas-04-descriptive-statistics/)
+- **공부노트 06**: [데이터 해석](/cs/data-analysis/pandas-06-data-interpretation/)
 
 ### 공식 문서
 
--   **사용한 도구**: [pandas.merge](https://pandas.pydata.org/docs/reference/api/pandas.merge.html) — validate·indicator와 null key의 매칭을 확인합니다.  
-    [json\_normalize](https://pandas.pydata.org/docs/reference/api/pandas.json_normalize.html) — 중첩 JSON을 열로 펼치는 방법입니다.
+- **사용한 도구**: [pandas.merge](https://pandas.pydata.org/docs/reference/api/pandas.merge.html) — validate·indicator와 null key의 매칭을 확인합니다.  
+  [json_normalize](https://pandas.pydata.org/docs/reference/api/pandas.json_normalize.html) — 중첩 JSON을 열로 펼치는 방법입니다.

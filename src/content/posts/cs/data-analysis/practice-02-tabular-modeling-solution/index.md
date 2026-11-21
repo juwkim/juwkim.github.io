@@ -4,7 +4,7 @@ date: 2026-10-09T19:05:09+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "같은 장비의 반복 기록이 있을 때, 새로운 장비의 고장 여부와 정비 시간을 어떻게 평가할까요? 장비 ID가 겹치지 않는 Train/Test를 사용합니다. 결측치·범주 처리와 모델을 Pipeline으로 연결하고,…"
+description: "장비 ID가 겹치지 않는 Train/Test에서 전처리 Pipeline과 그룹 CV로 고장 분류와 정비 시간 회귀를 평가하는 풀이입니다. 행 단위 분할과 누수 필드가 만드는 문제도 비교합니다."
 tistoryId: 67
 ---
 > **이번 글의 질문**
@@ -19,12 +19,12 @@ tistoryId: 67
 
 장비 90개의 관측 기록 720행입니다. 다음 주 고장 여부는 분류, 정비 시간은 회귀로 예측합니다. 관측 시점의 Feature와 점검이 끝난 뒤 만들어진 `post_inspection_code`가 함께 있어 입력의 시점을 구분해야 합니다. 값은 반복 관측과 누수 방지를 연습하도록 구성한 합성 데이터입니다.
 
--   ID와 두 Target을 함께 유지합니다
--   전처리도 그룹별 Validation 안에서 학습합니다
--   고정한 모델과 Baseline을 같은 Test에서 평가합니다
--   같은 기록의 두 예측을 한 행에 저장합니다
+- ID와 두 Target을 함께 유지합니다
+- 전처리도 그룹별 Validation 안에서 학습합니다
+- 고정한 모델과 Baseline을 같은 Test에서 평가합니다
+- 같은 기록의 두 예측을 한 행에 저장합니다
 
-아래 기본 풀이의 출력은 첨부한 solution.ipynb와 결과 CSV에 기록된 실제 실행 결과입니다. 추가 비교 예제는 별도 Notebook에서 실행했으며, 가상 예제는 그 범위를 표시했습니다.
+아래 기본 풀이의 출력은 첨부한 `solution.ipynb`와 결과 CSV에 기록된 실제 실행 결과입니다. 추가 비교 예제는 별도 Notebook에서 실행했으며, 가상 예제는 그 범위를 표시했습니다.
 
 ## 2. 단계별 코드와 실행 결과
 
@@ -182,9 +182,9 @@ Train/Test를 나눈 단위는 행이 아니라 장비입니다. 같은 장비�
 
 두 Target의 난도는 다릅니다. 분류 점수가 높다고 회귀도 잘했다고 읽지 않고 각각의 Baseline을 비교합니다.
 
-처음 본 `device_type`은 Train에서 학습한 OneHotEncoder의 unknown 처리 규칙을 따릅니다. Test에서 Encoder를 다시 `fit`하지 않습니다.
+처음 보는 `device_type` 범주는 Train에서 학습한 OneHotEncoder의 unknown 처리 규칙을 따릅니다. Test에서 Encoder를 다시 `fit`하지 않습니다.
 
-![정형 데이터 분류와 회귀의 실행 결과를 보여 줍니다. 단위와 관측 대상을 본문의 기준으로 읽습니다.](./img-01.png)
+![새 장비 Test의 고장 분류 혼동 행렬과 실제·예측 정비 시간 산점도](./img-01.png)
 
 *왼쪽은 새 장비 Test의 분류 오류, 오른쪽은 실제 정비 시간과 예측 시간입니다. 대각선에서 멀수록 회귀 오차가 큽니다.*
 
@@ -266,7 +266,7 @@ python check_outputs.py --types 2
 
 ### 오경보와 미탐의 비용이 다르면 Threshold를 어떻게 정할까요?
 
-Train 내부 그룹 Validation에서 확률 예측을 모으고, 후보 Threshold마다 FP와 FN에 정한 비용을 곱합니다. 최소 비용 규칙을 고정한 뒤 Test를 한 번 평가합니다. `balanced` class\_weight만으로 운영 Threshold가 정해지는 것은 아닙니다.
+Train 내부 그룹 Validation에서 확률 예측을 모으고, 후보 Threshold마다 FP와 FN에 정한 비용을 곱합니다. 최소 비용 규칙을 고정한 뒤 Test를 한 번 평가합니다. `class_weight="balanced"`만으로 운영 Threshold가 정해지는 것은 아닙니다.
 
 남길 결과: Threshold·FP·FN·비용 표와 선택한 기준의 Confusion Matrix를 남깁니다.
 
@@ -280,26 +280,26 @@ Train 내부 그룹 Validation에서 확률 예측을 모으고, 후보 Threshol
 
 ### 실습 데이터와 노트북
 
--   **문제 자료**: [문제 자료](https://drive.google.com/file/d/1WdBOQc3Qi60dKTRZq_araJzZvS3XBz6K/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 입력 데이터와 starter.ipynb로 직접 구현을 시작합니다.
--   **풀이 자료**: [풀이와 결과](https://drive.google.com/file/d/1B1pLP-3BKRpYWmhnySUj_rrdmFU7bkKe/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 전체 Python 코드, 노트북과 실행 결과를 함께 받습니다.
--   **공통 자료**: [실습 공통 자료](https://drive.google.com/file/d/1-W9cVOlqQ4BUYRX3AGH3qbC9CsUQjf-g/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
--   **예선 가이드**: [국방AI경진대회 예선가이드](https://drive.google.com/file/d/1YDxg9ngucdJR7y4zUaBuW5bEYhzh1EJl/view) — 제공된 가이드의 범위를 바탕으로 만든 연습문제입니다.
--   **실행 안내**: — 같은 작업 폴더에 압축을 푼 뒤 유형 폴더에서 solution.ipynb 또는 solution.py를 실행합니다. blog\_comparison.ipynb에는 본문에서 추가한 두 비교 예제와 실제 출력이 들어 있습니다.
--   **데이터 출처**: — 장비 90개의 720행은 반복 관측과 누수 방지를 연습하도록 만든 합성 데이터입니다. 실제 고장 예측 성능을 입증하는 자료로 사용하지 않습니다.
+- **문제 자료**: [문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_02_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — 입력 데이터와 `starter.ipynb`로 직접 구현을 시작합니다.
+- **풀이 자료**: [풀이와 결과](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_02_%ED%92%80%EC%9D%B4%EC%99%80_%EA%B2%B0%EA%B3%BC.zip) — 전체 Python 코드, 노트북과 실행 결과를 함께 받습니다.
+- **공통 자료**: [실습 공통 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_%EA%B3%B5%ED%86%B5%EC%A4%80%EB%B9%84.zip) — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
+- **예선 가이드**: [국방AI경진대회 예선가이드](/files/maicon-2026/%EA%B5%AD%EB%B0%A9AI%EA%B2%BD%EC%A7%84%EB%8C%80%ED%9A%8C%20%EC%98%88%EC%84%A0%EA%B0%80%EC%9D%B4%EB%93%9C.pdf) — 제공된 가이드의 범위를 바탕으로 만든 연습문제입니다.
+- **실행 안내**: 같은 작업 폴더에 압축을 푼 뒤 유형 폴더에서 `solution.ipynb` 또는 `solution.py`를 실행합니다. `blog_comparison.ipynb`에는 본문에서 추가한 두 비교 예제와 실제 출력이 들어 있습니다.
+- **데이터 출처**: 장비 90개의 720행은 반복 관측과 누수 방지를 연습하도록 만든 합성 데이터입니다. 실제 고장 예측 성능을 입증하는 자료로 사용하지 않습니다.
 
 ### 연습문제
 
--   **문제**: [유형 02 문제](/cs/data-analysis/practice-02-tabular-modeling/) — 같은 장비의 반복 기록이 있을 때, 새로운 장비의 고장 여부와 정비 시간을 어떻게 평가할까요?
--   **모의 실습**: [모의 실습 B](/cs/data-analysis/mock-exam-b-90-min-review/) — 세 문항을 20·35·45점으로 묶어 입력부터 저장까지 연습합니다.
+- **문제**: [유형 02 문제](/cs/data-analysis/practice-02-tabular-modeling/) — 같은 장비의 반복 기록이 있을 때, 새로운 장비의 고장 여부와 정비 시간을 어떻게 평가할까요?
+- **모의 실습**: [모의 실습 B](/cs/data-analysis/mock-exam-b-90-min-review/) — 세 문항을 20·35·45점으로 묶어 입력부터 저장까지 연습합니다.
 
 ### 관련 공부노트
 
--   **공부노트 02**: [정규화와 인코딩](/cs/data-analysis/pandas-02-normalization-encoding/)
--   **공부노트 07**: [지도 학습 및 평가](/cs/data-analysis/pandas-07-supervised-learning/)
--   **공부노트 11**: [종합 문제 풀이 (1)](/cs/data-analysis/pandas-11-comprehensive-problems-1/)
--   **공부노트 12**: [종합 문제 풀이 (2)](/cs/data-analysis/pandas-12-comprehensive-problems-2/)
+- **공부노트 02**: [정규화와 인코딩](/cs/data-analysis/pandas-02-normalization-encoding/)
+- **공부노트 07**: [지도 학습 및 평가](/cs/data-analysis/pandas-07-supervised-learning/)
+- **공부노트 11**: [종합 문제 풀이 (1)](/cs/data-analysis/pandas-11-comprehensive-problems-1/)
+- **공부노트 12**: [종합 문제 풀이 (2)](/cs/data-analysis/pandas-12-comprehensive-problems-2/)
 
 ### 공식 문서
 
--   **사용한 도구**: [ColumnTransformer와 Pipeline](https://scikit-learn.org/stable/modules/compose.html) — 수치형·범주형 전처리를 Fold 안에서 학습합니다.  
-    [GroupKFold](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GroupKFold.html) — 같은 장비를 같은 Fold에 둡니다.
+- **사용한 도구**: [ColumnTransformer와 Pipeline](https://scikit-learn.org/stable/modules/compose.html) — 수치형·범주형 전처리를 Fold 안에서 학습합니다.  
+  [GroupKFold](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GroupKFold.html) — 같은 장비를 같은 Fold에 둡니다.

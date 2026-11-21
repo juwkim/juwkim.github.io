@@ -4,7 +4,7 @@ date: 2026-10-06T23:31:05+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "적합·부적합을 예측하는 문제와 남은 수명을 예측하는 문제는 무엇이 다를까요? Test Accuracy가 100%이면 새로운 데이터도 모두 맞출까요? RMSE 7.212일이라는 숫자를 어떻게 읽어야 할까요? 지도…"
+description: "체력 기록의 적합 여부 분류, 장비 잔여 수명 회귀, 정비 시급성 등급 분류를 실습하며 Accuracy·Precision·Recall·F1과 MAE·RMSE·R²를 읽는 방법을 정리합니다. Baseline 비교, 데이터 누수, 교차검증도 다룹니다."
 tistoryId: 57
 ---
 > **이번 글의 질문**
@@ -35,7 +35,7 @@ tistoryId: 57
 
 | 문제 | Target | 예측할 결과 | 모델 |
 | --- | --- | --- | --- |
-| 체력 기반 적합도 | `status` | 적합 또는 부적합 | RandomForestClassifier |
+| 체력 기반 적합도 | `status` | 적합 또는 부적합 | `RandomForestClassifier` |
 | 장비 잔여 수명 | `remaining_life_days` | 남은 일수 | `LinearRegression` |
 | 정비 시급성 등급 | `priority_level` | A·B·C 중 한 등급 | `GradientBoostingClassifier` |
 
@@ -219,8 +219,8 @@ RandomForestClassifier는 적합·부적합 같은 문자열 Target도 직접 �
 
 | 실제값 / 예측값 | 부적합 (0) | 적합 (1) |
 | --- | --- | --- |
-| 부적합 (0) | 9 — TN | 0 — FP |
-| 적합 (1) | 0 — FN | 11 — TP |
+| 부적합 (0) | 9 (TN) | 0 (FP) |
+| 적합 (1) | 0 (FN) | 11 (TP) |
 
 위 표는 `labels=[0, 1]` 순서로 만든 실제 결과입니다. 적합인 1을 Positive로 두면 `TN=9`, `FP=0`, `FN=0`, `TP=11`입니다. Test 20건을 모두 맞혔으므로 Accuracy는 1.0입니다. 어떤 클래스가 먼저인지 지정하지 않으면 클래스의 정렬 순서에 따라 표를 잘못 읽을 수 있어 labels를 명시합니다.
 
@@ -286,7 +286,7 @@ print("부적합을 찾는 Recall:", round(recall_score(toy_actual, toy_pred, po
 
 부적합을 놓치지 않는 것이 관심사라면 부적합 0을 Positive로 두고 `pos_label=0`으로 평가할 수 있습니다. 위 설명용 예제에서 적합 Recall은 8/11≈0.7273, 부적합 Recall은 7/9≈0.7778입니다. **Positive는 지표 계산의 기준 클래스**이며, 좋은 상태나 이상 상태로 고정된 이름이 아닙니다.
 
-### 4-4. classification\_report의 support와 평균을 읽습니다
+### 4-4. classification_report의 support와 평균을 읽습니다
 
 support는 Test에 있는 해당 클래스의 실제 관측 개수입니다. 체력 데이터에서는 부적합 9건, 적합 11건입니다. macro avg는 클래스별 지표에 같은 비중을 주고, weighted avg는 support로 가중합니다. 클래스별 지표와 평균을 나란히 보면 적은 클래스에서 성능이 낮은지 확인하기 쉽습니다.
 
@@ -320,10 +320,10 @@ Train에서 더 많은 클래스는 적합입니다. 항상 적합만 예측하�
 
 Accuracy 1.0은 이번에 나눈 Test 20건에서 모두 맞혔다는 결과입니다. Test가 20건이면 한 건의 오류가 Accuracy를 0.05만큼 바꿉니다. 평가 건수와 분할 기준을 함께 남기면 숫자의 크기를 더 정확하게 읽을 수 있습니다.
 
--   **정답의 정의를 봅니다.** `status`가 체력 기록의 특정 기준으로 만들어졌다면 모델은 그 기준을 재현하는 문제를 푸는 셈입니다. Label이 만들어진 방식부터 확인합니다.
--   **Feature를 확인합니다.** `status`·`status_encoded` 등 Target을 `X`에 넣지 않았는지 봅니다.
--   **관측 단위를 확인합니다.** 같은 병사의 반복 기록이 Train과 Test에 걸쳐 섞이면 새로운 병사에 대한 성능과 다른 평가가 될 수 있습니다.
--   **평가 목적을 확인합니다.** 미래 기록을 예측할 것이라면 시간 순서와 예측 시점에 알 수 있는 Feature를 고려해 나눕니다.
+- **정답의 정의를 봅니다.** `status`가 체력 기록의 특정 기준으로 만들어졌다면 모델은 그 기준을 재현하는 문제를 푸는 셈입니다. Label이 만들어진 방식부터 확인합니다.
+- **Feature를 확인합니다.** `status`·`status_encoded` 등 Target을 `X`에 넣지 않았는지 봅니다.
+- **관측 단위를 확인합니다.** 같은 병사의 반복 기록이 Train과 Test에 걸쳐 섞이면 새로운 병사에 대한 성능과 다른 평가가 될 수 있습니다.
+- **평가 목적을 확인합니다.** 미래 기록을 예측할 것이라면 시간 순서와 예측 시점에 알 수 있는 Feature를 고려해 나눕니다.
 
 점수가 높다는 이유만으로 데이터 누수가 있다고 판단하지 않습니다. 높은 점수를 얻은 이유가 문제의 단순한 구조인지, 정답 정보의 유입인지, 평가 데이터의 구성인지 확인합니다. 같은 기록을 다른 조건의 데이터에도 적용할 수 있는지는 별도로 평가합니다.
 
@@ -712,8 +712,8 @@ weapon_id  age_years  error_logs_per_month  functional_score  last_repair_months
 | 모델 | 학습 방식 | 장점 | 살펴볼 한계 |
 | --- | --- | --- | --- |
 | `LinearRegression` | Feature의 선형 결합을 학습 | 단순한 기준 모델을 만들고 계수를 살펴보기 쉽습니다. | 비선형 관계를 그대로 표현하기 어렵고, 큰 오차·Feature 간 강한 상관관계를 살펴야 합니다. |
-| RandomForestClassifier | 여러 트리의 클래스 확률을 평균 | 비선형 관계와 Feature 사이의 조합을 표현합니다. | 단일 트리보다 전체 판단 과정을 한 번에 설명하기 어렵고, 트리 크기·개수 설정이 필요합니다. |
-| `GradientBoostingClassifier` | 앞선 결과를 보정하며 트리를 추가 | 단계별로 예측 오차를 줄이는 모델을 구성합니다. | learning\_rate·트리 개수·깊이에 따라 학습 결과가 달라져 Validation이 필요합니다. |
+| `RandomForestClassifier` | 여러 트리의 클래스 확률을 평균 | 비선형 관계와 Feature 사이의 조합을 표현합니다. | 단일 트리보다 전체 판단 과정을 한 번에 설명하기 어렵고, 트리 크기·개수 설정이 필요합니다. |
+| `GradientBoostingClassifier` | 앞선 결과를 보정하며 트리를 추가 | 단계별로 예측 오차를 줄이는 모델을 구성합니다. | `learning_rate`·트리 개수·깊이에 따라 학습 결과가 달라져 Validation이 필요합니다. |
 
 세 모델 중 하나가 모든 데이터에서 우수한 것은 아닙니다. 같은 문제와 같은 분할·지표에서 Baseline과 비교합니다. 선형 회귀 계수의 절댓값은 Feature의 단위에 따라 달라지므로, 그대로 “가장 중요한 Feature”의 순위로 읽지 않습니다.
 
@@ -935,14 +935,14 @@ Threshold 선택도 모델 선택의 일부입니다. Validation이나 Train 내
 | 전처리 연결 | Pipeline | 전처리 기준은 Training 데이터에서 학습합니다. |
 | 교차검증 | `cross_val_score(..., scoring="f1_macro")` | 최종 Test를 남기고 Train 안에서 검증합니다. |
 
-1.  A·B·C를 0·1·2로 바꿨는데도 왜 회귀가 아니라 분류인가요?
-2.  Feature 3개, Train 80행에서 `shape`·`len`·`size`는 각각 어떻게 다른가요?
-3.  부적합을 Positive로 평가하고 싶다면 어떤 Label과 pos\_label을 사용하나요?
-4.  Precision이 1.0인데 Recall이 1.0보다 작을 수 있는 이유는 무엇인가요?
-5.  RMSE 7.212일과 MAE 6.202일은 각각 무엇을 요약하나요?
-6.  회귀 Baseline에서 Test 평균이 아니라 Train 평균을 사용해야 하는 이유는 무엇인가요?
-7.  같은 장비의 반복 기록이나 미래 기록을 평가할 때 무작위 분할만으로 충분한가요?
-8.  Pipeline으로 감싸도 정답이 Feature에 들어가 있는 문제는 왜 해결되지 않나요?
+1. A·B·C를 0·1·2로 바꿨는데도 왜 회귀가 아니라 분류인가요?
+2. Feature 3개, Train 80행에서 `shape`·`len`·`size`는 각각 어떻게 다른가요?
+3. 부적합을 Positive로 평가하고 싶다면 어떤 Label과 `pos_label`을 사용하나요?
+4. Precision이 1.0인데 Recall이 1.0보다 작을 수 있는 이유는 무엇인가요?
+5. RMSE 7.212일과 MAE 6.202일은 각각 무엇을 요약하나요?
+6. 회귀 Baseline에서 Test 평균이 아니라 Train 평균을 사용해야 하는 이유는 무엇인가요?
+7. 같은 장비의 반복 기록이나 미래 기록을 평가할 때 무작위 분할만으로 충분한가요?
+8. Pipeline으로 감싸도 정답이 Feature에 들어가 있는 문제는 왜 해결되지 않나요?
 
 > **예측할 대상을 정하고, 학습할 데이터와 평가할 데이터를 나누며, 문제에 맞는 지표로 결과를 읽습니다.** 점수와 함께 관측 개수·클래스별 오류·Baseline·분할 기준을 남기면 모델이 무엇을 배웠고 어디에서 어려움을 보였는지 다시 떠올리기 쉽습니다.
 
@@ -950,56 +950,64 @@ Threshold 선택도 모델 선택의 일부입니다. Validation이나 Train 내
 
 ### 실습 데이터와 노트북
 
--   **실습 자료**: [Session07 실습 폴더](https://drive.google.com/drive/folders/1IYK0BwMZXrVjdK5AWWId8Rsu0y5yAF4B) · [session07\_지도학습-및-평가.pdf](https://drive.google.com/file/d/17cOyaVXQW0AWO4KBmnf_doOo7y4OsTJU/view) · [session07.ipynb](https://drive.google.com/file/d/1joqFRuIXPh1vgpekbkSLBDhZkgpJD3AP/view)
--   **CSV 데이터**: [combat\_ready.csv](https://drive.google.com/file/d/1zN8dDcFvwsRLPv_IrmdyZxOSh7qFGHLe/view) · [equipment\_life.csv](https://drive.google.com/file/d/1WBM1vHOsYxCcHbFJ3csMXdzIIcZFw08M/view) · [maintenance\_priority.csv](https://drive.google.com/file/d/10iqqZOgXmbwLcvnHawXEzZ70s1W3Vzjt/view)
--   **심화 예제**: [심화 예제 자료](https://drive.google.com/file/d/1wG0fZ0uhBQ1tniHUVE42xxo2mhkdwzGf/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **실습 자료**: [session07_지도학습-및-평가.pdf](/files/maicon-2026/lectures/session07_%EC%A7%80%EB%8F%84%ED%95%99%EC%8A%B5-%EB%B0%8F-%ED%8F%89%EA%B0%80.pdf) · [session07.ipynb](/files/maicon-2026/code/session07/session07.ipynb)
+- **CSV 데이터**: [combat_ready.csv](/files/maicon-2026/code/session07/combat_ready.csv) · [equipment_life.csv](/files/maicon-2026/code/session07/equipment_life.csv) · [maintenance_priority.csv](/files/maicon-2026/code/session07/maintenance_priority.csv)
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip) — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 
--   **문제**: [유형 02 문제](/cs/data-analysis/practice-02-tabular-modeling/) — 같은 장비의 반복 기록이 있을 때, 새로운 장비의 고장 여부와 정비 시간을 어떻게 평가할까요?  
-    [유형 03 문제](/cs/data-analysis/practice-03-sensor-time-series/) — 누락된 센서 구간을 남기면서 다음 시간의 온도와 기준 초과 여부를 어떻게 함께 예측할까요?  
-    [유형 04 문제](/cs/data-analysis/practice-04-text-classification/) — 표현이 조금씩 다른 접수 문장을 분류하면서, 같은 양식의 문장이 Train과 Test에 섞이는 문제를 어떻게 막을까요?  
-    [유형 05 문제](/cs/data-analysis/practice-05-image-transfer-learning/) — 사전 학습된 이미지 모델을 고정한 채, 사진이 개미인지 벌인지 분류하는 새 모델을 어떻게 만들까요?
--   **풀이**: [유형 02 풀이](/cs/data-analysis/practice-02-tabular-modeling-solution/) — 장비별로 데이터를 나누고 전처리 Pipeline과 그룹 CV로 고장 분류·정비 시간 회귀 모델을 평가합니다.  
-    [유형 03 풀이](/cs/data-analysis/practice-03-sensor-time-series-solution/) — 센서별 시간 격자와 관측 수를 만들고 시간 순서대로 나눠 다음 시간 온도와 기준 초과를 예측합니다.  
-    [유형 04 풀이](/cs/data-analysis/practice-04-text-classification-solution/) — 문장 양식별로 데이터를 나누고 TF-IDF와 Logistic Regression을 Pipeline으로 연결해 그룹 CV로 검증합니다.  
-    [유형 05 풀이](/cs/data-analysis/practice-05-image-transfer-learning-solution/) — 고정한 MobileNet에서 특징을 추출하고 Validation에서 분류기를 선택한 뒤 Test 사진을 평가합니다.
+- **문제**
+  - [유형 02 문제](/cs/data-analysis/practice-02-tabular-modeling/) — 같은 장비의 반복 기록이 있을 때, 새로운 장비의 고장 여부와 정비 시간을 어떻게 평가할까요?
+  - [유형 03 문제](/cs/data-analysis/practice-03-sensor-time-series/) — 누락된 센서 구간을 남기면서 다음 시간의 온도와 기준 초과 여부를 어떻게 함께 예측할까요?
+  - [유형 04 문제](/cs/data-analysis/practice-04-text-classification/) — 표현이 조금씩 다른 접수 문장을 분류하면서, 같은 양식의 문장이 Train과 Test에 섞이는 문제를 어떻게 막을까요?
+  - [유형 05 문제](/cs/data-analysis/practice-05-image-transfer-learning/) — 사전 학습된 이미지 모델을 고정한 채, 사진이 개미인지 벌인지 분류하는 새 모델을 어떻게 만들까요?
+- **풀이**
+  - [유형 02 풀이](/cs/data-analysis/practice-02-tabular-modeling-solution/) — 장비별로 데이터를 나누고 전처리 Pipeline과 그룹 CV로 고장 분류·정비 시간 회귀 모델을 평가합니다.
+  - [유형 03 풀이](/cs/data-analysis/practice-03-sensor-time-series-solution/) — 센서별 시간 격자와 관측 수를 만들고 시간 순서대로 나눠 다음 시간 온도와 기준 초과를 예측합니다.
+  - [유형 04 풀이](/cs/data-analysis/practice-04-text-classification-solution/) — 문장 양식별로 데이터를 나누고 TF-IDF와 Logistic Regression을 Pipeline으로 연결해 그룹 CV로 검증합니다.
+  - [유형 05 풀이](/cs/data-analysis/practice-05-image-transfer-learning-solution/) — 고정한 MobileNet에서 특징을 추출하고 Validation에서 분류기를 선택한 뒤 Test 사진을 평가합니다.
 
 ### 공식 문서
 
--   **문제·학습**: [Supervised learning](https://scikit-learn.org/stable/supervised_learning.html) — 분류·회귀 문제와 학습 도구  
-    [Unsupervised learning](https://scikit-learn.org/stable/unsupervised_learning.html) — Clustering·차원 축소  
-    [LabelEncoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html) — Target 클래스의 매핑과 복원  
-    [RandomForestClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html) — 여러 트리의 분류 결과 결합  
-    [GradientBoostingClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html) — 단계별 손실 보정과 모델 설정  
-    [LinearRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html) — 최소제곱 회귀와 score  
-    [Ensemble 가이드](https://scikit-learn.org/stable/modules/ensemble.html) — Random Forest와 Gradient Boosting의 구조  
-    [Ordinary Least Squares](https://scikit-learn.org/stable/modules/linear_model.html#ordinary-least-squares) — 선형 모델의 학습과 계수  
-    [compute\_sample\_weight](https://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_sample_weight.html) — 클래스 빈도 기반의 관측 가중치
--   **분류 평가**: [accuracy\_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html) — 전체 예측 중 맞힌 비율  
-    [confusion\_matrix](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html) — 클래스별 오류와 정규화 방향  
-    [classification\_report](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html) — Precision·Recall·F1·support와 평균  
-    [precision\_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.html) — Positive 예측의 정밀도  
-    [recall\_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html) — 실제 Positive를 찾은 비율과 pos\_label  
-    [f1\_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html) — Precision과 Recall의 조화 평균
--   **회귀 평가**: [mean\_absolute\_error](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html) — 절대 오차의 평균  
-    [mean\_squared\_error](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html) — 제곱 오차의 평균  
-    [root\_mean\_squared\_error](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html) — 현재 API에서 RMSE 직접 계산  
-    [r2\_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html) — R²의 기준·범위·음수 결과  
-    [DummyClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyClassifier.html) — 분류 Baseline  
-    [DummyRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyRegressor.html) — Training Target을 이용한 회귀 Baseline
--   **분할·검증**: [train\_test\_split](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html) — X·y·ID 분할과 stratify  
-    [Cross-validation 가이드](https://scikit-learn.org/stable/modules/cross_validation.html) — 모델 선택과 최종 Test의 구분  
-    [StratifiedKFold](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html) — 클래스 비율을 고려한 Fold  
-    [cross\_val\_score](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_val_score.html) — 여러 Fold에서 scoring으로 평가  
-    [GroupKFold](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GroupKFold.html) — 동일 그룹을 분리하지 않는 검증  
-    [TimeSeriesSplit](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html) — 시간 순서를 고려한 검증
--   **전처리**: [Common pitfalls and recommended practices](https://scikit-learn.org/stable/common_pitfalls.html) — 데이터 누수·전처리·random\_state의 주의점  
-    [Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) — 전처리와 모델의 단계 연결  
-    [SimpleImputer](https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html) — Train에서 결측치 대체 기준 학습  
-    [Importance of Feature Scaling](https://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html) — 모델별 Scaling의 영향
--   **시각화**: [Matplotlib Quick start](https://matplotlib.org/stable/users/explain/quick_start.html) — Figure·Axes와 그래프 구성  
-    [Figure.savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html) — 그래프 이미지 저장  
-    [Seaborn heatmap](https://seaborn.pydata.org/generated/seaborn.heatmap.html) — 클래스별 오류 행렬 시각화
--   **판정 기준**: [Decision threshold tuning](https://scikit-learn.org/stable/modules/classification_threshold.html) — 확률 모델과 의사결정 기준, 검증 데이터의 역할을 확인합니다.
--   **평가 지표**: [Metrics and scoring](https://scikit-learn.org/stable/modules/model_evaluation.html) — 본문에서 사용한 함수와 옵션을 확인합니다.
+- **문제·학습**
+  - [Supervised learning](https://scikit-learn.org/stable/supervised_learning.html) — 분류·회귀 문제와 학습 도구
+  - [Unsupervised learning](https://scikit-learn.org/stable/unsupervised_learning.html) — Clustering·차원 축소
+  - [LabelEncoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html) — Target 클래스의 매핑과 복원
+  - [RandomForestClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html) — 여러 트리의 분류 결과 결합
+  - [GradientBoostingClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html) — 단계별 손실 보정과 모델 설정
+  - [LinearRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html) — 최소제곱 회귀와 score
+  - [Ensemble 가이드](https://scikit-learn.org/stable/modules/ensemble.html) — Random Forest와 Gradient Boosting의 구조
+  - [Ordinary Least Squares](https://scikit-learn.org/stable/modules/linear_model.html#ordinary-least-squares) — 선형 모델의 학습과 계수
+  - [compute_sample_weight](https://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_sample_weight.html) — 클래스 빈도 기반의 관측 가중치
+- **분류 평가**
+  - [accuracy_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html) — 전체 예측 중 맞힌 비율
+  - [confusion_matrix](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html) — 클래스별 오류와 정규화 방향
+  - [classification_report](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html) — Precision·Recall·F1·support와 평균
+  - [precision_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.html) — Positive 예측의 정밀도
+  - [recall_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html) — 실제 Positive를 찾은 비율과 pos_label
+  - [f1_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html) — Precision과 Recall의 조화 평균
+- **회귀 평가**
+  - [mean_absolute_error](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html) — 절대 오차의 평균
+  - [mean_squared_error](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html) — 제곱 오차의 평균
+  - [root_mean_squared_error](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html) — 현재 API에서 RMSE 직접 계산
+  - [r2_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html) — R²의 기준·범위·음수 결과
+  - [DummyClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyClassifier.html) — 분류 Baseline
+  - [DummyRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyRegressor.html) — Training Target을 이용한 회귀 Baseline
+- **분할·검증**
+  - [train_test_split](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html) — X·y·ID 분할과 stratify
+  - [Cross-validation 가이드](https://scikit-learn.org/stable/modules/cross_validation.html) — 모델 선택과 최종 Test의 구분
+  - [StratifiedKFold](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html) — 클래스 비율을 고려한 Fold
+  - [cross_val_score](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_val_score.html) — 여러 Fold에서 scoring으로 평가
+  - [GroupKFold](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GroupKFold.html) — 동일 그룹을 분리하지 않는 검증
+  - [TimeSeriesSplit](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html) — 시간 순서를 고려한 검증
+- **전처리**
+  - [Common pitfalls and recommended practices](https://scikit-learn.org/stable/common_pitfalls.html) — 데이터 누수·전처리·random_state의 주의점
+  - [Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) — 전처리와 모델의 단계 연결
+  - [SimpleImputer](https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html) — Train에서 결측치 대체 기준 학습
+  - [Importance of Feature Scaling](https://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html) — 모델별 Scaling의 영향
+- **시각화**
+  - [Matplotlib Quick start](https://matplotlib.org/stable/users/explain/quick_start.html) — Figure·Axes와 그래프 구성
+  - [Figure.savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html) — 그래프 이미지 저장
+  - [Seaborn heatmap](https://seaborn.pydata.org/generated/seaborn.heatmap.html) — 클래스별 오류 행렬 시각화
+- **판정 기준**: [Decision threshold tuning](https://scikit-learn.org/stable/modules/classification_threshold.html) — 확률 모델과 의사결정 기준, 검증 데이터의 역할을 확인합니다.
+- **평가 지표**: [Metrics and scoring](https://scikit-learn.org/stable/modules/model_evaluation.html) — 본문에서 사용한 함수와 옵션을 확인합니다.
