@@ -3,6 +3,14 @@ import Base from '../layouts/Base.astro';
 import { profile, aspirations, dreams, now, steps } from '../data/about';
 import { Image } from 'astro:assets';
 import avatar from '../assets/avatar.jpg';
+import { SITE } from '../site.config';
+
+const links = [
+  { label: 'GitHub', href: SITE.links.github },
+  { label: 'solved.ac', href: SITE.links.solvedac },
+  { label: 'Instagram', href: SITE.links.instagram },
+  { label: 'Email', href: SITE.links.email && `mailto:${SITE.links.email}` },
+].filter((link) => link.href);
 ---
 
 <Base title="About" description={profile.tagline.join(" ")}>
@@ -14,6 +22,11 @@ import avatar from '../assets/avatar.jpg';
       <div>
         <h1>{profile.name}</h1>
         <p>{profile.tagline.map((line, i) => <>{i > 0 && <br />}{line}</>)}</p>
+        {links.length > 0 && (
+          <ul class="profile-links">
+            {links.map(({ label, href }) => <li><a href={href}>{label}</a></li>)}
+          </ul>
+        )}
       </div>
     </header>
 
@@ -100,6 +113,19 @@ import avatar from '../assets/avatar.jpg';
 </Base>
 
 <style>
+  .profile-links {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+  }
+  .profile-links li + li::before {
+    content: '·';
+    content: '·' / '';
+    margin: 0 0.5em;
+  }
   /* 그리는 내일: 작은 목표들 위에 놓인 큰 방향 */
   .aspire {
     margin-bottom: 56px;

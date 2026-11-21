@@ -13,6 +13,9 @@ export const SITE = {
   },
   links: {
     github: 'https://github.com/juwkim',
+    solvedac: 'https://solved.ac/ko/u/faang12594',
+    instagram: 'https://www.instagram.com/11juwon11/',
+    email: '',
   },
   // 검색엔진 소유 확인 코드 (구글 서치 콘솔, 네이버 서치어드바이저의 HTML 태그 방식)
   verification: {

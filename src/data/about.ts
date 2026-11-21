@@ -12,8 +12,8 @@ export const profile = {
 export const aspirations = [
   {
     label: '일',
-    title: '기술로 사람의 시간을 돌려주는, 창업가형 기술 리더',
-    body: '제로 투 원으로 서비스를 만들고, 사람들이 더 중요한 일에 시간을 쓸 수 있게 돕고 싶습니다.',
+    title: '기술로 사람의 시간을 돌려주는 일',
+    body: '사람들이 더 중요한 일에 시간을 쓸 수 있게 돕고 싶습니다.',
   },
   {
     label: '삶',
@@ -51,7 +51,7 @@ export const now = {
       text: '외출 전 선크림, 하루 물 2L는 이미 몸에 붙었습니다. 이제는 운동을 하루도 거르지 않는 습관을 만드는 중.',
     },
     {
-      label: '빠져 있는 것',
+      label: '앞으로 하고 싶은 것',
       text: 'AI로 주변 사람들의 불편한 일과 반복 업무를 덜어 주는 도구 만들기.',
     },
   ],
@@ -92,7 +92,7 @@ export const steps: { date: string; title: string; note: string; link?: string; 
     link: '/posts/',
     linkLabel: '글 보기',
   },
-  { date: '꾸준히', title: '백준 9,000문제 해결', note: '문제를 풀고, 풀이를 기록으로 남기는 습관' },
+  { date: '꾸준히', title: '백준 9,174문제 해결', note: '문제를 풀고, 풀이를 기록으로 남기는 습관' },
   { date: '2024.09', title: '42서울 7기 본과정 수료', note: 'C, Unix, OS, 그래픽스를 동료들과 부딪히며 배운 2년' },
   { date: '2023', title: '성균관대 SW 창업 지원 사업 선정', note: '스타트업 창업 프로젝트 진행' },
   {
