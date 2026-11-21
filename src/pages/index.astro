@@ -1,0 +1,86 @@
+---
+import Base from '../layouts/Base.astro';
+import PostList from '../components/PostList.astro';
+import { SITE } from '../site.config';
+import { getPosts } from '../lib/posts';
+
+const posts = await getPosts();
+const recent = posts.slice(0, 8);
+---
+
+<Base>
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow">{SITE.blogName}</div>
+      <h1>{SITE.hero.title[0]}<br />{SITE.hero.title[1]}</h1>
+      <p>{SITE.hero.body}</p>
+      <div class="links">
+        <a href="/about/">About ›</a>
+        <a href={SITE.links.github}>GitHub ›</a>
+      </div>
+    </header>
+
+    <section aria-labelledby="recent">
+      <div class="section-head">
+        <h2 id="recent">최근 글 · {posts.length}</h2>
+        <a href="/posts/">전체 보기</a>
+      </div>
+      {recent.length > 0 ? <PostList posts={recent} /> : <p class="empty">아직 글이 없습니다.</p>}
+    </section>
+  </div>
+</Base>
+
+<style>
+  .hero {
+    padding: 88px 0 56px;
+  }
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--blue);
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 40px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    margin: 0 0 18px;
+  }
+  .hero p {
+    font-size: 18px;
+    line-height: 1.65;
+    color: var(--fg-2);
+    margin: 0;
+    letter-spacing: -0.015em;
+    word-break: keep-all;
+  }
+  .links {
+    display: flex;
+    gap: 20px;
+    margin-top: 28px;
+    font-size: 15px;
+  }
+  .links a {
+    color: var(--blue);
+  }
+  .links a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  section :global(.post-list) {
+    margin-top: 8px;
+  }
+  .empty {
+    color: var(--fg-3);
+    padding: 24px 0;
+  }
+  @media (max-width: 640px) {
+    .hero {
+      padding: 64px 0 44px;
+    }
+    h1 {
+      font-size: 30px;
+    }
+  }
+</style>

@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="페이지를 찾을 수 없어요">
+  <div class="wrap">
+    <div class="box">
+      <p class="code">404</p>
+      <h1>길을 잘못 들었나 봐요.</h1>
+      <p>가끔은 뛰다가 넘어지기도 하죠. 처음으로 돌아가 볼까요?</p>
+      <a href="/">홈으로 ›</a>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .box {
+    padding: 120px 0 60px;
+    text-align: center;
+  }
+  .code {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--blue);
+    margin: 0 0 12px;
+  }
+  h1 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin: 0 0 12px;
+  }
+  p {
+    color: var(--fg-2);
+    margin: 0 0 24px;
+  }
+  a {
+    color: var(--blue);
+  }
+</style>

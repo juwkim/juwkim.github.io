@@ -1,0 +1,124 @@
+---
+title: "[데이터 분석 모의 실습 B] 90분 종합 문제와 복기"
+date: 2026-10-09T19:29:35+09:00
+category: "Computer Science"
+subcategory: "데이터 분석"
+tags: []
+description: "90분 안에 세 문제의 입력·분석·결과 저장까지 끝낼 수 있을까요? 문항 배점은 20·35·45점입니다. 유형별 문제를 묶어 제한 시간 안에 풀고, 결과 파일과 놓친 조건을 복기합니다. 유형 배치는 연습을 위한…"
+tistoryId: 81
+---
+> **이번 글의 질문**
+>
+> 90분 안에 세 문제의 입력·분석·결과 저장까지 끝낼 수 있을까요?
+
+> **핵심 요약**
+>
+> 문항 배점은 20·35·45점입니다. 유형별 문제를 묶어 제한 시간 안에 풀고, 결과 파일과 놓친 조건을 복기합니다.
+
+## 1. 진행 규칙과 시간 배분
+
+유형 배치는 연습을 위한 구성입니다. 실제 예선의 문항별 데이터 유형을 확정한 자료가 아닙니다. 같은 유형을 이미 풀었다면 처음 보는 문제의 점수 대신 재현 시간과 실수 감소를 기록합니다.
+
+| 단계 | 권장 시간 | 확인할 일 |
+| --- | --- | --- |
+| 전체 입력 확인 | 5분 | 관측 단위·필수 파일·어려운 조건 |
+| 문항 1 | 15분 | 20점 기본 결과 저장 |
+| 문항 2 | 25분 | 35점 처리·평가·저장 |
+| 문항 3 | 35분 | 45점 처리·평가·저장 |
+| 최종 확인 | 10분 | CSV 재읽기·Notebook 재실행·설명 |
+
+## 2-1. 문항 1: 정형 데이터 전처리와 집계 (20점)
+
+보급 기록이 CSV와 JSON에 나뉘어 있습니다. 같은 `event_id`가 재전송됐고, 수량은 piece·box가 섞여 있습니다. 최신 수정본을 채택하고 등록 팀에 연결되는 유효한 기록으로 일별 수량을 계산합니다. 데이터는 이 문제의 오류 처리와 집계를 연습하기 위해 구성했습니다.
+
+-   `event_id`·`unit_id`는 같은 키의 `updated_at`이 가장 늦은 행을 선택합니다. 동일 시각의 충돌은 이 데이터에 없습니다.
+-   `quantity`는 0 이상이고 piece로 바꾼 값은 정수여야 합니다. box는 품목별 `pieces_per_box`를 곱합니다.
+-   누락된 키, 미등록 키, 잘못된 날짜·수량·단위는 이유를 표시하고 집계에서 제외합니다. 값은 임의 대체하지 않습니다.
+-   clean\_records.csv·rejected\_records.csv·daily\_unit\_summary.csv·unit\_totals.csv·quality\_report.csv를 저장합니다. 등록만 있고 유효 기록이 없는 팀의 총량은 결측값으로 남깁니다.
+
+| 연습용 평가 기준 | 배점 |
+| --- | --- |
+| 키·버전 처리 | 4 |
+| 단위·오류 처리 | 6 |
+| 행 수와 집계 검증 | 6 |
+| 출력 파일·시각화 | 4 |
+
+## 2-2. 문항 2: 사진 객체 탐지와 상태를 보존한 집계 (35점)
+
+Drive 실습 사진 세 장을 사용하고, 빈 화면·읽을 수 없는 파일·누락 파일을 별도 사례로 추가했습니다. 이미지 전체 분류와 달리 객체마다 클래스·Box를 얻습니다. 정답 Box Annotation은 제공되지 않으므로 탐지 정확도 대신 집계와 추적 가능성을 점검합니다.
+
+-   `photo_id`가 반복되면 최신 `updated_at` 행을 선택합니다. 같은 수정 시각 충돌은 없습니다.
+-   YOLOv5u의 person·car·bus·truck만 집계하고 `Confidence=0.25`, NMS `IoU=0.45`로 고정합니다.
+-   ok 사진은 0을 포함한 정수, missing\_file·read\_failed는 결측값을 남깁니다.
+-   사진별·객체별 결과를 저장하고 장면별 등록·처리 사진 수, 탐지 합계, 정상 사진당 평균을 계산합니다.
+-   photo\_counts.csv·photo\_detections.csv·scene\_summary.csv·confidence\_comparison.csv와 Box 확인 이미지를 저장합니다.
+
+| 연습용 평가 기준 | 배점 |
+| --- | --- |
+| 메타데이터·실패 처리 | 9 |
+| 모델 입력·클래스·Box | 9 |
+| 분모·집계·상태 보존 | 10 |
+| 출력·그림 검토 | 7 |
+
+## 2-3. 문항 3: 정형 데이터 분류와 회귀 (45점)
+
+장비 90개의 관측 기록 720행입니다. 다음 주 고장 여부는 분류, 정비 시간은 회귀로 예측합니다. 관측 시점의 Feature와 점검이 끝난 뒤 만들어진 `post_inspection_code`가 함께 있어 입력의 시점을 구분해야 합니다. 값은 반복 관측과 누수 방지를 연습하도록 구성한 합성 데이터입니다.
+
+-   splits.csv를 그대로 사용하고 Train/Test의 `asset_id` 교집합이 비어 있는지 확인합니다.
+-   `record_id`·`asset_id`·두 Target·`post_inspection_code`는 Feature에서 제외합니다. 마지막 필드는 예측 시점에 제공되지 않습니다.
+-   Train 그룹 CV에서 Logistic Regression의 C와 Random Forest의 max\_depth를 선택합니다. 전처리도 Fold 안에서 학습합니다.
+-   분류는 macro F1·Balanced Accuracy·Confusion Matrix, 회귀는 RMSE·MAE·R²와 각각의 Dummy Baseline을 보고합니다.
+-   asset\_test\_predictions.csv에는 같은 Test `record_id`의 실제·예측 Target 두 개를 저장합니다.
+
+| 연습용 평가 기준 | 배점 |
+| --- | --- |
+| 분할과 누수 방지 | 14 |
+| 전처리와 CV | 11 |
+| 두 Target 평가·Baseline | 11 |
+| 결과 연결·시각화 | 9 |
+
+## 3. 제출 결과를 점검합니다
+
+```bash
+# 예선_유형별_실습 폴더에서 실행합니다.
+python check_outputs.py --types 1 6 2
+```
+
+검사 통과 여부와 별개로 분할·Feature 생성 시점·평가 기준을 설명합니다. 시간 내 결과를 저장하지 못했다면 어느 단계에서 멈췄는지도 적습니다.
+
+## 4. 풀이를 확인하고 복기합니다
+
+| 기록할 항목 | 적을 내용 |
+| --- | --- |
+| 시간 | 입력 확인·전처리·모델·평가·저장별 소요 |
+| 첫 오류 | 메시지·원인·수정 방법 |
+| 판단 | 분할·결측/0·분모·Target 시점 중 놓친 기준 |
+| 결과 | Baseline·오류 사례·출력 파일 누락 |
+| 다음 실습 | 가장 먼저 반복할 비교 예제 하나 |
+
+### 복기 문장을 쓰는 예시
+
+“CSV는 저장했지만 ID를 합치는 과정에서 같은 장비의 예측 행이 중복됐습니다. 다음에는 저장 전에 ID 유일성과 Test 행 수를 먼저 검사하겠습니다.”처럼 조건·실수·다음 행동을 함께 적습니다. 이 문장은 복기 형식을 보여 주는 예시입니다.
+
+## 참고자료
+
+### 실습 데이터와 노트북
+
+-   **모의 실습**: [모의 B 자료](https://drive.google.com/file/d/1Cogp1f6TWALK5FzGcQM6pQXMWmF6Wxmb/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 세 문항의 구성과 90분 실습 진행 자료를 확인합니다.
+-   **공통 자료**: [실습 공통 자료](https://drive.google.com/file/d/1-W9cVOlqQ4BUYRX3AGH3qbC9CsUQjf-g/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
+-   **문항 1 자료**: [유형 01 문제 자료](https://drive.google.com/file/d/1c8e81JfqWay79yqJS3SmExlAjzQ8LS5w/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 정형 데이터 전처리와 집계 실습에 사용할 입력 자료입니다.
+-   **문항 2 자료**: [유형 06 문제 자료](https://drive.google.com/file/d/1lFRQfPo8lZBqzQOGyEslBHWKX-RBF0KM/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 사진 객체 탐지와 상태를 보존한 집계 실습에 사용할 입력 자료입니다.
+-   **문항 3 자료**: [유형 02 문제 자료](https://drive.google.com/file/d/1WdBOQc3Qi60dKTRZq_araJzZvS3XBz6K/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 정형 데이터 분류와 회귀 실습에 사용할 입력 자료입니다.
+
+### 연습문제
+
+-   **문항 1 문제**: [유형 01 문제](/cs/data-analysis/practice-01-tabular-preprocessing/) — 중복 거래와 단위가 다른 수량을 정리한 뒤, 팀별·일별 보급량을 어떻게 믿을 수 있게 계산할까요?
+-   **문항 1 풀이**: [유형 01 풀이](/cs/data-analysis/practice-01-tabular-preprocessing-solution/) — 최신 거래를 선택하고 수량 단위를 맞춘 뒤, 오류 기록을 분리해 팀별·일별로 집계합니다.
+-   **문항 2 문제**: [유형 06 문제](/cs/data-analysis/practice-06-object-detection/) — 정상 사진·빈 사진·누락 사진이 섞여 있을 때, 장면별 사람·차량 탐지 수를 어떻게 요약할까요?
+-   **문항 2 풀이**: [유형 06 풀이](/cs/data-analysis/practice-06-object-detection-solution/) — YOLO 탐지 결과와 사진별 처리 상태를 저장하고, 탐지 0건과 처리 실패를 구분해 장면별로 집계합니다.
+-   **문항 3 문제**: [유형 02 문제](/cs/data-analysis/practice-02-tabular-modeling/) — 같은 장비의 반복 기록이 있을 때, 새로운 장비의 고장 여부와 정비 시간을 어떻게 평가할까요?
+-   **문항 3 풀이**: [유형 02 풀이](/cs/data-analysis/practice-02-tabular-modeling-solution/) — 장비별로 데이터를 나누고 전처리 Pipeline과 그룹 CV로 고장 분류·정비 시간 회귀 모델을 평가합니다.
+
+### 범위와 배점
+
+-   **예선 가이드**: [국방AI경진대회 예선가이드](https://drive.google.com/file/d/1YDxg9ngucdJR7y4zUaBuW5bEYhzh1EJl/view) — 제공된 가이드 9·25·26쪽을 기준으로 구성했습니다.

@@ -1,0 +1,279 @@
+---
+import Base from '../layouts/Base.astro';
+import { profile, dreams, now, steps } from '../data/about';
+---
+
+<Base title="About" description={profile.tagline.join(" ")}>
+  <div class="wrap">
+    <header class="profile">
+      <div class="avatar" aria-hidden="true">{profile.avatar}</div>
+      <div>
+        <h1>{profile.name}</h1>
+        <p>{profile.tagline.map((line, i) => <>{i > 0 && <br />}{line}</>)}</p>
+      </div>
+    </header>
+
+    <section aria-labelledby="dreams">
+      <div class="section-head">
+        <h2 id="dreams">아직 남은 꿈</h2>
+        <span class="note">지금, 나아가는 중</span>
+      </div>
+      <ol class="dreams">
+        {
+          dreams.map((d) => (
+            <li class:list={{ done: d.done }}>
+              <span class="ring" aria-label={d.done ? '이룸' : '진행 중'} />
+              <div>
+                <div class="dt">{d.title}</div>
+                <div class="dd">{d.why}</div>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section aria-labelledby="now">
+      <div class="section-head">
+        <h2 id="now">요즘의 나</h2>
+        <span class="note">{now.updated} 업데이트</span>
+      </div>
+      <dl class="now">
+        {
+          now.items.map((item) => (
+            <div>
+              <dt>{item.label}</dt>
+              <dd>{item.text}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <section aria-labelledby="steps">
+      <div class="section-head">
+        <h2 id="steps">지나온 발걸음</h2>
+        <span class="note">넘어지고, 다시 일어선 기록</span>
+      </div>
+      <ol class="steps">
+        {
+          steps.map((s) => (
+            <li>
+              <time>{s.date}</time>
+              <div>
+                <div class="w">{s.title}</div>
+                <div class="x">
+                  {s.note}
+                  {s.link && <a href={s.link}> 후기 ›</a>}
+                </div>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .profile {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    padding: 72px 0 48px;
+  }
+  .avatar {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    flex: none;
+    background: linear-gradient(135deg, #5ac8fa, #0071e3);
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 30px;
+    font-weight: 600;
+    box-shadow: 0 0 0 1px var(--line);
+  }
+  .profile h1 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin: 0 0 6px;
+  }
+  .profile p {
+    margin: 0;
+    color: var(--fg-2);
+    font-size: 16px;
+    line-height: 1.6;
+    word-break: keep-all;
+  }
+
+  /* 아직 남은 꿈 */
+  .dreams {
+    list-style: none;
+    margin: 8px 0 56px;
+    padding: 0;
+  }
+  .dreams li {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 14px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .dreams li:last-child {
+    border-bottom: 0;
+  }
+  .ring {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--blue);
+    margin-top: 2px;
+    position: relative;
+  }
+  .ring::after {
+    content: '';
+    position: absolute;
+    inset: 3.5px;
+    border-radius: 50%;
+    background: var(--blue-soft);
+  }
+  .done .ring {
+    background: var(--blue);
+  }
+  .done .ring::after {
+    background: none;
+    inset: 0;
+    border: solid #fff;
+    border-width: 0 1.5px 1.5px 0;
+    width: 4px;
+    height: 8px;
+    border-radius: 0;
+    left: 5.5px;
+    top: 2.5px;
+    transform: rotate(45deg);
+  }
+  .dt {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.5;
+    word-break: keep-all;
+  }
+  .dd {
+    font-size: 14px;
+    color: var(--fg-3);
+    margin-top: 3px;
+  }
+
+  /* 요즘의 나 */
+  .now {
+    margin: 8px 0 56px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .now div {
+    background: var(--bg-subtle);
+    border-radius: 14px;
+    padding: 16px 18px;
+  }
+  .now dt {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--blue);
+    margin-bottom: 6px;
+  }
+  .now dd {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.55;
+    word-break: keep-all;
+    letter-spacing: -0.015em;
+  }
+
+  /* 지나온 발걸음 */
+  .steps {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    position: relative;
+  }
+  .steps::before {
+    content: '';
+    position: absolute;
+    left: 89.5px;
+    top: 26px;
+    bottom: 26px;
+    width: 1px;
+    background: var(--line-strong);
+  }
+  .steps li {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 20px;
+    padding: 14px 0;
+    position: relative;
+  }
+  .steps li::before {
+    content: '';
+    position: absolute;
+    left: 86px;
+    top: 22px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--bg);
+    box-shadow: 0 0 0 1.5px var(--fg-3);
+  }
+  .steps li:first-child::before {
+    background: var(--blue);
+    box-shadow: 0 0 0 1.5px var(--blue), 0 0 0 5px var(--blue-soft);
+  }
+  .steps time {
+    font-size: 13.5px;
+    color: var(--fg-3);
+    font-variant-numeric: tabular-nums;
+    padding-top: 2px;
+  }
+  .steps li > div {
+    padding-left: 22px;
+  }
+  .w {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .x {
+    font-size: 14px;
+    color: var(--fg-2);
+    margin-top: 4px;
+    line-height: 1.55;
+    word-break: keep-all;
+  }
+  .x a {
+    color: var(--blue);
+  }
+
+  @media (max-width: 640px) {
+    .profile {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 18px;
+    }
+    .now {
+      grid-template-columns: 1fr;
+    }
+    .steps::before {
+      left: 69.5px;
+    }
+    .steps li {
+      grid-template-columns: 60px 1fr;
+    }
+    .steps li::before {
+      left: 66px;
+    }
+  }
+</style>

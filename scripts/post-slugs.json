@@ -1,0 +1,842 @@
+[
+  {
+    "tistoryId": 5,
+    "title": "컴퓨터활용능력 1급 필기 준비",
+    "category": "Standard Library",
+    "subcategory": "오피스",
+    "slug": "computer-literacy-level1-written-prep",
+    "url": "/stdlib/office/computer-literacy-level1-written-prep/"
+  },
+  {
+    "tistoryId": 6,
+    "title": "워드프로세서 필기 준비",
+    "category": "Standard Library",
+    "subcategory": "오피스",
+    "slug": "word-processor-written-prep",
+    "url": "/stdlib/office/word-processor-written-prep/"
+  },
+  {
+    "tistoryId": 7,
+    "title": "컴퓨터활용능력 1급 필기 합격 후기",
+    "category": "Standard Library",
+    "subcategory": "오피스",
+    "slug": "computer-literacy-level1-written-review",
+    "url": "/stdlib/office/computer-literacy-level1-written-review/"
+  },
+  {
+    "tistoryId": 8,
+    "title": "워드프로세서 필기 합격 후기",
+    "category": "Standard Library",
+    "subcategory": "오피스",
+    "slug": "word-processor-written-review",
+    "url": "/stdlib/office/word-processor-written-review/"
+  },
+  {
+    "tistoryId": 9,
+    "title": "제 12회 빅데이터분석기사 필기 합격 후기",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "bigdata-analyst-12-written-review",
+    "url": "/cs/data-analysis/bigdata-analyst-12-written-review/"
+  },
+  {
+    "tistoryId": 10,
+    "title": "COS PRO 1급(Python) 합격 후기",
+    "category": "Computer Science",
+    "subcategory": "알고리즘",
+    "slug": "cos-pro-level1-python-review",
+    "url": "/cs/algorithm/cos-pro-level1-python-review/"
+  },
+  {
+    "tistoryId": 11,
+    "title": "제 58회 데이터아키텍처 준전문가(DAsP) 합격 후기",
+    "category": "Computer Science",
+    "subcategory": "데이터베이스",
+    "slug": "dasp-58-review",
+    "url": "/cs/database/dasp-58-review/"
+  },
+  {
+    "tistoryId": 12,
+    "title": "책을 사지 않고 빌려서 공부하는 방법",
+    "category": "일상",
+    "subcategory": "공부와 성장",
+    "slug": "borrow-books-to-study",
+    "url": "/life/growth/borrow-books-to-study/"
+  },
+  {
+    "tistoryId": 13,
+    "title": "2026년도 제 2회 정보통신기사 필기 합격 후기",
+    "category": "Computer Science",
+    "subcategory": "네트워크·통신",
+    "slug": "telecom-engineer-2026-2-written-review",
+    "url": "/cs/network/telecom-engineer-2026-2-written-review/"
+  },
+  {
+    "tistoryId": 14,
+    "title": "2026년도 제 2회 정보보안기사 필기 합격 후기",
+    "category": "Computer Science",
+    "subcategory": "정보보안",
+    "slug": "security-engineer-2026-2-written-review",
+    "url": "/cs/security/security-engineer-2026-2-written-review/"
+  },
+  {
+    "tistoryId": 15,
+    "title": "제 61회 SQL 개발자(SQLD) 합격 후기",
+    "category": "Computer Science",
+    "subcategory": "데이터베이스",
+    "slug": "sqld-61-review",
+    "url": "/cs/database/sqld-61-review/"
+  },
+  {
+    "tistoryId": 16,
+    "title": "제 12회 빅데이터분석기사 실기 합격 후기",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "bigdata-analyst-12-practical-review",
+    "url": "/cs/data-analysis/bigdata-analyst-12-practical-review/"
+  },
+  {
+    "tistoryId": 17,
+    "title": "프로그래머스 PCCP Python LV.4 후기",
+    "category": "Computer Science",
+    "subcategory": "알고리즘",
+    "slug": "pccp-python-lv4-review",
+    "url": "/cs/algorithm/pccp-python-lv4-review/"
+  },
+  {
+    "tistoryId": 18,
+    "title": "PART 0. 핵심 용어 및 기술 표준",
+    "category": "Computer Science",
+    "subcategory": "네트워크·통신",
+    "slug": "telecom-00-key-terms-standards",
+    "url": "/cs/network/telecom-00-key-terms-standards/"
+  },
+  {
+    "tistoryId": 19,
+    "title": "PART 1. 통신이론 - PCM",
+    "category": "Computer Science",
+    "subcategory": "네트워크·통신",
+    "slug": "telecom-01-pcm",
+    "url": "/cs/network/telecom-01-pcm/"
+  },
+  {
+    "tistoryId": 20,
+    "title": "PART 1. 통신이론 - Shannon의 정리",
+    "category": "Computer Science",
+    "subcategory": "네트워크·통신",
+    "slug": "telecom-01-shannon-capacity",
+    "url": "/cs/network/telecom-01-shannon-capacity/"
+  },
+  {
+    "tistoryId": 21,
+    "title": "건강한 몸과 운동 능력",
+    "category": "일상",
+    "subcategory": "일상 기록",
+    "slug": "healthy-body-and-fitness",
+    "url": "/life/daily/healthy-body-and-fitness/"
+  },
+  {
+    "tistoryId": 22,
+    "title": "나는 어떤 사람이고 어떤 삶을 원하는가",
+    "category": "일상",
+    "subcategory": "생각과 진로",
+    "slug": "who-i-am-and-life-i-want",
+    "url": "/life/thoughts/who-i-am-and-life-i-want/"
+  },
+  {
+    "tistoryId": 23,
+    "title": "나라사랑카드(신한, IBK기업, 하나) 혜택 정리",
+    "category": "일상",
+    "subcategory": "생활정보",
+    "slug": "nara-sarang-card-benefits",
+    "url": "/life/tips/nara-sarang-card-benefits/"
+  },
+  {
+    "tistoryId": 24,
+    "title": "일을 잘한다는 것, 그리고 작은 변화를 만드는 일",
+    "category": "일상",
+    "subcategory": "생각과 진로",
+    "slug": "working-well-small-changes",
+    "url": "/life/thoughts/working-well-small-changes/"
+  },
+  {
+    "tistoryId": 25,
+    "title": "2026년 제3회 AICE Associate 합격후기",
+    "category": "Computer Science",
+    "subcategory": "AI",
+    "slug": "aice-associate-2026-3-review",
+    "url": "/cs/ai/aice-associate-2026-3-review/"
+  },
+  {
+    "tistoryId": 26,
+    "title": "내가 풀고 싶은 문제",
+    "category": "일상",
+    "subcategory": "생각과 진로",
+    "slug": "problems-i-want-to-solve",
+    "url": "/life/thoughts/problems-i-want-to-solve/"
+  },
+  {
+    "tistoryId": 27,
+    "title": "장인에서 모험가로",
+    "category": "일상",
+    "subcategory": "생각과 진로",
+    "slug": "from-craftsman-to-adventurer",
+    "url": "/life/thoughts/from-craftsman-to-adventurer/"
+  },
+  {
+    "tistoryId": 28,
+    "title": "잘한다는 것에 대한 고찰",
+    "category": "일상",
+    "subcategory": "생각과 진로",
+    "slug": "reflections-on-being-good",
+    "url": "/life/thoughts/reflections-on-being-good/"
+  },
+  {
+    "tistoryId": 29,
+    "title": "AI시대 물결에 올라탄다는것",
+    "category": "일상",
+    "subcategory": "AI와 사회",
+    "slug": "riding-the-ai-wave",
+    "url": "/life/ai-and-society/riding-the-ai-wave/"
+  },
+  {
+    "tistoryId": 31,
+    "title": "군 생활하면서 자격증 공부하는 방법",
+    "category": "일상",
+    "subcategory": "공부와 성장",
+    "slug": "studying-certs-in-military",
+    "url": "/life/growth/studying-certs-in-military/"
+  },
+  {
+    "tistoryId": 32,
+    "title": "2026년도 제 3회 정보처리기사 필기 합격 후기",
+    "category": "Computer Science",
+    "subcategory": "소프트웨어 공학",
+    "slug": "engineer-exam-2026-3-written-review",
+    "url": "/cs/software-engineering/engineer-exam-2026-3-written-review/"
+  },
+  {
+    "tistoryId": 33,
+    "title": "일관성이라는 욕망",
+    "category": "일상",
+    "subcategory": "생각과 진로",
+    "slug": "desire-for-consistency",
+    "url": "/life/thoughts/desire-for-consistency/"
+  },
+  {
+    "tistoryId": 34,
+    "title": "`26년 후반기 국가기술자격검정 지게차운전기능사 필기시험 합격 후기",
+    "category": "Standard Library",
+    "subcategory": "운전·기능",
+    "slug": "forklift-2026-written-review",
+    "url": "/stdlib/skills/forklift-2026-written-review/"
+  },
+  {
+    "tistoryId": 35,
+    "title": "인천 청년 자격증 응시료 지원 후기｜AICE Associate 8만원 지원받기",
+    "category": "일상",
+    "subcategory": "생활정보",
+    "slug": "incheon-youth-exam-fee-support",
+    "url": "/life/tips/incheon-youth-exam-fee-support/"
+  },
+  {
+    "tistoryId": 36,
+    "title": "제 50회 데이터분석준전문가(ADsP) 합격 후기",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "adsp-50-review",
+    "url": "/cs/data-analysis/adsp-50-review/"
+  },
+  {
+    "tistoryId": 37,
+    "title": "2026 SCPC 2차 온라인 예선 합격 후기",
+    "category": "Computer Science",
+    "subcategory": "알고리즘",
+    "slug": "scpc-2026-online-qualifier-review",
+    "url": "/cs/algorithm/scpc-2026-online-qualifier-review/"
+  },
+  {
+    "tistoryId": 38,
+    "title": "AI라는 흐름 위에서 노를 젓는 법",
+    "category": "일상",
+    "subcategory": "AI와 사회",
+    "slug": "rowing-on-the-ai-current",
+    "url": "/life/ai-and-society/rowing-on-the-ai-current/"
+  },
+  {
+    "tistoryId": 39,
+    "title": "2026 SCPC 본선 후기",
+    "category": "Computer Science",
+    "subcategory": "알고리즘",
+    "slug": "scpc-2026-finals-review",
+    "url": "/cs/algorithm/scpc-2026-finals-review/"
+  },
+  {
+    "tistoryId": 40,
+    "title": "8월 휴가, 가족들과 함께한 나들이",
+    "category": "일상",
+    "subcategory": "일상 기록",
+    "slug": "august-family-vacation",
+    "url": "/life/daily/august-family-vacation/"
+  },
+  {
+    "tistoryId": 41,
+    "title": "글을 잘 쓰고 싶다",
+    "category": "일상",
+    "subcategory": "글쓰기와 편지",
+    "slug": "wanting-to-write-well",
+    "url": "/life/letters/wanting-to-write-well/"
+  },
+  {
+    "tistoryId": 42,
+    "title": "내가 생각을 정리하는 방법",
+    "category": "일상",
+    "subcategory": "글쓰기와 편지",
+    "slug": "how-i-organize-thoughts",
+    "url": "/life/letters/how-i-organize-thoughts/"
+  },
+  {
+    "tistoryId": 43,
+    "title": "문제를 잘 푸는 사람에서, 문제를 잘 고르는 사람으로",
+    "category": "일상",
+    "subcategory": "생각과 진로",
+    "slug": "from-solving-to-choosing-problems",
+    "url": "/life/thoughts/from-solving-to-choosing-problems/"
+  },
+  {
+    "tistoryId": 45,
+    "title": "다시 만날 봄을 생각하며",
+    "category": "일상",
+    "subcategory": "글쓰기와 편지",
+    "slug": "until-we-meet-in-spring",
+    "url": "/life/letters/until-we-meet-in-spring/"
+  },
+  {
+    "tistoryId": 46,
+    "title": "헌혈 70회, 블러드도너 컬렉션",
+    "category": "일상",
+    "subcategory": "일상 기록",
+    "slug": "blood-donation-70-times",
+    "url": "/life/daily/blood-donation-70-times/"
+  },
+  {
+    "tistoryId": 47,
+    "title": "CSTS 일반 합격 후기",
+    "category": "Computer Science",
+    "subcategory": "소프트웨어 공학",
+    "slug": "csts-foundation-review",
+    "url": "/cs/software-engineering/csts-foundation-review/"
+  },
+  {
+    "tistoryId": 48,
+    "title": "AI 시대의 새로운 인재",
+    "category": "일상",
+    "subcategory": "AI와 사회",
+    "slug": "new-talent-in-ai-era",
+    "url": "/life/ai-and-society/new-talent-in-ai-era/"
+  },
+  {
+    "tistoryId": 49,
+    "title": "[파이썬 데이터 분석 공부노트 01] 결측치와 이상치 처리",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "pandas-01-missing-values-outliers",
+    "url": "/cs/data-analysis/pandas-01-missing-values-outliers/"
+  },
+  {
+    "tistoryId": 52,
+    "title": "[파이썬 데이터 분석 공부노트 02] 정규화와 인코딩",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "pandas-02-normalization-encoding",
+    "url": "/cs/data-analysis/pandas-02-normalization-encoding/"
+  },
+  {
+    "tistoryId": 53,
+    "title": "[파이썬 데이터 분석 공부노트 03] 시계열 데이터 정렬 및 리샘플링",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "pandas-03-time-series-resampling",
+    "url": "/cs/data-analysis/pandas-03-time-series-resampling/"
+  },
+  {
+    "tistoryId": 54,
+    "title": "[파이썬 데이터 분석 공부노트 04] 데이터 통계량",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "pandas-04-descriptive-statistics",
+    "url": "/cs/data-analysis/pandas-04-descriptive-statistics/"
+  },
+  {
+    "tistoryId": 55,
+    "title": "[파이썬 데이터 분석 공부노트 05] 데이터 시각화",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "pandas-05-data-visualization",
+    "url": "/cs/data-analysis/pandas-05-data-visualization/"
+  },
+  {
+    "tistoryId": 56,
+    "title": "[파이썬 데이터 분석 공부노트 06] 데이터 해석",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "pandas-06-data-interpretation",
+    "url": "/cs/data-analysis/pandas-06-data-interpretation/"
+  },
+  {
+    "tistoryId": 57,
+    "title": "[파이썬 데이터 분석 공부노트 07] 지도 학습 및 평가",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "pandas-07-supervised-learning",
+    "url": "/cs/data-analysis/pandas-07-supervised-learning/"
+  },
+  {
+    "tistoryId": 58,
+    "title": "[파이썬 데이터 분석 공부노트 08] 비지도 학습",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "pandas-08-unsupervised-learning",
+    "url": "/cs/data-analysis/pandas-08-unsupervised-learning/"
+  },
+  {
+    "tistoryId": 59,
+    "title": "[파이썬 데이터 분석 공부노트 09] 이미지 처리 및 객체 탐지",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "pandas-09-image-object-detection",
+    "url": "/cs/data-analysis/pandas-09-image-object-detection/"
+  },
+  {
+    "tistoryId": 60,
+    "title": "[파이썬 데이터 분석 공부노트 10] 이미지·영상 데이터 분석",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "pandas-10-image-video-analysis",
+    "url": "/cs/data-analysis/pandas-10-image-video-analysis/"
+  },
+  {
+    "tistoryId": 61,
+    "title": "[파이썬 데이터 분석 공부노트 11] 종합 문제 풀이 (1)",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "pandas-11-comprehensive-problems-1",
+    "url": "/cs/data-analysis/pandas-11-comprehensive-problems-1/"
+  },
+  {
+    "tistoryId": 62,
+    "title": "[파이썬 데이터 분석 공부노트 12] 종합 문제 풀이 (2)",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "pandas-12-comprehensive-problems-2",
+    "url": "/cs/data-analysis/pandas-12-comprehensive-problems-2/"
+  },
+  {
+    "tistoryId": 63,
+    "title": "[파이썬 데이터 분석 공부노트 13] 데이터 분석의 흔한 착각과 실수",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "pandas-13-common-pitfalls",
+    "url": "/cs/data-analysis/pandas-13-common-pitfalls/"
+  },
+  {
+    "tistoryId": 64,
+    "title": "[데이터 분석 유형별 실습 문제 01] 정형 데이터 전처리와 집계",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-01-tabular-preprocessing",
+    "url": "/cs/data-analysis/practice-01-tabular-preprocessing/"
+  },
+  {
+    "tistoryId": 65,
+    "title": "[데이터 분석 유형별 실습 풀이 01] 정형 데이터 전처리와 집계",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-01-tabular-preprocessing-solution",
+    "url": "/cs/data-analysis/practice-01-tabular-preprocessing-solution/"
+  },
+  {
+    "tistoryId": 66,
+    "title": "[데이터 분석 유형별 실습 문제 02] 정형 데이터 분류와 회귀",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-02-tabular-modeling",
+    "url": "/cs/data-analysis/practice-02-tabular-modeling/"
+  },
+  {
+    "tistoryId": 67,
+    "title": "[데이터 분석 유형별 실습 풀이 02] 정형 데이터 분류와 회귀",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-02-tabular-modeling-solution",
+    "url": "/cs/data-analysis/practice-02-tabular-modeling-solution/"
+  },
+  {
+    "tistoryId": 68,
+    "title": "[데이터 분석 유형별 실습 문제 03] 센서 시계열 정리와 분류·예측",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-03-sensor-time-series",
+    "url": "/cs/data-analysis/practice-03-sensor-time-series/"
+  },
+  {
+    "tistoryId": 69,
+    "title": "[데이터 분석 유형별 실습 풀이 03] 센서 시계열 정리와 분류·예측",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-03-sensor-time-series-solution",
+    "url": "/cs/data-analysis/practice-03-sensor-time-series-solution/"
+  },
+  {
+    "tistoryId": 70,
+    "title": "[데이터 분석 유형별 실습 문제 04] 비정형 텍스트 분류",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-04-text-classification",
+    "url": "/cs/data-analysis/practice-04-text-classification/"
+  },
+  {
+    "tistoryId": 71,
+    "title": "[데이터 분석 유형별 실습 풀이 04] 비정형 텍스트 분류",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-04-text-classification-solution",
+    "url": "/cs/data-analysis/practice-04-text-classification-solution/"
+  },
+  {
+    "tistoryId": 72,
+    "title": "[데이터 분석 유형별 실습 문제 05] 사진 분류와 Transfer Learning",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-05-image-transfer-learning",
+    "url": "/cs/data-analysis/practice-05-image-transfer-learning/"
+  },
+  {
+    "tistoryId": 73,
+    "title": "[데이터 분석 유형별 실습 풀이 05] 사진 분류와 Transfer Learning",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-05-image-transfer-learning-solution",
+    "url": "/cs/data-analysis/practice-05-image-transfer-learning-solution/"
+  },
+  {
+    "tistoryId": 74,
+    "title": "[데이터 분석 유형별 실습 문제 06] 사진 객체 탐지와 상태를 보존한 집계",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-06-object-detection",
+    "url": "/cs/data-analysis/practice-06-object-detection/"
+  },
+  {
+    "tistoryId": 75,
+    "title": "[데이터 분석 유형별 실습 풀이 06] 사진 객체 탐지와 상태를 보존한 집계",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-06-object-detection-solution",
+    "url": "/cs/data-analysis/practice-06-object-detection-solution/"
+  },
+  {
+    "tistoryId": 76,
+    "title": "[데이터 분석 유형별 실습 문제 07] 영상 프레임 샘플링과 시계열 분석",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-07-video-frame-sampling",
+    "url": "/cs/data-analysis/practice-07-video-frame-sampling/"
+  },
+  {
+    "tistoryId": 77,
+    "title": "[데이터 분석 유형별 실습 풀이 07] 영상 프레임 샘플링과 시계열 분석",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-07-video-frame-sampling-solution",
+    "url": "/cs/data-analysis/practice-07-video-frame-sampling-solution/"
+  },
+  {
+    "tistoryId": 78,
+    "title": "[데이터 분석 유형별 실습 문제 08] OCR 문서에서 구조화 데이터 만들기",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-08-ocr-structured-data",
+    "url": "/cs/data-analysis/practice-08-ocr-structured-data/"
+  },
+  {
+    "tistoryId": 79,
+    "title": "[데이터 분석 유형별 실습 풀이 08] OCR 문서에서 구조화 데이터 만들기",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "practice-08-ocr-structured-data-solution",
+    "url": "/cs/data-analysis/practice-08-ocr-structured-data-solution/"
+  },
+  {
+    "tistoryId": 80,
+    "title": "[데이터 분석 모의 실습 A] 90분 종합 문제와 복기",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "mock-exam-a-90-min-review",
+    "url": "/cs/data-analysis/mock-exam-a-90-min-review/"
+  },
+  {
+    "tistoryId": 81,
+    "title": "[데이터 분석 모의 실습 B] 90분 종합 문제와 복기",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "mock-exam-b-90-min-review",
+    "url": "/cs/data-analysis/mock-exam-b-90-min-review/"
+  },
+  {
+    "tistoryId": 82,
+    "title": "[데이터 분석 모의 실습 C] 90분 종합 문제와 복기",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "mock-exam-c-90-min-review",
+    "url": "/cs/data-analysis/mock-exam-c-90-min-review/"
+  },
+  {
+    "tistoryId": 83,
+    "title": "[데이터 분석 학습 기록] 공부노트·유형별 실습·모의 실습 전체 목차",
+    "category": "Computer Science",
+    "subcategory": "데이터 분석",
+    "slug": "data-analysis-study-index",
+    "url": "/cs/data-analysis/data-analysis-study-index/"
+  },
+  {
+    "tistoryId": 84,
+    "title": "[한국사 공부노트 01] 우리는 왜 역사를 공부하는가",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-01-why-study-history",
+    "url": "/stdlib/korean-history/history-01-why-study-history/"
+  },
+  {
+    "tistoryId": 85,
+    "title": "[한국사 공부노트 02] 선사 시대와 여러 나라의 성장",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-02-prehistory-early-states",
+    "url": "/stdlib/korean-history/history-02-prehistory-early-states/"
+  },
+  {
+    "tistoryId": 86,
+    "title": "[한국사 공부노트 03] 고대 국가의 성장과 정치 변화",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-03-ancient-states-politics",
+    "url": "/stdlib/korean-history/history-03-ancient-states-politics/"
+  },
+  {
+    "tistoryId": 87,
+    "title": "[한국사 공부노트 04] 고대의 경제와 사회",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-04-ancient-economy-society",
+    "url": "/stdlib/korean-history/history-04-ancient-economy-society/"
+  },
+  {
+    "tistoryId": 88,
+    "title": "[한국사 공부노트 05] 고대의 문화",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-05-ancient-culture",
+    "url": "/stdlib/korean-history/history-05-ancient-culture/"
+  },
+  {
+    "tistoryId": 89,
+    "title": "[한국사 공부노트 06] 고려의 정치 변화와 대외 관계",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-06-goryeo-politics-diplomacy",
+    "url": "/stdlib/korean-history/history-06-goryeo-politics-diplomacy/"
+  },
+  {
+    "tistoryId": 90,
+    "title": "[한국사 공부노트 07] 고려의 경제와 사회",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-07-goryeo-economy-society",
+    "url": "/stdlib/korean-history/history-07-goryeo-economy-society/"
+  },
+  {
+    "tistoryId": 91,
+    "title": "[한국사 공부노트 08] 고려의 문화",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-08-goryeo-culture",
+    "url": "/stdlib/korean-history/history-08-goryeo-culture/"
+  },
+  {
+    "tistoryId": 92,
+    "title": "[한국사 공부노트 09] 조선 전기의 정치·통치 조직·외교",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-09-early-joseon-politics",
+    "url": "/stdlib/korean-history/history-09-early-joseon-politics/"
+  },
+  {
+    "tistoryId": 93,
+    "title": "[한국사 공부노트 10] 조선 전기의 경제와 사회",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-10-early-joseon-economy-society",
+    "url": "/stdlib/korean-history/history-10-early-joseon-economy-society/"
+  },
+  {
+    "tistoryId": 94,
+    "title": "[한국사 공부노트 11] 조선 전기의 문화",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-11-early-joseon-culture",
+    "url": "/stdlib/korean-history/history-11-early-joseon-culture/"
+  },
+  {
+    "tistoryId": 95,
+    "title": "[한국사 공부노트 12] 조선 후기의 정치와 대외 관계",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-12-late-joseon-politics-diplomacy",
+    "url": "/stdlib/korean-history/history-12-late-joseon-politics-diplomacy/"
+  },
+  {
+    "tistoryId": 96,
+    "title": "[한국사 공부노트 13] 조선 후기의 경제와 사회 변화",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-13-late-joseon-economy-society",
+    "url": "/stdlib/korean-history/history-13-late-joseon-economy-society/"
+  },
+  {
+    "tistoryId": 97,
+    "title": "[한국사 공부노트 14] 조선 후기의 문화",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-14-late-joseon-culture",
+    "url": "/stdlib/korean-history/history-14-late-joseon-culture/"
+  },
+  {
+    "tistoryId": 98,
+    "title": "[한국사 공부노트 15] 흥선 대원군의 정책과 개항",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-15-heungseon-daewongun-opening",
+    "url": "/stdlib/korean-history/history-15-heungseon-daewongun-opening/"
+  },
+  {
+    "tistoryId": 99,
+    "title": "[한국사 공부노트 16] 개혁의 전개와 국권 수호",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-16-reform-sovereignty-defense",
+    "url": "/stdlib/korean-history/history-16-reform-sovereignty-defense/"
+  },
+  {
+    "tistoryId": 100,
+    "title": "[한국사 공부노트 17] 개항기의 경제와 문화",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-17-opening-economy-culture",
+    "url": "/stdlib/korean-history/history-17-opening-economy-culture/"
+  },
+  {
+    "tistoryId": 101,
+    "title": "[한국사 공부노트 18] 일제의 식민 통치",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-18-japanese-colonial-rule",
+    "url": "/stdlib/korean-history/history-18-japanese-colonial-rule/"
+  },
+  {
+    "tistoryId": 102,
+    "title": "[한국사 공부노트 19] 1910년대의 독립운동",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-19-independence-1910s",
+    "url": "/stdlib/korean-history/history-19-independence-1910s/"
+  },
+  {
+    "tistoryId": 103,
+    "title": "[한국사 공부노트 20] 1920년대 이후의 독립운동",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-20-independence-after-1920s",
+    "url": "/stdlib/korean-history/history-20-independence-after-1920s/"
+  },
+  {
+    "tistoryId": 104,
+    "title": "[한국사 공부노트 21] 광복과 정부 수립, 6·25 전쟁",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-21-liberation-korean-war",
+    "url": "/stdlib/korean-history/history-21-liberation-korean-war/"
+  },
+  {
+    "tistoryId": 105,
+    "title": "[한국사 공부노트 22] 민주주의·경제 발전과 통일 정책",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-22-democracy-economy-unification",
+    "url": "/stdlib/korean-history/history-22-democracy-economy-unification/"
+  },
+  {
+    "tistoryId": 106,
+    "title": "[한국사 최종정리] 시험 직전에 보는 핵심 사건·인물·제도 총정리",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-final-key-events-figures",
+    "url": "/stdlib/korean-history/history-final-key-events-figures/"
+  },
+  {
+    "tistoryId": 107,
+    "title": "[한국사 최종정리] 시험 전 2시간, 선사부터 현대까지 핵심 개념 총정리",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-final-2-hour-review",
+    "url": "/stdlib/korean-history/history-final-2-hour-review/"
+  },
+  {
+    "tistoryId": 108,
+    "title": "[한국사 최종정리] 시험 전날 4시간, 선사부터 현대까지",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-final-4-hour-review",
+    "url": "/stdlib/korean-history/history-final-4-hour-review/"
+  },
+  {
+    "tistoryId": 111,
+    "title": "제 80회 한국사능력검정시험 심화 후기 (3급 67점)",
+    "category": "Standard Library",
+    "subcategory": "한국사",
+    "slug": "history-exam-80-advanced-review",
+    "url": "/stdlib/korean-history/history-exam-80-advanced-review/"
+  },
+  {
+    "tistoryId": 112,
+    "title": "[정보처리기사 실기] SQL 실기 문법",
+    "category": "Computer Science",
+    "subcategory": "소프트웨어 공학",
+    "slug": "engineer-exam-sql-syntax",
+    "url": "/cs/software-engineering/engineer-exam-sql-syntax/"
+  },
+  {
+    "tistoryId": 113,
+    "title": "2026년도 제 3회 정보처리기사 실기 후기",
+    "category": "Computer Science",
+    "subcategory": "소프트웨어 공학",
+    "slug": "engineer-exam-2026-3-practical-review",
+    "url": "/cs/software-engineering/engineer-exam-2026-3-practical-review/"
+  },
+  {
+    "tistoryId": 114,
+    "title": "군대 국기검 지게차운전기능사 실기 후기 (3수송교육연대)",
+    "category": "Standard Library",
+    "subcategory": "운전·기능",
+    "slug": "forklift-military-practical-review",
+    "url": "/stdlib/skills/forklift-military-practical-review/"
+  },
+  {
+    "tistoryId": 115,
+    "title": "2026 정주영 창업경진대회: 불확실성을 주 100시간의 몰입으로 뚫어내는 사람들",
+    "category": "일상",
+    "subcategory": "생각과 진로",
+    "slug": "chung-ju-yung-startup-contest-2026",
+    "url": "/life/thoughts/chung-ju-yung-startup-contest-2026/"
+  }
+]

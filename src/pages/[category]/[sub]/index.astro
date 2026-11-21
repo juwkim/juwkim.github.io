@@ -1,0 +1,24 @@
+---
+// /<카테고리>/<세부>/ — 예: /cs/algorithm/
+import PostIndex from '../../../layouts/PostIndex.astro';
+import { CATEGORIES, type Category } from '../../../site.config';
+import { getPosts, categoryUrl, type Sub } from '../../../lib/posts';
+
+export function getStaticPaths() {
+  return CATEGORIES.flatMap((cat) =>
+    cat.subs.map((sub) => ({ params: { category: cat.slug, sub: sub.slug }, props: { cat, sub } })),
+  );
+}
+
+const { cat, sub } = Astro.props as { cat: Category; sub: Sub };
+const all = await getPosts();
+const posts = all.filter((p) => p.data.category === cat.name && p.data.subcategory === sub.name);
+---
+
+<PostIndex
+  title={sub.name}
+  crumb={{ label: cat.name, href: categoryUrl(cat) }}
+  allPosts={all}
+  posts={posts}
+  current={{ cat: cat.slug, sub: sub.slug }}
+/>

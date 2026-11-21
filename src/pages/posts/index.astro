@@ -1,0 +1,9 @@
+---
+// /posts/ — 전체 글
+import PostIndex from '../../layouts/PostIndex.astro';
+import { getPosts } from '../../lib/posts';
+
+const posts = await getPosts();
+---
+
+<PostIndex title="전체 글" allPosts={posts} posts={posts} />

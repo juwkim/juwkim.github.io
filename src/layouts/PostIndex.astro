@@ -1,0 +1,98 @@
+---
+// 글 목록 페이지 공통 틀 (전체 / 카테고리 / 세부 카테고리)
+// 넓은 화면: 왼쪽 카테고리 사이드바 + 오른쪽 글 목록 / 좁은 화면: 제목 아래 카테고리 칩
+import Base from './Base.astro';
+import CategoryNav from '../components/CategoryNav.astro';
+import PostList from '../components/PostList.astro';
+import type { Post } from '../lib/posts';
+
+interface Props {
+  title: string;
+  /** 제목 위 작은 경로 (예: Computer Science ›) */
+  crumb?: { label: string; href: string };
+  allPosts: Post[];
+  posts: Post[];
+  current?: { cat?: string; sub?: string };
+}
+
+const { title, crumb, allPosts, posts, current } = Astro.props;
+---
+
+<Base title={title} description={`${title} — ${posts.length}개의 기록`}>
+  <div class="layout">
+    <aside>
+      <CategoryNav mode="sidebar" posts={allPosts} current={current} />
+    </aside>
+    <div class="main">
+      <header class="head">
+        {crumb && <a class="crumb" href={crumb.href}>{crumb.label} ›</a>}
+        <h1>{title}</h1>
+        <p>{posts.length}개의 기록</p>
+      </header>
+      <CategoryNav mode="chips" posts={allPosts} current={current} />
+      <div class="list">
+        <PostList posts={posts} />
+      </div>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .layout {
+    max-width: var(--width);
+    margin: 0 auto;
+    padding: 0 24px;
+    box-sizing: content-box;
+  }
+  aside {
+    display: none;
+  }
+  .head {
+    padding: 72px 0 24px;
+  }
+  .list {
+    margin-top: 16px;
+    border-top: 1px solid var(--line);
+  }
+  @media (min-width: 1080px) {
+    .layout {
+      max-width: calc(var(--width) + 208px + 64px);
+      display: grid;
+      grid-template-columns: 208px minmax(0, 1fr);
+      gap: 64px;
+      padding-top: 72px;
+    }
+    aside {
+      display: block;
+    }
+    .head {
+      padding: 0 0 20px;
+    }
+    .list {
+      margin-top: 0;
+    }
+  }
+  .crumb {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--blue);
+    margin-bottom: 10px;
+  }
+  .crumb:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  h1 {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin: 0 0 8px;
+  }
+  .head p {
+    margin: 0;
+    color: var(--fg-3);
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+  }
+</style>

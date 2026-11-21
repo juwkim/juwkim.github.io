@@ -1,0 +1,125 @@
+---
+title: "[데이터 분석 모의 실습 C] 90분 종합 문제와 복기"
+date: 2026-10-09T19:30:54+09:00
+category: "Computer Science"
+subcategory: "데이터 분석"
+tags: []
+description: "90분 안에 세 문제의 입력·분석·결과 저장까지 끝낼 수 있을까요? 문항 배점은 20·35·45점입니다. 유형별 문제를 묶어 제한 시간 안에 풀고, 결과 파일과 놓친 조건을 복기합니다. 유형 배치는 연습을 위한…"
+tistoryId: 82
+---
+> **이번 글의 질문**
+>
+> 90분 안에 세 문제의 입력·분석·결과 저장까지 끝낼 수 있을까요?
+
+> **핵심 요약**
+>
+> 문항 배점은 20·35·45점입니다. 유형별 문제를 묶어 제한 시간 안에 풀고, 결과 파일과 놓친 조건을 복기합니다.
+
+## 1. 진행 규칙과 시간 배분
+
+유형 배치는 연습을 위한 구성입니다. 실제 예선의 문항별 데이터 유형을 확정한 자료가 아닙니다. 같은 유형을 이미 풀었다면 처음 보는 문제의 점수 대신 재현 시간과 실수 감소를 기록합니다.
+
+| 단계 | 권장 시간 | 확인할 일 |
+| --- | --- | --- |
+| 전체 입력 확인 | 5분 | 관측 단위·필수 파일·어려운 조건 |
+| 문항 1 | 15분 | 20점 기본 결과 저장 |
+| 문항 2 | 25분 | 35점 처리·평가·저장 |
+| 문항 3 | 35분 | 45점 처리·평가·저장 |
+| 최종 확인 | 10분 | CSV 재읽기·Notebook 재실행·설명 |
+
+## 2-1. 문항 1: OCR 문서에서 구조화 데이터 만들기 (20점)
+
+동일한 서식의 보급 기록 이미지를 만들었습니다. 깨끗한 문서, 조금 회전한 문서, 해상도를 낮춘 문서를 포함합니다. 수량은 piece, 단가는 USD, `adjustment`는 합계에 더하는 USD 조정 금액입니다. 날짜의 하이픈·가격의 소수점·음수 부호를 모두 남겨야 올바른 값을 만들 수 있습니다.
+
+-   Tesseract 영어 OCR로 단어·좌표·Confidence를 읽고 원문을 재구성합니다. 문서 결과 한 행에 파일명을 반드시 남깁니다.
+-   정규 표현식은 항목의 전체 형식을 검사합니다. 모든 특수문자를 지우는 공통 정리 함수로 숫자·날짜를 만들지 않습니다.
+-   빈 필드·잘못된 타입·음수 수량·음수 단가는 review로 남깁니다. `adjustment`의 음수는 유효합니다.
+-   `total_value` = `quantity` × `unit_price` + `adjustment`를 계산하되 검토가 필요한 문서의 금액은 결측값으로 둡니다.
+-   ocr\_raw.csv·ocr\_words.csv·document\_fields.csv·field\_accuracy.csv·document\_comparison.csv를 저장합니다.
+
+| 연습용 평가 기준 | 배점 |
+| --- | --- |
+| OCR·원문·좌표 추적 | 5 |
+| 필드 파싱·기호 보존 | 6 |
+| 검증·정답 비교 | 5 |
+| 출력·오류 검토 | 4 |
+
+## 2-2. 문항 2: 영상 프레임 샘플링과 시계열 분석 (35점)
+
+Drive의 짧은 영상에는 YOLO를 적용합니다. 따로 구성한 29.97 FPS 도형 영상은 프레임·시간·개수 계산을 정확한 정답과 비교하는 용도입니다. 도형은 사람이 아니므로 YOLO의 객체 정답으로 사용하지 않습니다. 모델 결과와 시간 처리 알고리즘을 분리해 검증합니다.
+
+-   FPS와 열기·읽기 성공 여부를 확인합니다. round(샘플 번호 × FPS × 1초)로 목표 프레임을 계산합니다.
+-   실제 영상은 YOLOv5u로 전체 클래스 탐지, 도형 영상은 색상 Mask와 연결 요소 개수로 분석합니다.
+-   정상적으로 분석한 모든 프레임을 남깁니다. 개수가 0인 프레임도 요약 표에 포함합니다.
+-   샘플의 요청 시각·실제 프레임 번호·FPS 기준 경과 시각을 모두 남깁니다. 같은 2초 구간의 `mean`·`max`·`sample_count`를 계산합니다.
+-   video\_sample\_counts.csv·video\_detections.csv·video\_windows.csv·video\_read\_status.csv와 시간 그래프를 저장합니다.
+
+| 연습용 평가 기준 | 배점 |
+| --- | --- |
+| 시간·프레임 계산 | 9 |
+| 객체·도형 처리 | 9 |
+| 0건·읽기 상태·집계 | 10 |
+| 정답 비교·그래프·출력 | 7 |
+
+## 2-3. 문항 3: 사진 분류와 Transfer Learning (45점)
+
+이미지 분류는 사진 전체에 클래스 하나를 붙입니다. PyTorch 공식 Transfer Learning 튜토리얼의 개미·벌 사진에서 140장을 골라 새 메타데이터와 문제를 구성했습니다. 원래 사진은 ImageNet에서 가져온 자료이므로, ImageNet으로 사전 학습한 모델과 사진이 겹칠 수 있습니다. 이 실습의 Test 점수는 전이학습 절차를 확인하는 결과이며 독립적으로 수집한 새 사진의 벤치마크로 확대하지 않습니다.
+
+-   파일 경로와 Hash를 확인합니다. 같은 바이트의 사진이 여러 Split에 없음을 검사합니다. 원본과 증강 이미지를 다른 Split으로 보내지 않습니다.
+-   제공된 공식 가중치를 로드하고 모델을 eval 모드로 둡니다. weights.transforms()로 RGB 사진을 전처리합니다.
+-   특징 추출기는 고정하고 분류기의 C는 Validation macro F1로 고릅니다. Test 점수로 다시 선택하지 않습니다.
+-   선택한 C로 Train+Validation에서 분류기를 다시 학습한 뒤 Test를 한 번 평가합니다.
+-   photo\_test\_predictions.csv·photo\_metrics.csv·validation\_scores.csv와 Confusion Matrix를 저장합니다.
+
+| 연습용 평가 기준 | 배점 |
+| --- | --- |
+| 사진·Split 확인 | 9 |
+| 사전 학습 모델·전처리 | 14 |
+| Validation 선택·Test 분리 | 13 |
+| 평가·파일·오류 이미지 | 9 |
+
+## 3. 제출 결과를 점검합니다
+
+```bash
+# 예선_유형별_실습 폴더에서 실행합니다.
+python check_outputs.py --types 8 7 5
+```
+
+검사 통과 여부와 별개로 분할·Feature 생성 시점·평가 기준을 설명합니다. 시간 내 결과를 저장하지 못했다면 어느 단계에서 멈췄는지도 적습니다.
+
+## 4. 풀이를 확인하고 복기합니다
+
+| 기록할 항목 | 적을 내용 |
+| --- | --- |
+| 시간 | 입력 확인·전처리·모델·평가·저장별 소요 |
+| 첫 오류 | 메시지·원인·수정 방법 |
+| 판단 | 분할·결측/0·분모·Target 시점 중 놓친 기준 |
+| 결과 | Baseline·오류 사례·출력 파일 누락 |
+| 다음 실습 | 가장 먼저 반복할 비교 예제 하나 |
+
+### 복기 문장을 쓰는 예시
+
+“CSV는 저장했지만 ID를 합치는 과정에서 같은 장비의 예측 행이 중복됐습니다. 다음에는 저장 전에 ID 유일성과 Test 행 수를 먼저 검사하겠습니다.”처럼 조건·실수·다음 행동을 함께 적습니다. 이 문장은 복기 형식을 보여 주는 예시입니다.
+
+## 참고자료
+
+### 실습 데이터와 노트북
+
+-   **모의 실습**: [모의 C 자료](https://drive.google.com/file/d/1_dOUPCFL4BpU0dKMp4ZeDJF-NQG32UjV/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 세 문항의 구성과 90분 실습 진행 자료를 확인합니다.
+-   **공통 자료**: [실습 공통 자료](https://drive.google.com/file/d/1-W9cVOlqQ4BUYRX3AGH3qbC9CsUQjf-g/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
+-   **문항 1 자료**: [유형 08 문제 자료](https://drive.google.com/file/d/15D_mgVi8CTkkk9D1A2Wbo0uUob9YmQiJ/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — OCR 문서에서 구조화 데이터 만들기 실습에 사용할 입력 자료입니다.
+-   **문항 2 자료**: [유형 07 문제 자료](https://drive.google.com/file/d/1WjA2x9HHh7rPQ0kd9xeyyfpzdm4r7cZc/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 영상 프레임 샘플링과 시계열 분석 실습에 사용할 입력 자료입니다.
+-   **문항 3 자료**: [유형 05 문제 자료](https://drive.google.com/file/d/1updLzgtbWqVHmg9lbNxHXM0mQCf_RvNo/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 사진 분류와 Transfer Learning 실습에 사용할 입력 자료입니다.
+
+### 연습문제
+
+-   **문항 1 문제**: [유형 08 문제](/cs/data-analysis/practice-08-ocr-structured-data/) — 이미지에서 읽은 날짜·수량·가격을 표로 옮길 때, 구분 기호와 음수 부호를 어떻게 보존할까요?
+-   **문항 1 풀이**: [유형 08 풀이](/cs/data-analysis/practice-08-ocr-structured-data-solution/) — OCR 원문과 좌표를 보관하고 항목별 값을 추출·검증한 뒤, 정답 표와 필드별 일치도를 비교합니다.
+-   **문항 2 문제**: [유형 07 문제](/cs/data-analysis/practice-07-video-frame-sampling/) — 29.97 FPS 영상에서 1초마다 관측하려면 어떤 프레임을 골라야 하며, 빈 프레임은 그래프에 어떻게 남겨야 할까요?
+-   **문항 2 풀이**: [유형 07 풀이](/cs/data-analysis/practice-07-video-frame-sampling-solution/) — 목표 시각마다 프레임을 계산하고 객체가 없는 프레임도 포함해 시간 구간별 개수를 요약합니다.
+-   **문항 3 문제**: [유형 05 문제](/cs/data-analysis/practice-05-image-transfer-learning/) — 사전 학습된 이미지 모델을 고정한 채, 사진이 개미인지 벌인지 분류하는 새 모델을 어떻게 만들까요?
+-   **문항 3 풀이**: [유형 05 풀이](/cs/data-analysis/practice-05-image-transfer-learning-solution/) — 고정한 MobileNet에서 특징을 추출하고 Validation에서 분류기를 선택한 뒤 Test 사진을 평가합니다.
+
+### 범위와 배점
+
+-   **예선 가이드**: [국방AI경진대회 예선가이드](https://drive.google.com/file/d/1YDxg9ngucdJR7y4zUaBuW5bEYhzh1EJl/view) — 제공된 가이드 9·25·26쪽을 기준으로 구성했습니다.

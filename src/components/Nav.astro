@@ -1,0 +1,132 @@
+---
+import { SITE, CATEGORIES } from '../site.config';
+
+const path = Astro.url.pathname;
+const items = [
+  { href: '/posts/', label: '글', active: path.startsWith('/posts') || CATEGORIES.some((c) => path.startsWith(`/${c.slug}/`)) },
+  { href: '/about/', label: 'About', active: path.startsWith('/about') },
+];
+---
+
+<header class="nav">
+  <a class="logo" href="/">{SITE.title}</a>
+  <nav aria-label="주 메뉴">
+    <ul>
+      {
+        items.map((item) => (
+          <li>
+            <a href={item.href} class:list={{ active: item.active }} aria-current={item.active ? 'page' : undefined}>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+  <a class="icon-btn" href="/search/" aria-label="검색">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path>
+    </svg>
+  </a>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="다크 모드 전환">
+    <svg class="sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+    </svg>
+    <svg class="moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"></path>
+    </svg>
+  </button>
+</header>
+
+<script>
+  const btn = document.getElementById('theme-toggle');
+  btn?.addEventListener('click', () => {
+    const root = document.documentElement;
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    localStorage.setItem('theme', next);
+  });
+</script>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    padding: 0 28px;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--line);
+  }
+  .logo {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.02em;
+  }
+  nav {
+    margin-left: auto;
+  }
+  ul {
+    display: flex;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  li a {
+    display: block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    color: var(--fg-2);
+    transition: background 0.2s var(--ease), color 0.2s var(--ease);
+  }
+  li a:hover {
+    background: var(--bg-subtle);
+    color: var(--fg);
+  }
+  li a.active {
+    color: var(--fg);
+    font-weight: 500;
+  }
+  .icon-btn {
+    margin-left: 4px;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    border: 0;
+    background: none;
+    padding: 0;
+    color: var(--fg-2);
+    cursor: pointer;
+    transition: background 0.2s var(--ease), color 0.2s var(--ease);
+  }
+  .icon-btn:first-of-type {
+    margin-left: 8px;
+  }
+  .icon-btn:hover {
+    background: var(--bg-subtle);
+    color: var(--fg);
+  }
+  .moon {
+    display: none;
+  }
+  :global(:root[data-theme='dark']) .sun {
+    display: none;
+  }
+  :global(:root[data-theme='dark']) .moon {
+    display: block;
+  }
+  @media (max-width: 640px) {
+    .nav {
+      padding: 0 16px;
+    }
+  }
+</style>

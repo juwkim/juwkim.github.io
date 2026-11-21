@@ -1,0 +1,16 @@
+---
+// /<카테고리>/ — 예: /cs/
+import PostIndex from '../../layouts/PostIndex.astro';
+import { CATEGORIES, type Category } from '../../site.config';
+import { getPosts } from '../../lib/posts';
+
+export function getStaticPaths() {
+  return CATEGORIES.map((cat) => ({ params: { category: cat.slug }, props: { cat } }));
+}
+
+const { cat } = Astro.props as { cat: Category };
+const all = await getPosts();
+const posts = all.filter((p) => p.data.category === cat.name);
+---
+
+<PostIndex title={cat.name} allPosts={all} posts={posts} current={{ cat: cat.slug }} />
