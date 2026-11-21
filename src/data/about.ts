@@ -63,8 +63,7 @@ export const steps: { date: string; title: string; note: string; link?: string; 
     date: '2026.11',
     title: '국방 AI 경진대회(MAICON) 스페이스뱅크 대표상',
     note: '피지컬A100 팀. 로봇에 AI를 입혀 모의 군사 임무를 수행한 본선',
-    link: 'https://www.news1.kr/photos/8225773',
-    linkLabel: '뉴스 사진',
+    link: '/cs/ai/maicon-2026-finals-review/',
   },
   { date: '2026.10', title: 'SK하이닉스 AI 해커톤 2차 예선 진출', note: '1차 예선을 통과하고 2차 예선까지' },
   {
