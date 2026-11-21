@@ -4,7 +4,7 @@ date: 2026-10-06T19:40:03+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "평균만 보면 데이터의 모습을 충분히 알 수 있을까요? 같은 평균을 가진 집단도 얼마나 다르게 퍼져 있을까요? 부대별 평균을 다시 평균 내면 전체 평균이 될까요? 기술 통계량은 데이터의 중심과 퍼짐을 요약합니다.…"
+description: "평균·중앙값·최빈값과 표준편차·IQR로 데이터의 중심과 퍼짐을 요약하고, agg()와 groupby()로 전체 및 부대별 통계를 계산합니다. 공동 최빈값, 결측치, 평균의 평균처럼 집계 기준에서 놓치기 쉬운 점도 정리합니다."
 tistoryId: 54
 ---
 > **이번 글의 질문**
@@ -17,9 +17,9 @@ tistoryId: 54
 
 ## 1. 데이터의 모습을 숫자로 먼저 살펴봅니다
 
-숫자가 많아지면 한 줄씩 읽는 것보다 중심과 퍼짐을 먼저 보는 편이 낫습니다. 평균만 같아도 분포는 전혀 다를 수 있습니다. 건강 기록, 장비 사용 시간, 만족도 설문을 요약하면서 통계량이 각각 무엇을 보여 주는지 비교합니다.
+숫자가 많아지면 한 줄씩 읽는 것보다 중심과 퍼짐을 먼저 보는 편이 낫습니다. 평균이 같아도 분포는 전혀 다를 수 있습니다. 건강 기록, 장비 사용 시간, 만족도 설문을 요약하면서 통계량이 각각 무엇을 보여 주는지 비교합니다.
 
-기술 통계량은 관측한 데이터의 특성을 요약하는 숫자입니다. 중심이 어디인지, 값이 얼마나 퍼져 있는지, 관측값이 몇 개인지를 함께 확인합니다. 건강 기록, 장비 사용 시간, 식단 만족도처럼 데이터의 의미가 달라지면 같은 평균도 다르게 읽어야 합니다.
+기술 통계량은 관측한 데이터의 특성을 요약하는 숫자입니다. 데이터의 의미가 달라지면 같은 평균도 다르게 읽어야 합니다.
 
 | 실습 파일 | 데이터 구성 | 살펴볼 내용 |
 | --- | --- | --- |
@@ -479,7 +479,7 @@ cleanliness_score    100  2.99     3.0  [1, 4]  1.432
 
 `mode` 열에는 모든 최빈값을 List로 보관했습니다. CSV에는 `[1, 4]` 같은 문자열 표현으로 저장되므로 사람이 읽는 요약표에 적합합니다. 다시 프로그램에서 분석할 최빈값 목록이 필요하면 항목·최빈값을 한 행씩 저장하거나 JSON처럼 List 구조를 보존하는 형식을 사용할 수 있습니다.
 
-### 6-2. iloc\[0\]이 실제로 어떤 정보를 버리는지 확인합니다
+### 6-2. iloc[0]이 실제로 어떤 정보를 버리는지 확인합니다
 
 ```python
 all_modes = meal[score_cols].mode()
@@ -498,7 +498,7 @@ print("첫 행만 선택한 위생 최빈값:", all_modes.iloc[0]["cleanliness_s
 
 DataFrame의 `mode()`는 열마다 최빈값 개수가 달라도 한 표에 담습니다. 위생 열은 두 행이 필요하고, 맛·양 열의 두 번째 행은 `NaN`으로 채워집니다. `iloc[0]`으로 첫 행만 선택하면 위생의 4점이 사라집니다. 위 코드에서 1.0처럼 보이는 것은 `NaN`과 함께 표를 구성하면서 숫자의 `dtype`이 바뀐 결과이며, 1점이라는 의미는 같습니다.
 
-### 6-3. value\_counts()로 점수별 응답 수를 봅니다
+### 6-3. value_counts()로 점수별 응답 수를 봅니다
 
 ```python
 score_distribution = pd.DataFrame({
@@ -777,12 +777,12 @@ print("95% Bootstrap 구간:",
 | 열 이름 직접 지정 | `agg(이름=(열, 함수))` | Named Aggregation으로 MultiIndex 없이 만들 수 있습니다. |
 | 점수별 빈도 확인 | `value_counts()` | 평균이 숨기는 응답 분포를 확인합니다. |
 
-1.  14가 100으로 바뀐 예제에서 평균은 움직이고 중앙값은 그대로인 이유를 설명할 수 있나요?
-2.  위생 점수의 최빈값을 1점만 저장하면 어떤 정보가 빠지나요?
-3.  `quantile(0.75)`로 구한 Q3와 Q3 − Q1로 구한 IQR은 어떻게 다른가요?
-4.  부대별 평균을 단순 평균 내는 것과 관측 개수로 가중하는 것은 누구를 같은 비중으로 보는 계산인가요?
-5.  `size`가 2인데 `count`가 1인 집단의 평균과 표준편차를 어떻게 읽어야 하나요?
-6.  전체 통계의 `mean` 행과 부대별 통계의 1사단 행을 옆으로 붙이면 왜 해석이 어색해지나요?
+1. 14가 100으로 바뀐 예제에서 평균은 움직이고 중앙값은 그대로인 이유를 설명할 수 있나요?
+2. 위생 점수의 최빈값을 1점만 저장하면 어떤 정보가 빠지나요?
+3. `quantile(0.75)`로 구한 Q3와 Q3 − Q1로 구한 IQR은 어떻게 다른가요?
+4. 부대별 평균을 단순 평균 내는 것과 관측 개수로 가중하는 것은 누구를 같은 비중으로 보는 계산인가요?
+5. `size`가 2인데 `count`가 1인 집단의 평균과 표준편차를 어떻게 읽어야 하나요?
+6. 전체 통계의 `mean` 행과 부대별 통계의 1사단 행을 옆으로 붙이면 왜 해석이 어색해지나요?
 
 > **대표값을 구한 뒤에는 그 숫자 뒤의 분포를 확인합니다.** 중심·퍼짐·관측 개수를 함께 남기고, 숫자가 다른 이유를 원본 데이터에서 찾아봅니다.
 
@@ -790,35 +790,38 @@ print("95% Bootstrap 구간:",
 
 ### 실습 데이터와 노트북
 
--   **실습 자료**: [Session04 실습 폴더](https://drive.google.com/drive/folders/1TGnVFmZFxIXuYLhsseNGeUPybSLu14p6) · [session04\_데이터-통계량.pdf](https://drive.google.com/file/d/1Qa8qUBzxvw34hUkUKmEmHy_PjKhKvZav/view) · [session04.ipynb](https://drive.google.com/file/d/1qoa_N3y4-1vrRq1BiGBbpSKZMsV4A0GX/view)
--   **CSV 데이터**: [health\_summary.csv](https://drive.google.com/file/d/1kHRXVeDVGRidh5TOUO-FBXVIoIQcY9UD/view) · [equipment\_usage.csv](https://drive.google.com/file/d/1yVGcwwxS3757ML3LRr-y__XOPsJ64pbX/view) · [meal\_survey.csv](https://drive.google.com/file/d/15o4SZ_EbKykFOm34wwUQoMAVsEd7B3gu/view)
--   **심화 예제**: [심화 예제 자료](https://drive.google.com/file/d/1wG0fZ0uhBQ1tniHUVE42xxo2mhkdwzGf/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **실습 자료**: [Session04 실습 폴더](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session04) · [session04_데이터-통계량.pdf](/files/maicon-2026/lectures/session04_%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%86%B5%EA%B3%84%EB%9F%89.pdf) · [session04.ipynb](/files/maicon-2026/code/session04/session04.ipynb)
+- **CSV 데이터**: [health_summary.csv](/files/maicon-2026/code/session04/health_summary.csv) · [equipment_usage.csv](/files/maicon-2026/code/session04/equipment_usage.csv) · [meal_survey.csv](/files/maicon-2026/code/session04/meal_survey.csv)
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 
--   **문제**: [유형 01 문제](/cs/data-analysis/practice-01-tabular-preprocessing/) — 중복 거래와 단위가 다른 수량을 정리한 뒤, 팀별·일별 보급량을 어떻게 믿을 수 있게 계산할까요?
--   **풀이**: [유형 01 풀이](/cs/data-analysis/practice-01-tabular-preprocessing-solution/) — 최신 거래를 선택하고 수량 단위를 맞춘 뒤, 오류 기록을 분리해 팀별·일별로 집계합니다.
+- **문제**: [유형 01 문제](/cs/data-analysis/practice-01-tabular-preprocessing/) — 중복 거래와 단위가 다른 수량을 정리한 뒤, 팀별·일별 보급량을 어떻게 믿을 수 있게 계산할까요?
+- **풀이**: [유형 01 풀이](/cs/data-analysis/practice-01-tabular-preprocessing-solution/) — 최신 거래를 선택하고 수량 단위를 맞춘 뒤, 오류 기록을 분리해 팀별·일별로 집계합니다.
 
 ### 공식 문서
 
--   **pandas**: [DataFrame.describe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html) — dtype별 통계 요약과 include 옵션  
-    [DataFrame.aggregate](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.aggregate.html) — 여러 집계 함수와 List·Dictionary 지정  
-    [GroupBy와 Named Aggregation](https://pandas.pydata.org/docs/user_guide/groupby.html#named-aggregation) — 집단별 집계와 출력 열 이름 지정  
-    [Series.std](https://pandas.pydata.org/docs/reference/api/pandas.Series.std.html) — ddof·skipna와 표준편차 계산  
-    [Series.mode](https://pandas.pydata.org/docs/reference/api/pandas.Series.mode.html) — 여러 최빈값과 정렬된 반환 결과  
-    [Series.quantile](https://pandas.pydata.org/docs/reference/api/pandas.Series.quantile.html) — q 범위와 interpolation  
-    [Series.value\_counts](https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html) — 응답 수와 상대 빈도  
-    [GroupBy.count](https://pandas.pydata.org/docs/reference/api/pandas.api.typing.DataFrameGroupBy.count.html) — 결측치를 제외한 관측 개수  
-    [GroupBy.size](https://pandas.pydata.org/docs/reference/api/pandas.api.typing.DataFrameGroupBy.size.html) — 집단별 행 수  
-    [pandas.concat](https://pandas.pydata.org/docs/reference/api/pandas.concat.html) — axis와 인덱스 정렬·outer 결합  
-    [Series.to\_frame](https://pandas.pydata.org/docs/reference/api/pandas.Series.to_frame.html) — Series를 DataFrame으로 변환  
-    [DataFrame.transpose](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.transpose.html) — 행과 열 전치 및 T 속성  
-    [DataFrame.loc](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html) — 라벨을 기준으로 행·열 선택  
-    [DataFrame.iloc](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.iloc.html) — 위치를 기준으로 행·열 선택
--   **NumPy**: [numpy.std](https://numpy.org/doc/stable/reference/generated/numpy.std.html) — 기본 ddof=0과 분모·분산 보정의 의미  
-    [numpy.percentile](https://numpy.org/doc/stable/reference/generated/numpy.percentile.html) — 0\~100을 사용하는 분위수 표현
--   **Matplotlib**: [Axes.boxplot](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.boxplot.html) — IQR·수염·이상치 후보의 표시  
-    [Axes.bar](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.bar.html) — 점수별 응답 수의 막대그래프
--   **Python**: [str.join · str.strip](https://docs.python.org/3/library/stdtypes.html#str.join) — 문자열 연결과 양 끝 문자 제거
--   **scikit-learn**: [데이터 누수와 전처리 주의점](https://scikit-learn.org/stable/common_pitfalls.html) — Train에서 전처리 기준을 학습하는 원칙과 Pipeline
--   **Bootstrap**: [SciPy bootstrap](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bootstrap.html) — 재표집 방법과 confidence interval을 확인합니다.
+- **pandas**
+  - [DataFrame.describe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html) — dtype별 통계 요약과 include 옵션
+  - [DataFrame.aggregate](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.aggregate.html) — 여러 집계 함수와 List·Dictionary 지정
+  - [GroupBy와 Named Aggregation](https://pandas.pydata.org/docs/user_guide/groupby.html#named-aggregation) — 집단별 집계와 출력 열 이름 지정
+  - [Series.std](https://pandas.pydata.org/docs/reference/api/pandas.Series.std.html) — ddof·skipna와 표준편차 계산
+  - [Series.mode](https://pandas.pydata.org/docs/reference/api/pandas.Series.mode.html) — 여러 최빈값과 정렬된 반환 결과
+  - [Series.quantile](https://pandas.pydata.org/docs/reference/api/pandas.Series.quantile.html) — q 범위와 interpolation
+  - [Series.value_counts](https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html) — 응답 수와 상대 빈도
+  - [GroupBy.count](https://pandas.pydata.org/docs/reference/api/pandas.api.typing.DataFrameGroupBy.count.html) — 결측치를 제외한 관측 개수
+  - [GroupBy.size](https://pandas.pydata.org/docs/reference/api/pandas.api.typing.DataFrameGroupBy.size.html) — 집단별 행 수
+  - [pandas.concat](https://pandas.pydata.org/docs/reference/api/pandas.concat.html) — axis와 인덱스 정렬·outer 결합
+  - [Series.to_frame](https://pandas.pydata.org/docs/reference/api/pandas.Series.to_frame.html) — Series를 DataFrame으로 변환
+  - [DataFrame.transpose](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.transpose.html) — 행과 열 전치 및 T 속성
+  - [DataFrame.loc](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html) — 라벨을 기준으로 행·열 선택
+  - [DataFrame.iloc](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.iloc.html) — 위치를 기준으로 행·열 선택
+- **NumPy**
+  - [numpy.std](https://numpy.org/doc/stable/reference/generated/numpy.std.html) — 기본 `ddof=0`과 분모·분산 보정의 의미
+  - [numpy.percentile](https://numpy.org/doc/stable/reference/generated/numpy.percentile.html) — 0\~100을 사용하는 분위수 표현
+- **Matplotlib**
+  - [Axes.boxplot](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.boxplot.html) — IQR·수염·이상치 후보의 표시
+  - [Axes.bar](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.bar.html) — 점수별 응답 수의 막대그래프
+- **Python**: [str.join · str.strip](https://docs.python.org/3/library/stdtypes.html#str.join) — 문자열 연결과 양 끝 문자 제거
+- **scikit-learn**: [데이터 누수와 전처리 주의점](https://scikit-learn.org/stable/common_pitfalls.html) — Train에서 전처리 기준을 학습하는 원칙과 Pipeline
+- **Bootstrap**: [SciPy bootstrap](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bootstrap.html) — 재표집 방법과 confidence interval을 확인합니다.

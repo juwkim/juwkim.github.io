@@ -4,7 +4,7 @@ date: 2026-10-07T17:54:26+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "사진 세 장에서 person이 15건 탐지됐다면 서로 다른 사람이 15명 있다는 뜻일까요? 이미지 속 글자를 정리할 때는 어떤 정보를 남겨야 할까요? 영상에서 탐지 0건인 프레임은 그래프에서 빼도 될까요?…"
+description: "YOLO 탐지 결과를 Counter와 DataFrame으로 집계하고, EasyOCR로 읽은 텍스트를 원본과 함께 정리하며, 영상의 프레임별 탐지 수를 시간축으로 기록합니다. 탐지 건수와 고유 객체 수, 탐지 0건과 미관측의 차이도 정리합니다."
 tistoryId: 60
 ---
 > **이번 글의 질문**
@@ -27,7 +27,7 @@ tistoryId: 60
 | 객체 탐지 | 객체별 클래스·Box·Confidence | 탐지된 객체 한 건 |
 | OCR | 텍스트 영역·인식한 글자·Confidence | 인식된 텍스트 영역 한 개 |
 
-YOLO로 한 이미지에서 `person` 일곱 건과 `truck` 한 건을 찾는 작업은 <strong>객체 탐지(Object Detection)</strong>입니다. 이미지 전체에 라벨 하나를 붙이는 분류와 구분합니다. OCR은 글자가 있는 영역을 찾고 그 내용을 읽는 작업이며, 반환된 영역 하나가 문장 한 줄이나 문서의 항목 하나와 항상 일치하지는 않습니다.
+YOLO로 한 이미지에서 `person` 일곱 건과 `truck` 한 건을 찾는 작업은 **객체 탐지**(Object Detection)입니다. 이미지 전체에 라벨 하나를 붙이는 분류와 구분합니다. OCR은 글자가 있는 영역을 찾고 그 내용을 읽는 작업이며, 반환된 영역 하나가 문장 한 줄이나 문서의 항목 하나와 항상 일치하지는 않습니다.
 
 | 실습 입력 | 구성 | 만들 결과 |
 | --- | --- | --- |
@@ -35,7 +35,7 @@ YOLO로 한 이미지에서 `person` 일곱 건과 `truck` 한 건을 찾는 작
 | `images/supplies_imgs` | `BOX001~004.png` 네 장 | OCR 원본과 정리한 텍스트의 CSV |
 | `videos/drone_mission.mp4` | 30 FPS, 150프레임, 약 5초 | 탐지 상세 CSV와 프레임별 시계열 그래프 |
 
-images와 videos 폴더를 작업 폴더 아래에 두고 실행합니다. 저장할 표의 한 행이 무엇을 나타내는지 먼저 정하면, 나중에 개수를 세거나 데이터를 합칠 때도 기준이 분명해집니다.
+`images`와 `videos` 폴더를 작업 폴더 아래에 두고 실행합니다. 저장할 표의 한 행이 무엇을 나타내는지 먼저 정하면, 나중에 개수를 세거나 데이터를 합칠 때도 기준이 분명해집니다.
 
 ## 2. 파일을 고르고, Counter로 개수를 누적합니다
 
@@ -207,7 +207,7 @@ object_class  count
          car      1
 ```
 
-Pillow로 이미지를 열고 RGB로 변환한 뒤 모델에 전달합니다. `results.pandas().xyxy[0]`은 첫 번째 입력 이미지의 탐지 결과 DataFrame입니다. 이번 반복문에서는 이미지를 한 장씩 넣으므로 매번 `[0]`을 사용합니다. 클래스 이름은 name 열에서 가져옵니다.
+Pillow로 이미지를 열고 RGB로 변환한 뒤 모델에 전달합니다. `results.pandas().xyxy[0]`은 첫 번째 입력 이미지의 탐지 결과 DataFrame입니다. 이번 반복문에서는 이미지를 한 장씩 넣으므로 매번 `[0]`을 사용합니다. 클래스 이름은 `name` 열에서 가져옵니다.
 
 상세 표에는 파일명과 객체별 좌표·Confidence를 남기고, 요약 표에는 이미지별 총 탐지 수를 남깁니다. 어떤 클래스를 잘못 셌는지 확인하고 싶을 때는 상세 표로 돌아갈 수 있습니다. 정상적으로 읽었지만 탐지 결과가 없으면 `total_count`는 0이고, 읽기 실패는 결측값과 `status`로 구분합니다.
 
@@ -338,7 +338,7 @@ for text in examples:
 | `[^...]` | 대괄호 안의 문자 집합에 포함되지 않는 문자를 뜻합니다. |
 | `+` | 앞의 패턴이 한 번 이상 반복되는 것을 뜻합니다. |
 
-r 접두사는 Raw String을 만듭니다. Python 문자열 처리 단계에서 백슬래시를 그대로 전달하기 위한 표현입니다. 정규 표현식 엔진은 전달된 `\s`를 공백 패턴으로 해석합니다. `strip()`은 문자열 양 끝의 공백을 정리하고, 두 번째 `sub`는 여러 공백을 하나로 합칩니다.
+`r` 접두사는 Raw String을 만듭니다. Python 문자열 처리 단계에서 백슬래시를 그대로 전달하기 위한 표현입니다. 정규 표현식 엔진은 전달된 `\s`를 공백 패턴으로 해석합니다. `strip()`은 문자열 양 끝의 공백을 정리하고, 두 번째 `sub`는 여러 공백을 하나로 합칩니다.
 
 ### 4-3. 현재 파일명, 원본 텍스트, 좌표를 함께 저장합니다
 
@@ -397,7 +397,7 @@ BOX003.png                12                  11
 BOX004.png                16                  16
 ```
 
-네 이미지에서 텍스트 영역 **47개**가 반환되고, 정리 후 내용이 남는 **45개**를 `supply_info.csv`에 저장합니다. BOX001의 작은 따옴표와 BOX003의 콜론만 있는 영역은 정리 후 빈 문자열이 되므로 저장 목록에서 제외됩니다. 원본 결과 47개는 `ocr_raw_results.csv`에 남습니다.
+네 이미지에서 텍스트 영역 **47개**가 반환되고, 정리 후 내용이 남는 **45개**를 `supply_info.csv`에 저장합니다. BOX001의 작은따옴표와 BOX003의 콜론만 있는 영역은 정리 후 빈 문자열이 되므로 저장 목록에서 제외됩니다. 원본 결과 47개는 `ocr_raw_results.csv`에 남습니다.
 
 `filename`에는 반복 중인 `path.name`을 넣습니다. 다른 파일을 가리키는 변수를 사용하면 텍스트는 맞아도 출처 파일명이 섞일 수 있습니다. `region_index`는 각 이미지 안에서 텍스트 영역을 다시 찾기 위한 번호이고, `bbox`에는 영역을 둘러싼 네 꼭짓점 좌표를 JSON 문자열로 저장합니다.
 
@@ -405,7 +405,7 @@ BOX004.png                16                  16
 | --- | --- | --- | --- |
 | `BOX001.png` | MEDIGAL | MEDIGAL | 0.9754 |
 | `BOX001.png` | 12박스 | 12박스 | 0.9961 |
-| BOX002.png | 탄약류: 5,56mm | 탄약류 5 56mm | 0.5519 |
+| `BOX002.png` | 탄약류: 5,56mm | 탄약류 5 56mm | 0.5519 |
 | `BOX003.png` | 12박스 | 12박스 | 0.8519 |
 | `BOX003.png` | 2025-06-20 | 2025 06 20 | 0.9982 |
 | `BOX003.png` | 14 : 38 | 14 38 | 0.5718 |
@@ -566,7 +566,7 @@ print(frame_counts.to_string(index=False))
 
 OpenCV에서 읽은 컬러 프레임은 BGR입니다. YOLOv5 Hub 모델에 NumPy 배열을 전달할 때는 RGB로 변환합니다. 이 순서는 앞선 이미지 실습의 Pillow RGB 입력과도 일치합니다. 라이브러리의 입력 규칙을 맞춰야 색상 채널이 바뀐 상태로 모델에 들어가는 일을 막을 수 있습니다.
 
-객체별 상세 정보는 `drone_detection.csv`에 저장하고, 분석한 모든 프레임의 개수는 `frame_detection_counts.csv`에 저장합니다. 첫 프레임의 탐지 수가 0이면 상세 표에는 그 프레임의 객체 행이 없지만, 프레임 요약 표에는 **0초·0건이라는 행**이 남습니다. finally에서 `release`를 호출해 도중에 예외가 발생해도 영상 자원을 해제합니다.
+객체별 상세 정보는 `drone_detection.csv`에 저장하고, 분석한 모든 프레임의 개수는 `frame_detection_counts.csv`에 저장합니다. 첫 프레임의 탐지 수가 0이면 상세 표에는 그 프레임의 객체 행이 없지만, 프레임 요약 표에는 **0초·0건이라는 행**이 남습니다. `finally`에서 `release`를 호출해 도중에 예외가 발생해도 영상 자원을 해제합니다.
 
 | 프레임 번호 | 경과 시간(초) | 전체 탐지 수 | person 탐지 수 |
 | --- | --- | --- | --- |
@@ -624,7 +624,7 @@ plt.close(fig)
 
 *그래프의 숫자를 샘플 프레임과 함께 확인합니다. 클래스 이름은 모델의 예측입니다.*
 
-이번 출력에는 `car`·`truck`·`person` 외에 airplane·boat라는 클래스 예측도 포함됩니다. 작은 대상의 모양이나 화면 구도가 달라지면 잘못된 클래스가 붙을 수 있습니다. 따라서 그래프가 올라간 이유를 곧바로 “실제 객체가 그만큼 증가했다”라고 설명하기보다, 해당 시점의 이미지와 Box·Confidence를 함께 확인합니다.
+이번 출력에는 `car`·`truck`·`person` 외에 `airplane`·`boat`라는 클래스 예측도 포함됩니다. 작은 대상의 모양이나 화면 구도가 달라지면 잘못된 클래스가 붙을 수 있습니다. 따라서 그래프가 올라간 이유를 곧바로 “실제 객체가 그만큼 증가했다”라고 설명하기보다, 해당 시점의 이미지와 Box·Confidence를 함께 확인합니다.
 
 ## 6. 시계열로 해석할 때 집계 기준을 다시 확인합니다
 
@@ -740,7 +740,7 @@ YOLOv5u는 앞서 `torch.hub`로 로드한 YOLOv5s와 모델 구조·가중치�
 | --- | --- | --- |
 | 모델 생성 | `torch.hub.load(...)` | `YOLO("yolov5su.pt")` |
 | 객체별 결과 | `results.pandas().xyxy[0]` | `result.boxes` |
-| 클래스 이름 | DataFrame의 name 열 | `result.names[class_id]` |
+| 클래스 이름 | DataFrame의 `name` 열 | `result.names[class_id]` |
 | NumPy 컬러 입력 | RGB | BGR |
 | Pillow 컬러 입력 | RGB | RGB |
 | 여러 결과 처리 | 반복문에서 입력을 나눕니다. | `stream=True`로 결과를 순차적으로 받습니다. |
@@ -776,12 +776,12 @@ print("유지 가정의 시간 가중 평균:", np.average(counts, weights=durat
 
 ## 9. 복습할 때 다시 확인할 질문
 
-1.  **무엇을 한 건으로 셌나요?** 객체 탐지 건수, 해당 클래스가 나타난 이미지 수, 프레임별 개수는 서로 다른 집계입니다.
-2.  **Counter에 무엇을 넣었나요?** 클래스 이름 List를 넣고, 반복문 밖에서 초기화한 Counter에 `update`합니다.
-3.  **텍스트를 검사했나요, 바꿨나요?** `match`는 시작, `fullmatch`는 전체를 검사하고, `sub`는 내용을 교체합니다.
-4.  **OCR 원본을 다시 찾을 수 있나요?** 파일명·`region_index`·`raw_text`·`bbox`·Confidence를 함께 남깁니다.
-5.  **0건인 시점도 기록했나요?** 정상 처리 후 탐지 0건인 프레임은 기록하고, 읽기 실패나 미처리 시점과 구분합니다.
-6.  **시간축과 모델 입력 규칙은 맞나요?** FPS와 경과 시간의 관계를 확인하고, 사용하는 API에 맞춰 BGR·RGB를 전달합니다.
+1. **무엇을 한 건으로 셌나요?** 객체 탐지 건수, 해당 클래스가 나타난 이미지 수, 프레임별 개수는 서로 다른 집계입니다.
+2. **Counter에 무엇을 넣었나요?** 클래스 이름 List를 넣고, 반복문 밖에서 초기화한 Counter에 `update`합니다.
+3. **텍스트를 검사했나요, 바꿨나요?** `match`는 시작, `fullmatch`는 전체를 검사하고, `sub`는 내용을 교체합니다.
+4. **OCR 원본을 다시 찾을 수 있나요?** 파일명·`region_index`·`raw_text`·`bbox`·Confidence를 함께 남깁니다.
+5. **0건인 시점도 기록했나요?** 정상 처리 후 탐지 0건인 프레임은 기록하고, 읽기 실패나 미처리 시점과 구분합니다.
+6. **시간축과 모델 입력 규칙은 맞나요?** FPS와 경과 시간의 관계를 확인하고, 사용하는 API에 맞춰 BGR·RGB를 전달합니다.
 
 | 함수·속성 | 다시 떠올릴 역할 |
 | --- | --- |
@@ -796,7 +796,7 @@ print("유지 가정의 시간 가중 평균:", np.average(counts, weights=durat
 | `defaultdict(int)` | 없는 키를 조회할 때 기본 정수 값 0을 만듭니다. |
 | `resample("2s")` | 시간 인덱스를 2초 간격으로 묶어 집계합니다. |
 
-### 저장 파일의 한 행이 뜻하는 것
+### 9-1. 저장 파일의 한 행이 뜻하는 것
 
 | 결과 파일 | 한 행의 단위 |
 | --- | --- |
@@ -816,37 +816,43 @@ print("유지 가정의 시간 가중 평균:", np.average(counts, weights=durat
 
 ### 실습 데이터와 노트북
 
--   **실습 자료**: [Session10 실습 폴더](https://drive.google.com/drive/folders/1esFvM3ZbAD0wnsc3jeRpjV0yXP6hA6wL) · [session10\_이미지-분류.pdf](https://drive.google.com/file/d/1sFGyhRFagsPlQf_r-r-T_NpF9ZShVkDf/view) · [session10.ipynb](https://drive.google.com/file/d/1swEpX2UB_2u84h5jUO2Q5rBbew1Z2XR8/view)
--   **이미지 데이터**: [surv\_imgs: CAM001\~003.png](https://drive.google.com/drive/folders/1SsZ41szoEC72B0YAARuGfepRrW1kMr20) · [supplies\_imgs: BOX001\~004.png](https://drive.google.com/drive/folders/13RficoowR_lw9jY0joBtRIMpHVwag3M5)
--   **영상 데이터**: [drone\_mission.mp4](https://drive.google.com/file/d/1q3HKqvfifFEfRH_ycS1kkq9v3jrO8Cd5/view)
--   **심화 예제**: [심화 예제 자료](https://drive.google.com/file/d/1wG0fZ0uhBQ1tniHUVE42xxo2mhkdwzGf/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **실습 자료**: [Session10 실습 폴더](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session10) · [session10_이미지-분류.pdf](/files/maicon-2026/lectures/session10_%EC%9D%B4%EB%AF%B8%EC%A7%80-%EB%B6%84%EB%A5%98.pdf) · [session10.ipynb](/files/maicon-2026/code/session10/session10.ipynb)
+- **이미지 데이터**: [surv_imgs: CAM001\~003.png](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session10/images/surv_imgs) · [supplies_imgs: BOX001\~004.png](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session10/images/supplies_imgs)
+- **영상 데이터**: [drone_mission.mp4](/files/maicon-2026/code/session10/videos/drone_mission.mp4)
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 
--   **문제**: [유형 04 문제](/cs/data-analysis/practice-04-text-classification/) — 표현이 조금씩 다른 접수 문장을 분류하면서, 같은 양식의 문장이 Train과 Test에 섞이는 문제를 어떻게 막을까요?  
-    [유형 06 문제](/cs/data-analysis/practice-06-object-detection/) — 정상 사진·빈 사진·누락 사진이 섞여 있을 때, 장면별 사람·차량 탐지 수를 어떻게 요약할까요?  
-    [유형 07 문제](/cs/data-analysis/practice-07-video-frame-sampling/) — 29.97 FPS 영상에서 1초마다 관측하려면 어떤 프레임을 골라야 하며, 빈 프레임은 그래프에 어떻게 남겨야 할까요?  
-    [유형 08 문제](/cs/data-analysis/practice-08-ocr-structured-data/) — 이미지에서 읽은 날짜·수량·가격을 표로 옮길 때, 구분 기호와 음수 부호를 어떻게 보존할까요?
--   **풀이**: [유형 04 풀이](/cs/data-analysis/practice-04-text-classification-solution/) — 문장 양식별로 데이터를 나누고 TF-IDF와 Logistic Regression을 Pipeline으로 연결해 그룹 CV로 검증합니다.  
-    [유형 06 풀이](/cs/data-analysis/practice-06-object-detection-solution/) — YOLO 탐지 결과와 사진별 처리 상태를 저장하고, 탐지 0건과 처리 실패를 구분해 장면별로 집계합니다.  
-    [유형 07 풀이](/cs/data-analysis/practice-07-video-frame-sampling-solution/) — 목표 시각마다 프레임을 계산하고 객체가 없는 프레임도 포함해 시간 구간별 개수를 요약합니다.  
-    [유형 08 풀이](/cs/data-analysis/practice-08-ocr-structured-data-solution/) — OCR 원문과 좌표를 보관하고 항목별 값을 추출·검증한 뒤, 정답 표와 필드별 일치도를 비교합니다.
+- **문제**
+  - [유형 04 문제](/cs/data-analysis/practice-04-text-classification/) — 표현이 조금씩 다른 접수 문장을 분류하면서, 같은 양식의 문장이 Train과 Test에 섞이는 문제를 어떻게 막을까요?
+  - [유형 06 문제](/cs/data-analysis/practice-06-object-detection/) — 정상 사진·빈 사진·누락 사진이 섞여 있을 때, 장면별 사람·차량 탐지 수를 어떻게 요약할까요?
+  - [유형 07 문제](/cs/data-analysis/practice-07-video-frame-sampling/) — 29.97 FPS 영상에서 1초마다 관측하려면 어떤 프레임을 골라야 하며, 빈 프레임은 그래프에 어떻게 남겨야 할까요?
+  - [유형 08 문제](/cs/data-analysis/practice-08-ocr-structured-data/) — 이미지에서 읽은 날짜·수량·가격을 표로 옮길 때, 구분 기호와 음수 부호를 어떻게 보존할까요?
+- **풀이**
+  - [유형 04 풀이](/cs/data-analysis/practice-04-text-classification-solution/) — 문장 양식별로 데이터를 나누고 TF-IDF와 Logistic Regression을 Pipeline으로 연결해 그룹 CV로 검증합니다.
+  - [유형 06 풀이](/cs/data-analysis/practice-06-object-detection-solution/) — YOLO 탐지 결과와 사진별 처리 상태를 저장하고, 탐지 0건과 처리 실패를 구분해 장면별로 집계합니다.
+  - [유형 07 풀이](/cs/data-analysis/practice-07-video-frame-sampling-solution/) — 목표 시각마다 프레임을 계산하고 객체가 없는 프레임도 포함해 시간 구간별 개수를 요약합니다.
+  - [유형 08 풀이](/cs/data-analysis/practice-08-ocr-structured-data-solution/) — OCR 원문과 좌표를 보관하고 항목별 값을 추출·검증한 뒤, 정답 표와 필드별 일치도를 비교합니다.
 
 ### 공식 문서
 
--   **파일·집계**: [Python List Comprehensions](https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions) — 조건에 맞는 파일을 List로 구성  
-    [Python pathlib](https://docs.python.org/3/library/pathlib.html) — iterdir·is\_file·suffix·경로 처리  
-    [Python collections](https://docs.python.org/3/library/collections.html#collections.Counter) — Counter의 누적·정렬과 defaultdict의 기본값  
-    [Pandas GroupBy](https://pandas.pydata.org/docs/reference/groupby.html) — 그룹별 집계와 nunique
--   **객체 탐지**: [YOLOv5 PyTorch Hub](https://docs.ultralytics.com/yolov5/tutorials/pytorch-hub-model-loading) — 모델 로딩·설정·Pandas 탐지 결과  
-    [Ultralytics YOLOv5](https://docs.ultralytics.com/models/yolov5) — YOLOv5u와 기존 모델·가중치의 차이  
-    [Ultralytics Predict](https://docs.ultralytics.com/modes/predict) — Results·Boxes·Generator·입력 색상·vid\_stride  
-    [Ultralytics Track](https://docs.ultralytics.com/modes/track) — 객체 탐지와 연속 프레임의 ID 연결
--   **OCR·텍스트**: [EasyOCR API](https://www.jaided.ai/easyocr/documentation/) — Reader 언어 설정과 readtext·detail 옵션  
-    [EasyOCR 공식 저장소](https://github.com/JaidedAI/EasyOCR) — 설치·모델 준비·출력 형식  
-    [Python re](https://docs.python.org/3/library/re.html) — match·search·fullmatch·sub와 Raw String
--   **영상·시간축**: [OpenCV VideoCapture](https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html) — isOpened·read·get·release  
-    [OpenCV VideoCapture properties](https://docs.opencv.org/4.x/d4/d15/group__videoio__flags__base.html) — FPS·프레임 수·경과 시간 속성  
-    [Pandas resample](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.resample.html) — TimedeltaIndex와 시간 구간 집계  
-    [Matplotlib Bar Chart](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.bar.html) — 범주별 빈도를 막대로 표현
--   **가중 평균**: [numpy.average](https://numpy.org/doc/stable/reference/generated/numpy.average.html) — 시간 길이를 가중치로 주는 평균을 확인합니다.
+- **파일·집계**
+  - [Python List Comprehensions](https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions) — 조건에 맞는 파일을 List로 구성
+  - [Python pathlib](https://docs.python.org/3/library/pathlib.html) — iterdir·is_file·suffix·경로 처리
+  - [Python collections](https://docs.python.org/3/library/collections.html#collections.Counter) — Counter의 누적·정렬과 defaultdict의 기본값
+  - [pandas GroupBy](https://pandas.pydata.org/docs/reference/groupby.html) — 그룹별 집계와 nunique
+- **객체 탐지**
+  - [YOLOv5 PyTorch Hub](https://docs.ultralytics.com/yolov5/tutorials/pytorch-hub-model-loading) — 모델 로딩·설정·Pandas 탐지 결과
+  - [Ultralytics YOLOv5](https://docs.ultralytics.com/models/yolov5) — YOLOv5u와 기존 모델·가중치의 차이
+  - [Ultralytics Predict](https://docs.ultralytics.com/modes/predict) — Results·Boxes·Generator·입력 색상·vid_stride
+  - [Ultralytics Track](https://docs.ultralytics.com/modes/track) — 객체 탐지와 연속 프레임의 ID 연결
+- **OCR·텍스트**
+  - [EasyOCR API](https://www.jaided.ai/easyocr/documentation/) — Reader 언어 설정과 readtext·detail 옵션
+  - [EasyOCR 공식 저장소](https://github.com/JaidedAI/EasyOCR) — 설치·모델 준비·출력 형식
+  - [Python re](https://docs.python.org/3/library/re.html) — match·search·fullmatch·sub와 Raw String
+- **영상·시간축**
+  - [OpenCV VideoCapture](https://docs.opencv.org/4.x/d8/dfe/classcv_1_1VideoCapture.html) — isOpened·read·get·release
+  - [OpenCV VideoCapture properties](https://docs.opencv.org/4.x/d4/d15/group__videoio__flags__base.html) — FPS·프레임 수·경과 시간 속성
+  - [pandas resample](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.resample.html) — TimedeltaIndex와 시간 구간 집계
+  - [Matplotlib Bar Chart](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.bar.html) — 범주별 빈도를 막대로 표현
+- **가중 평균**: [numpy.average](https://numpy.org/doc/stable/reference/generated/numpy.average.html) — 시간 길이를 가중치로 주는 평균을 확인합니다.

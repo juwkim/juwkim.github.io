@@ -4,7 +4,7 @@ date: 2026-10-07T00:30:35+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "정답이 없는 데이터는 어떻게 나눌까요? 군집 번호 0·1·2는 무엇을 뜻할까요? Feature 5개를 점 하나로 그렸다면, 원래 정보는 얼마나 남아 있을까요? KMeans는 Feature 사이의 거리를 바탕으로…"
+description: "심리 설문을 KMeans로 묶고 장비 지표를 PCA로 2차원에 표현하며, 군집 번호와 주성분 좌표의 의미를 원본 평균·계수·설명 분산 비율로 해석합니다. 실루엣 계수, 군집 수 비교, 새 데이터 배정도 정리합니다."
 tistoryId: 58
 ---
 > **이번 글의 질문**
@@ -27,7 +27,7 @@ tistoryId: 58
 
 군집화 결과에 0·1·2가 붙으면 분류 결과와 비슷해 보입니다. 하지만 이 숫자는 데이터에서 만든 그룹의 이름입니다. 정상·주의·위험 같은 정답을 맞힌 결과가 아닙니다. PCA도 “가장 중요한 정답 Feature 두 개”를 고르는 방법이 아니라, **기존 Feature를 조합해 새로운 축을 만드는 방법**입니다.
 
-[파이썬 데이터 분석노트 04](/cs/data-analysis/pandas-04-descriptive-statistics/)의 기술 통계량과 [파이썬 데이터 분석노트 05](/cs/data-analysis/pandas-05-data-visualization/)의 시각화를 군집별로 적용하면, 그룹이 어떻게 다른지 더 구체적으로 설명할 수 있습니다.
+[파이썬 데이터 분석 공부노트 04](/cs/data-analysis/pandas-04-descriptive-statistics/)의 기술 통계량과 [파이썬 데이터 분석 공부노트 05](/cs/data-analysis/pandas-05-data-visualization/)의 시각화를 군집별로 적용하면, 그룹이 어떻게 다른지 더 구체적으로 설명할 수 있습니다.
 
 | 실습 파일 | 데이터 크기 | 사용할 Feature | 목표 |
 | --- | --- | --- | --- |
@@ -109,7 +109,7 @@ max             10            10                 10               10
 
 100명의 기록에 결측치는 없고, 선택한 네 항목은 모두 1\~10점입니다. `soldier_id`는 Feature List에 넣지 않습니다. 번호가 가깝다는 이유로 심리 상태도 비슷하다고 계산하지 않기 위해서입니다.
 
-### 3-2. fit\_predict()로 학습과 군집 배정을 수행합니다
+### 3-2. fit_predict()로 학습과 군집 배정을 수행합니다
 
 ```python
 mental_model = KMeans(
@@ -139,7 +139,7 @@ Inertia: 2066.760
 
 개별 기록을 담은 `cluster_result.csv`와 그룹 평균을 담은 `mental_cluster_means.csv`를 따로 저장합니다. 어느 병사가 어느 그룹에 들어갔는지 찾는 질문과, 그 그룹이 어떤 응답 특성을 보이는지 보는 질문은 서로 다릅니다.
 
-| 군집 | sleep\_quality | stress\_level | social\_connection | self\_confidence |
+| 군집 | sleep_quality | stress_level | social_connection | self_confidence |
 | --- | --- | --- | --- | --- |
 | 0 | 4.64 | 4.67 | 7.39 | 7.61 |
 | 1 | 4.72 | 6.62 | 2.44 | 7.19 |
@@ -270,15 +270,15 @@ equipment_id     PC1     PC2
 
 ## 5. PCA 그림을 읽기 전에, 축과 남은 정보를 확인합니다
 
-### 5-1. components\_의 절댓값과 부호를 함께 봅니다
+### 5-1. components_의 절댓값과 부호를 함께 봅니다
 
 | 원래 Feature | PC1 | PC2 |
 | --- | --- | --- |
-| `fuel_efficiency` | \-0.661 | \-0.381 |
-| `repair_rate` | 0.668 | \-0.055 |
-| `operational_range` | \-0.249 | 0.637 |
+| `fuel_efficiency` | -0.661 | -0.381 |
+| `repair_rate` | 0.668 | -0.055 |
+| `operational_range` | -0.249 | 0.637 |
 | `weight` | 0.133 | 0.378 |
-| `power_usage` | 0.194 | \-0.551 |
+| `power_usage` | 0.194 | -0.551 |
 
 이 표의 값은 표준화한 Feature를 각 PC 좌표로 조합할 때의 계수입니다. 절댓값이 클수록 같은 크기의 표준화 값 변화가 그 축 좌표에 더 크게 반영됩니다. 부호는 그 Feature가 증가할 때 해당 PC 좌표가 어느 방향으로 움직이는지를 나타냅니다. 기여율을 퍼센트로 표시한 표나, 예측 모델의 Feature Importance로 읽지 않습니다.
 
@@ -469,7 +469,7 @@ max                       6.00              7.90       8.90             5.00
 | `rest_time` | 휴식 시간 |
 | `alert_incidents` | 비상 상황 발생 횟수 |
 
-솔저 ID를 제외한 Feature 네 개를 표준화하고, 그 4차원 값으로 KMeans를 학습합니다. 뒤에서 결과 열을 더하더라도 `duty_cols`로 선택한 원래 네 열만 모델 입력에 사용합니다. `cluster`나 PC1·PC2를 다시 Feature에 섞지 않도록 입력 열을 명시합니다.
+병사 ID를 제외한 Feature 네 개를 표준화하고, 그 4차원 값으로 KMeans를 학습합니다. 뒤에서 결과 열을 더하더라도 `duty_cols`로 선택한 원래 네 열만 모델 입력에 사용합니다. `cluster`나 PC1·PC2를 다시 Feature에 섞지 않도록 입력 열을 명시합니다.
 
 ### 6-2. 같은 입력을 PCA로 줄이고, 군집 색을 붙입니다
 
@@ -533,7 +533,7 @@ plt.close(fig)
 
 ### 6-3. 군집의 의미는 원래 단위의 평균에서 찾습니다
 
-| 군집 | avg\_night\_shift\_per\_week | avg\_patrol\_hours | rest\_time | alert\_incidents |
+| 군집 | avg_night_shift_per_week | avg_patrol_hours | rest_time | alert_incidents |
 | --- | --- | --- | --- | --- |
 | 0 | 3.11 | 3.89 | 7.93 | 1.61 |
 | 1 | 2.61 | 6.74 | 6.24 | 2.03 |
@@ -672,7 +672,7 @@ plt.close(fig)
 
 *같은 표준화 입력과 초기화 설정으로 비교합니다. Inertia의 감소와 실루엣 점수의 변화는 서로 다른 질문에 답합니다.*
 
-### 7-3. n\_init을 바꾸면 실제로 묶음이 얼마나 달라질까요?
+### 7-3. n_init을 바꾸면 실제로 묶음이 얼마나 달라질까요?
 
 ```python
 init_records = []
@@ -712,7 +712,7 @@ mental     2066.7603   2013.9081           0.2190         0.2204          0.5167
 | --- | --- | --- |
 | KMeans | 중심과의 제곱 거리 | 정해진 k개의 그룹과 중심을 얻습니다. 길게 휘어진 모양이나 크기·밀도가 크게 다른 군집, 이상치에 주의합니다. |
 | `AgglomerativeClustering` | 가까운 군집을 단계적으로 병합 | 계층 구조를 살펴볼 수 있습니다. Linkage와 거리 기준에 따라 결과가 달라집니다. |
-| `DBSCAN` | 주변 점의 밀도와 연결 | k를 직접 지정하지 않고 Noise를 구분합니다. eps·min\_samples를 정해야 하며 밀도 차이가 큰 그룹은 분리하기 어려울 수 있습니다. |
+| `DBSCAN` | 주변 점의 밀도와 연결 | k를 직접 지정하지 않고 Noise를 구분합니다. `eps`·`min_samples`를 정해야 하며 밀도 차이가 큰 그룹은 분리하기 어려울 수 있습니다. |
 
 KMeans는 지정한 군집 중 하나에 모든 점을 배정하며 Noise 전용 번호를 만들지 않습니다. DBSCAN은 밀도 기준에 맞지 않는 점을 Noise인 -1로 표시할 수 있습니다. 이런 결과를 평가할 때는 Noise를 어떻게 다룰지 정하고, 일반 군집의 인원과 구조도 함께 확인합니다.
 
@@ -722,11 +722,11 @@ KMeans는 지정한 군집 중 하나에 모든 점을 배정하며 Noise 전용
 | --- | --- | --- |
 | PCA | 분산을 기준으로 한 선형 투영 | 축의 계수와 설명 분산 비율을 읽고, 같은 변환을 새 데이터에 적용할 수 있습니다. |
 | t-SNE | 주변 이웃 관계를 중심으로 한 비선형 시각화 | 축을 원래 Feature의 선형 가중합으로 읽지 않습니다. 군집 사이 거리와 면적은 원래 값 그대로 보존되지 않습니다. |
-| UMAP | 이웃 관계를 바탕으로 한 비선형 표현 | n\_neighbors·min\_dist에 따라 모양이 달라집니다. PCA 같은 주성분 계수와 설명 분산 비율을 갖는 표현은 아닙니다. |
+| UMAP | 이웃 관계를 바탕으로 한 비선형 표현 | `n_neighbors`·`min_dist`에 따라 모양이 달라집니다. PCA 같은 주성분 계수와 설명 분산 비율을 갖는 표현은 아닙니다. |
 
 PCA는 `transform()`으로 새로운 행을 같은 축에 놓을 수 있습니다. scikit-learn의 `TSNE`는 학습한 표현에 새로운 행을 넣는 `transform()`을 제공하지 않습니다. umap-learn의 UMAP은 `transform()`을 제공하지만 별도 패키지입니다. 새 데이터에도 같은 표현을 적용해야 한다면 이런 차이가 선택 기준이 됩니다.
 
-t-SNE의 perplexity는 관측값 수보다 작아야 하며, UMAP의 n\_neighbors는 이웃 관계를 살펴보는 범위, min\_dist는 낮은 차원에서 점이 얼마나 촘촘하게 모일지에 영향을 줍니다. 설정이나 난수에 따라 그림이 달라질 수 있으므로, 섬처럼 나뉜 그림 자체를 정답 군집의 증거로 삼지 않습니다.
+t-SNE의 `perplexity`는 관측값 수보다 작아야 하며, UMAP의 `n_neighbors`는 이웃 관계를 살펴보는 범위, `min_dist`는 낮은 차원에서 점이 얼마나 촘촘하게 모일지에 영향을 줍니다. 설정이나 난수에 따라 그림이 달라질 수 있으므로, 섬처럼 나뉜 그림 자체를 정답 군집의 증거로 삼지 않습니다.
 
 ### 8-3. 차원의 저주는 Feature 수가 늘 때 생각합니다
 
@@ -791,7 +791,7 @@ soldier_id  cluster
 Scaler의 학습 평균이 Train 평균과 일치하나요? True
 ```
 
-Pipeline.fit()은 Train 80행으로 Scaler를 학습한 뒤 변환된 값으로 KMeans를 학습합니다. `predict()`는 남은 20행에 같은 Scaler를 적용하고 가장 가까운 기존 중심의 번호를 반환합니다. 새 20행으로 Scaler나 중심을 다시 `fit`하지 않습니다.
+`Pipeline.fit()`은 Train 80행으로 Scaler를 학습한 뒤 변환된 값으로 KMeans를 학습합니다. `predict()`는 남은 20행에 같은 Scaler를 적용하고 가장 가까운 기존 중심의 번호를 반환합니다. 새 20행으로 Scaler나 중심을 다시 `fit`하지 않습니다.
 
 이 모델은 앞에서 전체 100행을 사용한 `duty_model`과 별도로 학습했습니다. 같은 `cluster=0`이라도 같은 의미라는 보장은 없습니다. 각 모델에서 군집 평균을 확인해 해석해야 합니다. 이 데이터에는 정답 클래스가 없으므로 예측 번호와 비교해 분류 Accuracy를 계산하지 않습니다.
 
@@ -846,14 +846,14 @@ print("평균 ARI:", round(float(np.mean(agreement)), 3))
 | `silhouette_samples(X, labels)` | 관측값별 실루엣 점수 | 평균이 숨긴 경계의 점들을 살펴봅니다. |
 | `adjusted_rand_score(a, b)` | 두 군집 분할의 일치도 | Label 번호가 바뀌어도 같은 묶음이면 1입니다. |
 
--   ID는 왜 거리 계산에서 제외했나요? 식별 번호의 차이를 의미 있는 Feature 차이로 쓰지 않기 위해서입니다.
--   이번 군집은 원본 점수와 표준화 점수 중 무엇으로 만들었나요? 입력 단위를 알아야 거리와 중심을 해석할 수 있습니다.
--   0·1·2는 순위인가요? 그룹의 이름이며, 의미는 군집별 원본 평균에서 찾습니다.
--   PCA `components_`와 PC1·PC2 좌표는 어떻게 다른가요? 앞은 축의 계산 규칙, 뒤는 각 관측값을 그 축에 놓은 결과입니다.
--   장비 PCA의 두 축에는 얼마나 남았나요? 표준화한 입력 분산의 약 47.3%입니다.
--   근무 군집은 어디에서 만들었나요? 표준화한 네 Feature에서 만들고, PCA의 두 좌표로 그림만 그렸습니다.
--   실루엣 점수는 정답률인가요? 같은 군집과 다른 군집까지의 평균 거리로 분리를 평가합니다.
--   새 기록에는 `fit`을 다시 하나요? 기존 기준을 적용하려면 같은 Scaler의 `transform`과 기존 KMeans의 `predict`를 사용합니다.
+- ID는 왜 거리 계산에서 제외했나요? 식별 번호의 차이를 의미 있는 Feature 차이로 쓰지 않기 위해서입니다.
+- 이번 군집은 원본 점수와 표준화 점수 중 무엇으로 만들었나요? 입력 단위를 알아야 거리와 중심을 해석할 수 있습니다.
+- 0·1·2는 순위인가요? 그룹의 이름이며, 의미는 군집별 원본 평균에서 찾습니다.
+- PCA `components_`와 PC1·PC2 좌표는 어떻게 다른가요? 앞은 축의 계산 규칙, 뒤는 각 관측값을 그 축에 놓은 결과입니다.
+- 장비 PCA의 두 축에는 얼마나 남았나요? 표준화한 입력 분산의 약 47.3%입니다.
+- 근무 군집은 어디에서 만들었나요? 표준화한 네 Feature에서 만들고, PCA의 두 좌표로 그림만 그렸습니다.
+- 실루엣 점수는 정답률인가요? 같은 군집과 다른 군집까지의 평균 거리로 분리를 평가합니다.
+- 새 기록에는 `fit`을 다시 하나요? 기존 기준을 적용하려면 같은 Scaler의 `transform`과 기존 KMeans의 `predict`를 사용합니다.
 
 > **비지도 학습의 결과는 해석할 출발점입니다.** 어떤 Feature와 거리 기준으로 묶었는지, 그룹이 어떻게 다른지, 차원 축소로 무엇을 생략했는지까지 설명하면 숫자와 그림이 분석 기록으로 남습니다.
 
@@ -861,37 +861,43 @@ print("평균 ARI:", round(float(np.mean(agreement)), 3))
 
 ### 실습 데이터와 노트북
 
--   **실습 자료**: [Session08 실습 폴더](https://drive.google.com/drive/folders/1-PrLtifGQptDwvurOWDYfA_U48dubXzS) · [session08\_비지도학습.pdf](https://drive.google.com/file/d/1PPqnOtfceFoZSXeJcd72JRUiWXmW8NSt/view) · [session08.ipynb](https://drive.google.com/file/d/14O_VoVva7e-AHqeKNi2pajvU_YHcwEMy/view)
--   **CSV 데이터**: [mental\_health.csv](https://drive.google.com/file/d/1-Shso4Xy8KuSrR0rJ1VMxtpwzcyhHyzM/view) · [equipment\_features.csv](https://drive.google.com/file/d/1DdAgnu7NNlJh_TVgifk1rmIHsd7b06hC/view) · [duty\_pattern.csv](https://drive.google.com/file/d/1vPU9MLsC-6oytxxLWL720TfLpnL-K-80/view)
--   **심화 예제**: [심화 예제 자료](https://drive.google.com/file/d/1wG0fZ0uhBQ1tniHUVE42xxo2mhkdwzGf/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **실습 자료**: [Session08 실습 폴더](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session08) · [session08_비지도학습.pdf](/files/maicon-2026/lectures/session08_%EB%B9%84%EC%A7%80%EB%8F%84%ED%95%99%EC%8A%B5.pdf) · [session08.ipynb](/files/maicon-2026/code/session08/session08.ipynb)
+- **CSV 데이터**: [mental_health.csv](/files/maicon-2026/code/session08/mental_health.csv) · [equipment_features.csv](/files/maicon-2026/code/session08/equipment_features.csv) · [duty_pattern.csv](/files/maicon-2026/code/session08/duty_pattern.csv)
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 
--   **복습 안내**: — 통계량과 그래프는 모든 유형의 입력 점검과 결과 해석에서 함께 사용합니다. 유형별 문제에서 관측 단위·비교 기준·분모를 설명하는 부분을 찾아 복습합니다.
+- **복습 안내**: 통계량과 그래프는 모든 유형의 입력 점검과 결과 해석에서 함께 사용합니다. 유형별 문제에서 관측 단위·비교 기준·분모를 설명하는 부분을 찾아 복습합니다.
 
 ### 공식 문서
 
--   **군집화**: [Clustering 가이드](https://scikit-learn.org/stable/modules/clustering.html) — 군집화의 목적·알고리즘·평가 방법  
-    [KMeans](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html) — 초기화·중심·Inertia·새 데이터 배정  
-    [AgglomerativeClustering](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html) — 계층적 병합과 Linkage  
-    [DBSCAN](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html) — eps·min\_samples·Noise Label
--   **PCA·Scaling**: [PCA](https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html) — 주성분 계수·설명 분산·transform  
-    [PCA 가이드](https://scikit-learn.org/stable/modules/decomposition.html#pca) — 분산이 큰 방향으로의 선형 투영  
-    [StandardScaler](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html) — Feature별 평균·표준편차와 ddof=0  
-    [Importance of Feature Scaling](https://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html) — Scaling이 PCA와 거리 기반 모델에 미치는 영향
--   **군집 평가**: [silhouette\_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.silhouette_score.html) — 평균 점수의 정의와 적용 조건  
-    [silhouette\_samples](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.silhouette_samples.html) — 관측값별 실루엣 계수  
-    [Silhouette 기반 군집 수 선택](https://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html) — 평균과 군집별 분포를 함께 확인하는 예제  
-    [adjusted\_rand\_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.adjusted_rand_score.html) — Label 번호와 무관한 분할 일치도
--   **비선형 표현**: [TSNE](https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html) — 이웃 관계 시각화와 perplexity  
-    [UMAP 기본 파라미터](https://umap-learn.readthedocs.io/en/latest/parameters.html) — n\_neighbors·min\_dist의 영향  
-    [UMAP 새 데이터 변환](https://umap-learn.readthedocs.io/en/latest/transform.html) — 기존 표현에 transform으로 새 데이터 배치
--   **새 데이터**: [Common pitfalls and recommended practices](https://scikit-learn.org/stable/common_pitfalls.html) — 일관된 전처리와 데이터 누수  
-    [Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) — Scaler와 모델 단계의 연결  
-    [train\_test\_split](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html) — Feature와 ID를 같은 행 기준으로 분할
--   **집계·시각화**: [DataFrame.groupby](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html) — 군집별 원본 Feature 요약  
-    [NumPy allclose](https://numpy.org/doc/stable/reference/generated/numpy.allclose.html) — 계산 결과의 근사 일치 확인  
-    [Matplotlib Quick start](https://matplotlib.org/stable/users/explain/quick_start.html) — Figure·Axes·그래프 구성  
-    [Figure.savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html) — 이미지 파일 저장  
-    [Seaborn scatterplot](https://seaborn.pydata.org/generated/seaborn.scatterplot.html) — PCA 좌표와 hue를 이용한 군집 표시  
-    [Seaborn heatmap](https://seaborn.pydata.org/generated/seaborn.heatmap.html) — 군집별 표준화 평균 비교
+- **군집화**
+  - [Clustering 가이드](https://scikit-learn.org/stable/modules/clustering.html) — 군집화의 목적·알고리즘·평가 방법
+  - [KMeans](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html) — 초기화·중심·Inertia·새 데이터 배정
+  - [AgglomerativeClustering](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html) — 계층적 병합과 Linkage
+  - [DBSCAN](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html) — eps·min_samples·Noise Label
+- **PCA·Scaling**
+  - [PCA](https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html) — 주성분 계수·설명 분산·transform
+  - [PCA 가이드](https://scikit-learn.org/stable/modules/decomposition.html#pca) — 분산이 큰 방향으로의 선형 투영
+  - [StandardScaler](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html) — Feature별 평균·표준편차와 `ddof=0`
+  - [Importance of Feature Scaling](https://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html) — Scaling이 PCA와 거리 기반 모델에 미치는 영향
+- **군집 평가**
+  - [silhouette_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.silhouette_score.html) — 평균 점수의 정의와 적용 조건
+  - [silhouette_samples](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.silhouette_samples.html) — 관측값별 실루엣 계수
+  - [Silhouette 기반 군집 수 선택](https://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html) — 평균과 군집별 분포를 함께 확인하는 예제
+  - [adjusted_rand_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.adjusted_rand_score.html) — Label 번호와 무관한 분할 일치도
+- **비선형 표현**
+  - [TSNE](https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html) — 이웃 관계 시각화와 perplexity
+  - [UMAP 기본 파라미터](https://umap-learn.readthedocs.io/en/latest/parameters.html) — n_neighbors·min_dist의 영향
+  - [UMAP 새 데이터 변환](https://umap-learn.readthedocs.io/en/latest/transform.html) — 기존 표현에 transform으로 새 데이터 배치
+- **새 데이터**
+  - [Common pitfalls and recommended practices](https://scikit-learn.org/stable/common_pitfalls.html) — 일관된 전처리와 데이터 누수
+  - [Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) — Scaler와 모델 단계의 연결
+  - [train_test_split](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html) — Feature와 ID를 같은 행 기준으로 분할
+- **집계·시각화**
+  - [DataFrame.groupby](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html) — 군집별 원본 Feature 요약
+  - [NumPy allclose](https://numpy.org/doc/stable/reference/generated/numpy.allclose.html) — 계산 결과의 근사 일치 확인
+  - [Matplotlib Quick start](https://matplotlib.org/stable/users/explain/quick_start.html) — Figure·Axes·그래프 구성
+  - [Figure.savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html) — 이미지 파일 저장
+  - [Seaborn scatterplot](https://seaborn.pydata.org/generated/seaborn.scatterplot.html) — PCA 좌표와 hue를 이용한 군집 표시
+  - [Seaborn heatmap](https://seaborn.pydata.org/generated/seaborn.heatmap.html) — 군집별 표준화 평균 비교

@@ -1,0 +1,452 @@
+[
+  {
+    "unit": "1사단",
+    "supply_date": "2024-04-13",
+    "items": {
+      "water": 133,
+      "ration": 138,
+      "medicine": 28
+    }
+  },
+  {
+    "unit": "7사단",
+    "supply_date": "2024-04-23",
+    "items": {
+      "water": 193,
+      "ration": 142,
+      "medicine": 19
+    }
+  },
+  {
+    "unit": "2사단",
+    "supply_date": "2024-04-10",
+    "items": {
+      "water": 127,
+      "ration": 87,
+      "medicine": 47
+    }
+  },
+  {
+    "unit": "11사단",
+    "supply_date": "2024-04-02",
+    "items": {
+      "water": 195,
+      "ration": 120,
+      "medicine": 13
+    }
+  },
+  {
+    "unit": "1사단",
+    "supply_date": "2024-04-19",
+    "items": {
+      "water": 161,
+      "ration": 144,
+      "medicine": 43
+    }
+  },
+  {
+    "unit": "2사단",
+    "supply_date": "2024-04-02",
+    "items": {
+      "water": 165,
+      "ration": 90,
+      "medicine": 21
+    }
+  },
+  {
+    "unit": "1사단",
+    "supply_date": "2024-04-20",
+    "items": {
+      "water": 108,
+      "ration": 110,
+      "medicine": 35
+    }
+  },
+  {
+    "unit": "1사단",
+    "supply_date": "2024-05-01",
+    "items": {
+      "water": 172,
+      "ration": 111,
+      "medicine": 47
+    }
+  },
+  {
+    "unit": "11사단",
+    "supply_date": "2024-04-02",
+    "items": {
+      "water": 179,
+      "ration": 90,
+      "medicine": 36
+    }
+  },
+  {
+    "unit": "11사단",
+    "supply_date": "2024-04-19",
+    "items": {
+      "water": 166,
+      "ration": 120,
+      "medicine": 26
+    }
+  },
+  {
+    "unit": "2사단",
+    "supply_date": "2024-04-22",
+    "items": {
+      "water": 191,
+      "ration": 120,
+      "medicine": 25
+    }
+  },
+  {
+    "unit": "3사단",
+    "supply_date": "2024-04-13",
+    "items": {
+      "water": 116,
+      "ration": 118,
+      "medicine": 39
+    }
+  },
+  {
+    "unit": "3사단",
+    "supply_date": "2024-04-30",
+    "items": {
+      "water": 196,
+      "ration": 89,
+      "medicine": 10
+    }
+  },
+  {
+    "unit": "7사단",
+    "supply_date": "2024-04-20",
+    "items": {
+      "water": 172,
+      "ration": 92,
+      "medicine": 14
+    }
+  },
+  {
+    "unit": "11사단",
+    "supply_date": "2024-04-07",
+    "items": {
+      "water": 164,
+      "ration": 113,
+      "medicine": 18
+    }
+  },
+  {
+    "unit": "3사단",
+    "supply_date": "2024-04-29",
+    "items": {
+      "water": 108,
+      "ration": 111,
+      "medicine": 33
+    }
+  },
+  {
+    "unit": "3사단",
+    "supply_date": "2024-04-06",
+    "items": {
+      "water": 156,
+      "ration": 149,
+      "medicine": 29
+    }
+  },
+  {
+    "unit": "11사단",
+    "supply_date": "2024-04-26",
+    "items": {
+      "water": 183,
+      "ration": 147,
+      "medicine": 10
+    }
+  },
+  {
+    "unit": "11사단",
+    "supply_date": "2024-04-10",
+    "items": {
+      "water": 184,
+      "ration": 93,
+      "medicine": 18
+    }
+  },
+  {
+    "unit": "3사단",
+    "supply_date": "2024-04-04",
+    "items": {
+      "water": 113,
+      "ration": 150,
+      "medicine": 19
+    }
+  },
+  {
+    "unit": "3사단",
+    "supply_date": "2024-04-10",
+    "items": {
+      "water": 177,
+      "ration": 106,
+      "medicine": 31
+    }
+  },
+  {
+    "unit": "2사단",
+    "supply_date": "2024-04-22",
+    "items": {
+      "water": 181,
+      "ration": 113,
+      "medicine": 42
+    }
+  },
+  {
+    "unit": "7사단",
+    "supply_date": "2024-04-09",
+    "items": {
+      "water": 106,
+      "ration": 91,
+      "medicine": 50
+    }
+  },
+  {
+    "unit": "7사단",
+    "supply_date": "2024-04-27",
+    "items": {
+      "water": 135,
+      "ration": 85,
+      "medicine": 10
+    }
+  },
+  {
+    "unit": "3사단",
+    "supply_date": "2024-04-25",
+    "items": {
+      "water": 116,
+      "ration": 113,
+      "medicine": 20
+    }
+  },
+  {
+    "unit": "7사단",
+    "supply_date": "2024-04-18",
+    "items": {
+      "water": 190,
+      "ration": 134,
+      "medicine": 45
+    }
+  },
+  {
+    "unit": "1사단",
+    "supply_date": "2024-04-04",
+    "items": {
+      "water": 109,
+      "ration": 99,
+      "medicine": 44
+    }
+  },
+  {
+    "unit": "1사단",
+    "supply_date": "2024-04-27",
+    "items": {
+      "water": 147,
+      "ration": 150,
+      "medicine": 19
+    }
+  },
+  {
+    "unit": "7사단",
+    "supply_date": "2024-04-05",
+    "items": {
+      "water": 105,
+      "ration": 119,
+      "medicine": 33
+    }
+  },
+  {
+    "unit": "1사단",
+    "supply_date": "2024-04-29",
+    "items": {
+      "water": 145,
+      "ration": 106,
+      "medicine": 25
+    }
+  },
+  {
+    "unit": "1사단",
+    "supply_date": "2024-04-12",
+    "items": {
+      "water": 199,
+      "ration": 132,
+      "medicine": 49
+    }
+  },
+  {
+    "unit": "2사단",
+    "supply_date": "2024-04-30",
+    "items": {
+      "water": 130,
+      "ration": 100,
+      "medicine": 21
+    }
+  },
+  {
+    "unit": "7사단",
+    "supply_date": "2024-04-01",
+    "items": {
+      "water": 122,
+      "ration": 122,
+      "medicine": 36
+    }
+  },
+  {
+    "unit": "2사단",
+    "supply_date": "2024-04-09",
+    "items": {
+      "water": 120,
+      "ration": 93,
+      "medicine": 34
+    }
+  },
+  {
+    "unit": "1사단",
+    "supply_date": "2024-04-28",
+    "items": {
+      "water": 160,
+      "ration": 108,
+      "medicine": 22
+    }
+  },
+  {
+    "unit": "7사단",
+    "supply_date": "2024-04-12",
+    "items": {
+      "water": 139,
+      "ration": 109,
+      "medicine": 24
+    }
+  },
+  {
+    "unit": "1사단",
+    "supply_date": "2024-04-22",
+    "items": {
+      "water": 124,
+      "ration": 131,
+      "medicine": 31
+    }
+  },
+  {
+    "unit": "3사단",
+    "supply_date": "2024-04-28",
+    "items": {
+      "water": 108,
+      "ration": 115,
+      "medicine": 32
+    }
+  },
+  {
+    "unit": "11사단",
+    "supply_date": "2024-04-13",
+    "items": {
+      "water": 186,
+      "ration": 148,
+      "medicine": 31
+    }
+  },
+  {
+    "unit": "1사단",
+    "supply_date": "2024-04-04",
+    "items": {
+      "water": 133,
+      "ration": 102,
+      "medicine": 47
+    }
+  },
+  {
+    "unit": "3사단",
+    "supply_date": "2024-04-02",
+    "items": {
+      "water": 113,
+      "ration": 135,
+      "medicine": 32
+    }
+  },
+  {
+    "unit": "3사단",
+    "supply_date": "2024-04-14",
+    "items": {
+      "water": 177,
+      "ration": 145,
+      "medicine": 17
+    }
+  },
+  {
+    "unit": "7사단",
+    "supply_date": "2024-04-29",
+    "items": {
+      "water": 173,
+      "ration": 104,
+      "medicine": 26
+    }
+  },
+  {
+    "unit": "1사단",
+    "supply_date": "2024-04-23",
+    "items": {
+      "water": 155,
+      "ration": 80,
+      "medicine": 43
+    }
+  },
+  {
+    "unit": "11사단",
+    "supply_date": "2024-04-22",
+    "items": {
+      "water": 192,
+      "ration": 105,
+      "medicine": 33
+    }
+  },
+  {
+    "unit": "7사단",
+    "supply_date": "2024-04-03",
+    "items": {
+      "water": 185,
+      "ration": 122,
+      "medicine": 49
+    }
+  },
+  {
+    "unit": "3사단",
+    "supply_date": "2024-04-22",
+    "items": {
+      "water": 115,
+      "ration": 118,
+      "medicine": 42
+    }
+  },
+  {
+    "unit": "3사단",
+    "supply_date": "2024-04-22",
+    "items": {
+      "water": 152,
+      "ration": 121,
+      "medicine": 35
+    }
+  },
+  {
+    "unit": "3사단",
+    "supply_date": "2024-04-18",
+    "items": {
+      "water": 116,
+      "ration": 104,
+      "medicine": 36
+    }
+  },
+  {
+    "unit": "7사단",
+    "supply_date": "2024-04-22",
+    "items": {
+      "water": 195,
+      "ration": 102,
+      "medicine": 49
+    }
+  }
+]

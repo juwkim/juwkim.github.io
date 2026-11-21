@@ -4,7 +4,7 @@ date: 2026-10-06T22:25:21+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "상관계수가 -0.94이면 훈련 강도가 수면의 질을 떨어뜨린다고 말할 수 있을까요? 부대별 평균을 다시 평균 내면 전체 평균이 될까요? groupby()와 pivot_table()은 언제 각각 사용하면 좋을까요?…"
+description: "상관계수, threshold로 나눈 그룹 비교, 부대별 식단 만족도와 장비 유형별 지표를 해석하며 관측 개수와 판단 기준을 함께 남기는 방법을 정리합니다. 평균의 평균이 달라지는 이유와 groupby()·pivot_table()의 차이도 다룹니다."
 tistoryId: 56
 ---
 > **이번 글의 질문**
@@ -71,8 +71,8 @@ Spearman r: -0.933110
 
 | 방법 | 현재 결과 | 주로 보는 관계 |
 | --- | --- | --- |
-| Pearson | \-0.9412 | 숫자 값 사이의 선형 관계를 요약합니다. |
-| Spearman | \-0.9331 | 값의 순위를 이용해 단조 관계를 요약합니다. |
+| Pearson | -0.9412 | 숫자 값 사이의 선형 관계를 요약합니다. |
+| Spearman | -0.9331 | 값의 순위를 이용해 단조 관계를 요약합니다. |
 
 두 방법 모두 이 데이터에서 강한 음의 관계를 보여 줍니다. 점수의 간격을 동일하게 해석하는 것이 적절한지 살펴보고, 순서 중심의 관계가 궁금할 때는 Spearman도 함께 확인할 수 있습니다. 방법을 여러 개 계산한 뒤 마음에 드는 숫자만 고르기보다 어떤 관계를 보고 싶은지 먼저 정합니다.
 
@@ -491,7 +491,7 @@ plt.close(fig)
 
 *이 Heatmap의 셀은 상관계수가 아니라 만족도 평균입니다. 색상 범위를 점수 척도인 1\~5로 맞췄습니다.*
 
-[파이썬 데이터 분석노트 05](/cs/data-analysis/pandas-05-data-visualization/)의 Heatmap은 -1\~1 범위의 상관계수를 표시했습니다. 지금은 1\~5 범위의 만족도 평균을 표시합니다. 같은 그래프 형태라도 셀과 색상 막대의 의미가 다릅니다. 표와 함께 보면 3사단의 맛, 5사단의 위생처럼 확인할 지점이 눈에 들어옵니다.
+[파이썬 데이터 분석 공부노트 05](/cs/data-analysis/pandas-05-data-visualization/)의 Heatmap은 -1\~1 범위의 상관계수를 표시했습니다. 지금은 1\~5 범위의 만족도 평균을 표시합니다. 같은 그래프 형태라도 셀과 색상 막대의 의미가 다릅니다. 표와 함께 보면 3사단의 맛, 5사단의 위생처럼 확인할 지점이 눈에 들어옵니다.
 
 ### 6-4. idxmin()은 공동 최저 항목을 모두 반환하지 않습니다
 
@@ -508,7 +508,7 @@ idxmin(): taste
 
 최소값이 같으면 `idxmin()`은 현재 순서에서 처음 만난 Label 하나를 반환합니다. 공동 최저 항목을 모두 남기려면 최소값과 같은 항목을 필터링합니다. 비교는 반올림 전 값으로 수행합니다. 화면에 모두 3.00이라고 표시되어도 원래 평균은 다를 수 있습니다. 유효값이 없는 Series에서는 먼저 `dropna()` 후 `empty`를 확인합니다.
 
-## 7. groupby()와 pivot\_table()을 어떻게 선택할까요?
+## 7. groupby()와 pivot_table()을 어떻게 선택할까요?
 
 ### 7-1. 같은 그룹 평균을 두 방법으로 만듭니다
 
@@ -740,7 +740,7 @@ type
 
 수리 건수를 비교하는 경우에는 같은 운용 시간당 건수, 동일 기간·임무·연식의 장비 등 비교 기준을 맞추는 방법을 검토합니다. 평균 수리 빈도가 낮다는 관찰을 곧바로 모든 운용 조건에서 더 견고하다는 결론으로 확대하지 않습니다.
 
-### 8-4. 같은 지표를 pivot\_table로 요약하고 저장합니다
+### 8-4. 같은 지표를 pivot_table로 요약하고 저장합니다
 
 ```python
 equipment_pivot = pd.pivot_table(
@@ -809,7 +809,7 @@ print("전체 운용 시간 기준:", round(pooled_rate, 3))
 전체 운용 시간 기준: 6.364
 ```
 
-30건/1,000시간과 4건/1,000시간의 단순 평균은 17이지만, 전체 7건/1,100시간은 약 6.364건/1,000시간입니다. 원본의 `repair_frequency`가 횟수인지 이미 계산한 비율인지, 관측 기간이 같은지는 데이터 정의에서 확인합니다. 서로 다른 뜻의 지표를 같은 공식에 넣지 않도록 단위를 표에도 남깁니다.
+30건/1,000시간과 4건/1,000시간의 단순 평균은 17이지만, 전체 7건/1,100시간은 약 6.364건/1,000시간입니다. 원본의 `repair_freq`가 횟수인지 이미 계산한 비율인지, 관측 기간이 같은지는 데이터 정의에서 확인합니다. 서로 다른 뜻의 지표를 같은 공식에 넣지 않도록 단위를 표에도 남깁니다.
 
 ## 11. 이번 글을 다시 볼 때 기억할 것
 
@@ -828,46 +828,49 @@ print("전체 운용 시간 기준:", round(pooled_rate, 3))
 | 기준에 따른 순위 | `sort_values()` | 높을수록 좋은지 낮을수록 좋은지 먼저 정합니다. |
 | 결과 자릿수 표시 | `round(value, 2)` | 원래 계산값은 별도로 보관합니다. |
 
-1.  r = -0.94는 왜 “94% 감소”나 수학적 반비례를 뜻하지 않나요?
-2.  중앙값 7로 나눈 그룹이 60명과 40명이 되는 이유는 무엇인가요?
-3.  전체 응답자 평균에서는 위생, 부대 동일 비중 평균에서는 양이 최저가 되는 이유는 무엇인가요?
-4.  각 부대의 최저 항목과 각 항목의 최저 부대를 구할 때 `axis`를 어떻게 바꾸나요?
-5.  A 부대 `taste` 점수가 2와 4일 때 `pivot()`과 `pivot_table(aggfunc="mean")`은 어떻게 다르게 동작하나요?
-6.  드론이 가장 우수하다고 쓰기 전에 어떤 평가 기준과 운용 조건을 확인해야 하나요?
+1. r = -0.94는 왜 “94% 감소”나 수학적 반비례를 뜻하지 않나요?
+2. 중앙값 7로 나눈 그룹이 60명과 40명이 되는 이유는 무엇인가요?
+3. 전체 응답자 평균에서는 위생, 부대 동일 비중 평균에서는 양이 최저가 되는 이유는 무엇인가요?
+4. 각 부대의 최저 항목과 각 항목의 최저 부대를 구할 때 `axis`를 어떻게 바꾸나요?
+5. A 부대 `taste` 점수가 2와 4일 때 `pivot()`과 `pivot_table(aggfunc="mean")`은 어떻게 다르게 동작하나요?
+6. 드론이 가장 우수하다고 쓰기 전에 어떤 평가 기준과 운용 조건을 확인해야 하나요?
 
 ## 참고자료
 
 ### 실습 데이터와 노트북
 
--   **실습 자료**: [Session06 실습 폴더](https://drive.google.com/drive/folders/1a5jw_v9qU0WrkNKj5IZL1b272hGLpX3W) · [session06\_데이터-해석.pdf](https://drive.google.com/file/d/1D_CWa0ifsrdhcz87bn5l25vrwnESZxdb/view) · [session06.ipynb](https://drive.google.com/file/d/1xTvBtY8Ra1Lpvkq39PKxquhKN31VdywB/view)
--   **CSV 데이터**: [stress\_analysis.csv](https://drive.google.com/file/d/1C_4OOvO62W3fEbtUD_WKvoU__q7a1U6U/view) · [meal\_feedback.csv](https://drive.google.com/file/d/1pkSudEVP2b4C_82mwRb53pGxncbnCqMb/view) · [equipment\_operational.csv](https://drive.google.com/file/d/1GKz9w_fC8DnRAIj9do45tLkeJOc5LqjU/view)
--   **심화 예제**: [심화 예제 자료](https://drive.google.com/file/d/1wG0fZ0uhBQ1tniHUVE42xxo2mhkdwzGf/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **실습 자료**: [Session06 실습 폴더](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session06) · [session06_데이터-해석.pdf](/files/maicon-2026/lectures/session06_%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%95%B4%EC%84%9D.pdf) · [session06.ipynb](/files/maicon-2026/code/session06/session06.ipynb)
+- **CSV 데이터**: [stress_analysis.csv](/files/maicon-2026/code/session06/stress_analysis.csv) · [meal_feedback.csv](/files/maicon-2026/code/session06/meal_feedback.csv) · [equipment_operational.csv](/files/maicon-2026/code/session06/equipment_operational.csv)
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 
--   **문제**: [유형 01 문제](/cs/data-analysis/practice-01-tabular-preprocessing/) — 중복 거래와 단위가 다른 수량을 정리한 뒤, 팀별·일별 보급량을 어떻게 믿을 수 있게 계산할까요?
--   **풀이**: [유형 01 풀이](/cs/data-analysis/practice-01-tabular-preprocessing-solution/) — 최신 거래를 선택하고 수량 단위를 맞춘 뒤, 오류 기록을 분리해 팀별·일별로 집계합니다.
+- **문제**: [유형 01 문제](/cs/data-analysis/practice-01-tabular-preprocessing/) — 중복 거래와 단위가 다른 수량을 정리한 뒤, 팀별·일별 보급량을 어떻게 믿을 수 있게 계산할까요?
+- **풀이**: [유형 01 풀이](/cs/data-analysis/practice-01-tabular-preprocessing-solution/) — 최신 거래를 선택하고 수량 단위를 맞춘 뒤, 오류 기록을 분리해 팀별·일별로 집계합니다.
 
 ### 공식 문서
 
--   **pandas**: [Series.corr](https://pandas.pydata.org/docs/reference/api/pandas.Series.corr.html) — 상관계수·Index 정렬·결측치·min\_periods  
-    [Series.median](https://pandas.pydata.org/docs/reference/api/pandas.Series.median.html) — 중앙값 계산  
-    [DataFrame.groupby](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html) — 그룹 기준·observed·dropna  
-    [GroupBy.mean](https://pandas.pydata.org/docs/reference/api/pandas.api.typing.DataFrameGroupBy.mean.html) — 그룹별 평균과 결측치 처리  
-    [GroupBy.count](https://pandas.pydata.org/docs/reference/api/pandas.api.typing.DataFrameGroupBy.count.html) — 항목별 유효 관측 개수  
-    [Named aggregation](https://pandas.pydata.org/docs/user_guide/groupby.html#named-aggregation) — agg()의 결과 열 이름 지정  
-    [Series.idxmin](https://pandas.pydata.org/docs/reference/api/pandas.Series.idxmin.html) — 최소값의 Label과 동률 처리  
-    [DataFrame.idxmin](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.idxmin.html) — 행·열별 최소값의 Label  
-    [pivot\_table](https://pandas.pydata.org/docs/reference/api/pandas.pivot_table.html) — 행·열 기준의 집계표와 주요 옵션  
-    [DataFrame.pivot](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.pivot.html) — 집계 없이 구조 변경  
-    [DataFrame.melt](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.melt.html) — Wide Format → Long Format  
-    [Adding margins](https://pandas.pydata.org/docs/user_guide/reshaping.html#adding-margins) — Pivot Table의 전체 집계  
-    [DataFrame.sort\_values](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html) — 단일·다중 기준 정렬
--   **NumPy**: [average](https://numpy.org/doc/stable/reference/generated/numpy.average.html) — weights를 사용하는 가중 평균
--   **SciPy**: [pearsonr](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html) — 선형 상관계수의 의미  
-    [spearmanr](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.spearmanr.html) — 순위 기반의 단조 관계
--   **Python**: [round](https://docs.python.org/3/library/functions.html#round) — 자릿수와 동률 반올림 규칙
--   **시각화**: [Matplotlib Quick start](https://matplotlib.org/stable/users/explain/quick_start.html) — Figure·Axes와 그래프 구성  
-    [Seaborn boxplot](https://seaborn.pydata.org/generated/seaborn.boxplot.html) — 그룹별 분포 비교  
-    [Seaborn scatterplot](https://seaborn.pydata.org/generated/seaborn.scatterplot.html) — 원래 점수의 관계 확인  
-    [Seaborn heatmap](https://seaborn.pydata.org/generated/seaborn.heatmap.html) — 평균 집계표와 색상 범위
+- **pandas**
+  - [Series.corr](https://pandas.pydata.org/docs/reference/api/pandas.Series.corr.html) — 상관계수·Index 정렬·결측치·min_periods
+  - [Series.median](https://pandas.pydata.org/docs/reference/api/pandas.Series.median.html) — 중앙값 계산
+  - [DataFrame.groupby](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html) — 그룹 기준·observed·dropna
+  - [GroupBy.mean](https://pandas.pydata.org/docs/reference/api/pandas.api.typing.DataFrameGroupBy.mean.html) — 그룹별 평균과 결측치 처리
+  - [GroupBy.count](https://pandas.pydata.org/docs/reference/api/pandas.api.typing.DataFrameGroupBy.count.html) — 항목별 유효 관측 개수
+  - [Named aggregation](https://pandas.pydata.org/docs/user_guide/groupby.html#named-aggregation) — agg()의 결과 열 이름 지정
+  - [Series.idxmin](https://pandas.pydata.org/docs/reference/api/pandas.Series.idxmin.html) — 최소값의 Label과 동률 처리
+  - [DataFrame.idxmin](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.idxmin.html) — 행·열별 최소값의 Label
+  - [pivot_table](https://pandas.pydata.org/docs/reference/api/pandas.pivot_table.html) — 행·열 기준의 집계표와 주요 옵션
+  - [DataFrame.pivot](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.pivot.html) — 집계 없이 구조 변경
+  - [DataFrame.melt](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.melt.html) — Wide Format → Long Format
+  - [Adding margins](https://pandas.pydata.org/docs/user_guide/reshaping.html#adding-margins) — Pivot Table의 전체 집계
+  - [DataFrame.sort_values](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html) — 단일·다중 기준 정렬
+- **NumPy**: [average](https://numpy.org/doc/stable/reference/generated/numpy.average.html) — weights를 사용하는 가중 평균
+- **SciPy**
+  - [pearsonr](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html) — 선형 상관계수의 의미
+  - [spearmanr](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.spearmanr.html) — 순위 기반의 단조 관계
+- **Python**: [round](https://docs.python.org/3/library/functions.html#round) — 자릿수와 동률 반올림 규칙
+- **시각화**
+  - [Matplotlib Quick start](https://matplotlib.org/stable/users/explain/quick_start.html) — Figure·Axes와 그래프 구성
+  - [Seaborn boxplot](https://seaborn.pydata.org/generated/seaborn.boxplot.html) — 그룹별 분포 비교
+  - [Seaborn scatterplot](https://seaborn.pydata.org/generated/seaborn.scatterplot.html) — 원래 점수의 관계 확인
+  - [Seaborn heatmap](https://seaborn.pydata.org/generated/seaborn.heatmap.html) — 평균 집계표와 색상 범위

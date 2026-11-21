@@ -1,0 +1,4 @@
+video_id,timestamp,file_path
+V001,2024-04-21 3:00,data/ops/cam1/V001.mp4
+V002,2024-04-21 3:10,data/ops/cam1/V002.mp4
+V003,2024-04-21 3:20,data/ops/cam1/V003.mp4

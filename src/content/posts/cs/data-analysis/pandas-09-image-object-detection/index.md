@@ -4,7 +4,7 @@ date: 2026-10-07T02:07:24+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "사진도 숫자로 분석할 수 있을까요? 평균 밝기가 높으면 대상도 잘 보일까요? 사각형을 찾는 코드와 사람을 찾는 모델은 무엇이 다를까요? 이미지는 픽셀로 이루어진 NumPy 배열입니다. OpenCV로…"
+description: "OpenCV로 이미지의 크기와 색상 순서를 확인하고 야간 이미지의 평균 밝기를 비교하며, 윤곽선으로 설계도의 사각형 후보를 찾습니다. YOLOv5로 사람과 차량을 탐지하고 Confidence와 NMS를 읽는 방법도 정리합니다."
 tistoryId: 59
 ---
 > **이번 글의 질문**
@@ -17,7 +17,7 @@ tistoryId: 59
 
 ## 1. 이미지 한 장을 숫자 배열로 바라봅니다
 
-사진은 위치마다 숫자가 들어 있는 배열입니다. 픽셀의 밝기와 경계를 계산할 수도 있고, 학습된 모델로 사람과 차량을 찾을 수도 있습니다. 이번에는 사진에서 얻은 값을 파일명과 좌표가 있는 표로 정리합니다.
+사진은 위치마다 숫자가 들어 있는 배열입니다. 픽셀의 밝기와 경계를 계산할 수도 있고, 학습된 모델로 사람과 차량을 찾을 수도 있습니다.
 
 이번에는 세 가지 질문을 다룹니다. 야간 이미지의 평균 밝기를 비교하고, 설계도에서 사각형 후보의 좌표를 추출하며, 사전 학습된 YOLOv5로 사람과 차량을 탐지합니다. 결과는 모두 **파일명과 수치가 있는 표**로 정리합니다.
 
@@ -75,8 +75,8 @@ Grayscale의 서로 다른 픽셀 값 개수: 108
 | --- | --- | --- |
 | 컬러 배열 `shape` | `(height, width, channels)` | `(475, 293, 3)` |
 | Resize 크기 | `(width, height)` | `(320, 240)` |
-| 한 픽셀 접근 | `img[y, x]` | 행 `y`, 열 x의 픽셀 |
-| 영역 자르기 | `img[y:y+h, x:x+w]` | 높이 h, 너비 w의 ROI |
+| 한 픽셀 접근 | `img[y, x]` | 행 `y`, 열 `x`의 픽셀 |
+| 영역 자르기 | `img[y:y+h, x:x+w]` | 높이 `h`, 너비 `w`의 ROI |
 
 PNG라는 확장자가 채널 개수를 결정하지는 않습니다. Grayscale·RGB·Alpha 채널을 가진 파일도 있습니다. 여기서는 OpenCV의 기본 컬러 읽기를 사용하므로 BGR 채널 3개로 읽습니다. Alpha를 보존하려면 `cv2.IMREAD_UNCHANGED` 같은 읽기 옵션을 선택하고 반환된 `shape`를 확인합니다.
 
@@ -108,7 +108,7 @@ plt.close(fig)
 
 Grayscale은 검정과 흰색 두 값만 있는 Binary 이미지와 다릅니다. 이번 `uint8` Grayscale은 0\~255의 여러 밝기 단계를 표현합니다. 반면 Threshold나 Canny로 만든 Binary 이미지는 보통 0과 255로 배경·전경 또는 경계 여부를 나타냅니다.
 
-2차원 배열을 표시할 때 `cmap="gray"`를 생략하면 기본 Colormap으로 색이 입혀집니다. 또한 이미지마다 표시 범위를 자동으로 잡으면 어두운 이미지도 밝아 보일 수 있습니다. **밝기를 비교하는 그림은 vmin·vmax를 동일하게 맞춥니다.**
+2차원 배열을 표시할 때 `cmap="gray"`를 생략하면 기본 Colormap으로 색이 입혀집니다. 또한 이미지마다 표시 범위를 자동으로 잡으면 어두운 이미지도 밝아 보일 수 있습니다. **밝기를 비교하는 그림은 `vmin`·`vmax`를 동일하게 맞춥니다.**
 
 ## 3. 실습 1: 야간 이미지의 평균 밝기를 비교합니다
 
@@ -189,7 +189,7 @@ plt.close(fig)
 
 ### 3-2. 평균이 높다고 대상이 더 잘 보이는 것은 아닙니다
 
-[파이썬 데이터 분석노트 04](/cs/data-analysis/pandas-04-descriptive-statistics/)에서 평균과 산포도를 함께 읽었던 것처럼, 이미지도 평균 하나로 모든 특성을 설명하기 어렵습니다. 밝은 배경이나 화면에 찍힌 글자가 평균을 높일 수 있고, 대상과 배경의 대비는 작을 수 있습니다.
+[파이썬 데이터 분석 공부노트 04](/cs/data-analysis/pandas-04-descriptive-statistics/)에서 평균과 산포도를 함께 읽었던 것처럼, 이미지도 평균 하나로 모든 특성을 설명하기 어렵습니다. 밝은 배경이나 화면에 찍힌 글자가 평균을 높일 수 있고, 대상과 배경의 대비는 작을 수 있습니다.
 
 예를 들어 모든 픽셀이 50인 이미지와, 절반이 0이고 절반이 100인 이미지는 평균이 모두 50입니다. 하지만 첫 번째는 균일한 회색이고 두 번째는 어두운 영역과 밝은 영역이 나뉩니다. Histogram, 밝기 분위수, 관심 영역인 ROI(Region of Interest)의 대비를 함께 보면 차이가 드러납니다.
 
@@ -425,9 +425,9 @@ trapezoid 네 꼭짓점+볼록: True 면적+각도 통과: False
 
 이렇게 각도를 확인하면 위 예제의 사다리꼴을 걸러낼 수 있습니다. 다만 원근감이 있는 사진에서는 실제 직사각형도 사다리꼴로 찍힐 수 있습니다. 어떤 모양을 검출하려는지에 따라 각도 조건이나 Perspective Transform 적용 여부를 정합니다.
 
-### 5-2. RETR\_EXTERNAL은 안쪽 윤곽선을 놓칠 수 있습니다
+### 5-2. RETR_EXTERNAL은 안쪽 윤곽선을 놓칠 수 있습니다
 
-설계도에서는 큰 테두리 안에 작은 사각형이 들어 있는 경우가 많습니다. `RETR_EXTERNAL`은 가장 바깥쪽 윤곽선만 반환하므로, 안쪽 도형이 눈에 보여도 후보에 들어가지 않을 수 있습니다. `RETR_LIST`는 모든 윤곽선을 가져오고, RETR\_TREE는 안팎의 계층 관계도 보존합니다.
+설계도에서는 큰 테두리 안에 작은 사각형이 들어 있는 경우가 많습니다. `RETR_EXTERNAL`은 가장 바깥쪽 윤곽선만 반환하므로, 안쪽 도형이 눈에 보여도 후보에 들어가지 않을 수 있습니다. `RETR_LIST`는 모든 윤곽선을 가져오고, `RETR_TREE`는 안팎의 계층 관계도 보존합니다.
 
 ```python
 comparison_rows = []
@@ -587,7 +587,7 @@ CAM003.png             3              3     ok
 | `detections.csv` | 탐지한 객체 한 개의 클래스·점수·Box | 열 이름을 유지하고 객체 행은 저장하지 않습니다. |
 | `detection_counts.csv` | 이미지 한 장의 사람·차량 탐지 수 | 읽기는 성공했지만 탐지가 없으면 0입니다. |
 
-여기서 차량은 `car`·`truck`·`bus`의 합입니다. bicycle·motorcycle까지 포함하려면 클래스 정의를 바꿔야 합니다. “차량 수”라는 이름을 붙이기 전에 어떤 클래스를 합쳤는지 정해 둡니다. 이미지 세 장의 합계는 **탐지 건수의 합**이며, 여러 장에 반복해서 나온 사람을 합친 고유 인원 수는 아닙니다.
+여기서 차량은 `car`·`truck`·`bus`의 합입니다. `bicycle`·`motorcycle`까지 포함하려면 클래스 정의를 바꿔야 합니다. “차량 수”라는 이름을 붙이기 전에 어떤 클래스를 합쳤는지 정해 둡니다. 이미지 세 장의 합계는 **탐지 건수의 합**이며, 여러 장에 반복해서 나온 사람을 합친 고유 인원 수는 아닙니다.
 
 ### 6-3. 박스가 그려진 이미지에서 결과를 확인합니다
 
@@ -761,11 +761,11 @@ print("복원한 원본 xyxy:", restored.tolist())
 
 ## 10. 복습할 때 다시 확인할 질문
 
-1.  **색상과 배열 순서는 무엇인가요?** OpenCV의 기본 컬러 입력은 BGR, Matplotlib 컬러 표시는 RGB입니다. `shape`는 높이·너비 순서이고, `resize` 크기는 너비·높이 순서입니다.
-2.  **평균 밝기가 무엇을 설명하나요?** 전체 픽셀의 평균을 설명합니다. 대상의 선명도나 식별 가능성을 보려면 분포·ROI·대비도 확인합니다.
-3.  **사각형 후보를 어떻게 골랐나요?** Edge와 Contour를 구한 뒤 꼭짓점·볼록성·면적·각도 조건을 적용합니다. 안쪽 윤곽선을 포함할지도 별도로 선택합니다.
-4.  **객체 한 개와 이미지 한 장을 구분했나요?** 객체별 좌표와 이미지별 개수를 다른 표로 저장하고, 읽기 실패와 탐지 0건도 구분합니다.
-5.  **모델 결과를 어떻게 해석하나요?** 클래스·Box·Confidence를 원본 이미지에서 확인합니다. 탐지 건수는 고유 인원 수나 모델 정확도와 다릅니다.
+1. **색상과 배열 순서는 무엇인가요?** OpenCV의 기본 컬러 입력은 BGR, Matplotlib 컬러 표시는 RGB입니다. `shape`는 높이·너비 순서이고, `resize` 크기는 너비·높이 순서입니다.
+2. **평균 밝기가 무엇을 설명하나요?** 전체 픽셀의 평균을 설명합니다. 대상의 선명도나 식별 가능성을 보려면 분포·ROI·대비도 확인합니다.
+3. **사각형 후보를 어떻게 골랐나요?** Edge와 Contour를 구한 뒤 꼭짓점·볼록성·면적·각도 조건을 적용합니다. 안쪽 윤곽선을 포함할지도 별도로 선택합니다.
+4. **객체 한 개와 이미지 한 장을 구분했나요?** 객체별 좌표와 이미지별 개수를 다른 표로 저장하고, 읽기 실패와 탐지 0건도 구분합니다.
+5. **모델 결과를 어떻게 해석하나요?** 클래스·Box·Confidence를 원본 이미지에서 확인합니다. 탐지 건수는 고유 인원 수나 모델 정확도와 다릅니다.
 
 | 함수·속성 | 다시 떠올릴 역할 |
 | --- | --- |
@@ -785,35 +785,41 @@ print("복원한 원본 xyxy:", restored.tolist())
 
 ### 실습 데이터와 노트북
 
--   **실습 자료**: [Session09 실습 폴더](https://drive.google.com/drive/folders/1EDAhsBjP4Qfuw59zcUPhHHEl7rqCgOK1) · [session09\_이미지-처리.pdf](https://drive.google.com/file/d/1utQ8x7oCYaWfxvMcPKWCRlMkIDi2UoWd/view) · [session09.ipynb](https://drive.google.com/file/d/1IfAOw0kuSEktZP1YhHEi_LZcG8iHwnSU/view)
--   **이미지 데이터**: [night\_ops: IMG001\~003.png](https://drive.google.com/drive/folders/14by9Ia7H2z8ndSfuMvLCNOs-JSFHASx0) · [blueprints: BP001\~003.png](https://drive.google.com/drive/folders/1ULUhOE0YLo1s0q0bMeFPYaMxulMiA8Zs) · [surv\_imgs: CAM001\~003.png](https://drive.google.com/drive/folders/1hxA7VwWgKR4h2jxGN26SKYybtuLL2oZI)
--   **심화 예제**: [심화 예제 자료](https://drive.google.com/file/d/1wG0fZ0uhBQ1tniHUVE42xxo2mhkdwzGf/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **실습 자료**: [Session09 실습 폴더](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session09) · [session09_이미지-처리.pdf](/files/maicon-2026/lectures/session09_%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%B2%98%EB%A6%AC.pdf) · [session09.ipynb](/files/maicon-2026/code/session09/session09.ipynb)
+- **이미지 데이터**: [night_ops: IMG001\~003.png](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session09/images/night_ops) · [blueprints: BP001\~003.png](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session09/images/blueprints) · [surv_imgs: CAM001\~003.png](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session09/images/surv_imgs)
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 
--   **문제**: [유형 05 문제](/cs/data-analysis/practice-05-image-transfer-learning/) — 사전 학습된 이미지 모델을 고정한 채, 사진이 개미인지 벌인지 분류하는 새 모델을 어떻게 만들까요?  
-    [유형 06 문제](/cs/data-analysis/practice-06-object-detection/) — 정상 사진·빈 사진·누락 사진이 섞여 있을 때, 장면별 사람·차량 탐지 수를 어떻게 요약할까요?  
-    [유형 07 문제](/cs/data-analysis/practice-07-video-frame-sampling/) — 29.97 FPS 영상에서 1초마다 관측하려면 어떤 프레임을 골라야 하며, 빈 프레임은 그래프에 어떻게 남겨야 할까요?
--   **풀이**: [유형 05 풀이](/cs/data-analysis/practice-05-image-transfer-learning-solution/) — 고정한 MobileNet에서 특징을 추출하고 Validation에서 분류기를 선택한 뒤 Test 사진을 평가합니다.  
-    [유형 06 풀이](/cs/data-analysis/practice-06-object-detection-solution/) — YOLO 탐지 결과와 사진별 처리 상태를 저장하고, 탐지 0건과 처리 실패를 구분해 장면별로 집계합니다.  
-    [유형 07 풀이](/cs/data-analysis/practice-07-video-frame-sampling-solution/) — 목표 시각마다 프레임을 계산하고 객체가 없는 프레임도 포함해 시간 구간별 개수를 요약합니다.
+- **문제**
+  - [유형 05 문제](/cs/data-analysis/practice-05-image-transfer-learning/) — 사전 학습된 이미지 모델을 고정한 채, 사진이 개미인지 벌인지 분류하는 새 모델을 어떻게 만들까요?
+  - [유형 06 문제](/cs/data-analysis/practice-06-object-detection/) — 정상 사진·빈 사진·누락 사진이 섞여 있을 때, 장면별 사람·차량 탐지 수를 어떻게 요약할까요?
+  - [유형 07 문제](/cs/data-analysis/practice-07-video-frame-sampling/) — 29.97 FPS 영상에서 1초마다 관측하려면 어떤 프레임을 골라야 하며, 빈 프레임은 그래프에 어떻게 남겨야 할까요?
+- **풀이**
+  - [유형 05 풀이](/cs/data-analysis/practice-05-image-transfer-learning-solution/) — 고정한 MobileNet에서 특징을 추출하고 Validation에서 분류기를 선택한 뒤 Test 사진을 평가합니다.
+  - [유형 06 풀이](/cs/data-analysis/practice-06-object-detection-solution/) — YOLO 탐지 결과와 사진별 처리 상태를 저장하고, 탐지 0건과 처리 실패를 구분해 장면별로 집계합니다.
+  - [유형 07 풀이](/cs/data-analysis/practice-07-video-frame-sampling-solution/) — 목표 시각마다 프레임을 계산하고 객체가 없는 프레임도 포함해 시간 구간별 개수를 요약합니다.
 
 ### 공식 문서
 
--   **이미지 입출력**: [OpenCV Image codecs](https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html) — imread·imwrite·채널 순서·읽기 옵션  
-    [OpenCV Color conversions](https://docs.opencv.org/4.x/de/d25/imgproc_color_conversions.html) — BGR·RGB·Grayscale 변환  
-    [OpenCV Geometric Image Transformations](https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html) — resize·보간법·크기 설정  
-    [Pillow Image](https://pillow.readthedocs.io/en/stable/reference/Image.html) — Image.open·RGB 변환·파일 처리
--   **경계·윤곽선**: [Canny Edge Detection](https://docs.opencv.org/4.x/da/d22/tutorial_py_canny.html) — Gradient·두 임계값·경계 연결  
-    [Contour Features](https://docs.opencv.org/4.x/dd/d49/tutorial_py_contour_features.html) — arcLength·approxPolyDP·면적·볼록성·Box  
-    [Contours Hierarchy](https://docs.opencv.org/4.x/d9/d8b/tutorial_py_contours_hierarchy.html) — EXTERNAL·LIST·TREE와 계층 관계
--   **객체 탐지**: [YOLOv5 PyTorch Hub](https://docs.ultralytics.com/yolov5/tutorials/pytorch-hub-model-loading) — 모델 로딩·Inference 설정·xyxy·Pandas·render  
-    [YOLOv5 공식 저장소](https://github.com/ultralytics/yolov5) — 원래 YOLOv5의 코드·가중치·의존성  
-    [Ultralytics YOLOv5](https://docs.ultralytics.com/models/yolov5) — YOLOv5u와 기존 가중치의 차이  
-    [Ultralytics Predict](https://docs.ultralytics.com/modes/predict) — 최신 API의 Results·Boxes·Confidence·plot  
-    [YOLO Performance Metrics](https://docs.ultralytics.com/guides/yolo-performance-metrics) — IoU·Precision·Recall·mAP
--   **집계·시각화**: [NumPy mean](https://numpy.org/doc/stable/reference/generated/numpy.mean.html) — 배열의 평균과 계산 dtype  
-    [NumPy quantile](https://numpy.org/doc/stable/reference/generated/numpy.quantile.html) — 픽셀 밝기 분포의 분위수  
-    [Pandas Series.idxmax](https://pandas.pydata.org/docs/reference/api/pandas.Series.idxmax.html) — 최댓값이 있는 인덱스 반환  
-    [Matplotlib imshow](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.imshow.html) — RGB 배열·Grayscale·Colormap·표시 범위
--   **좌표 변환**: [Ultralytics coordinate operations](https://docs.ultralytics.com/reference/utils/ops/) — xyxy·xywh 변환과 Box scaling의 기준을 확인합니다.
+- **이미지 입출력**
+  - [OpenCV Image codecs](https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html) — imread·imwrite·채널 순서·읽기 옵션
+  - [OpenCV Color conversions](https://docs.opencv.org/4.x/de/d25/imgproc_color_conversions.html) — BGR·RGB·Grayscale 변환
+  - [OpenCV Geometric Image Transformations](https://docs.opencv.org/4.x/da/d54/group__imgproc__transform.html) — resize·보간법·크기 설정
+  - [Pillow Image](https://pillow.readthedocs.io/en/stable/reference/Image.html) — Image.open·RGB 변환·파일 처리
+- **경계·윤곽선**
+  - [Canny Edge Detection](https://docs.opencv.org/4.x/da/d22/tutorial_py_canny.html) — Gradient·두 임계값·경계 연결
+  - [Contour Features](https://docs.opencv.org/4.x/dd/d49/tutorial_py_contour_features.html) — arcLength·approxPolyDP·면적·볼록성·Box
+  - [Contours Hierarchy](https://docs.opencv.org/4.x/d9/d8b/tutorial_py_contours_hierarchy.html) — EXTERNAL·LIST·TREE와 계층 관계
+- **객체 탐지**
+  - [YOLOv5 PyTorch Hub](https://docs.ultralytics.com/yolov5/tutorials/pytorch-hub-model-loading) — 모델 로딩·Inference 설정·xyxy·Pandas·render
+  - [YOLOv5 공식 저장소](https://github.com/ultralytics/yolov5) — 원래 YOLOv5의 코드·가중치·의존성
+  - [Ultralytics YOLOv5](https://docs.ultralytics.com/models/yolov5) — YOLOv5u와 기존 가중치의 차이
+  - [Ultralytics Predict](https://docs.ultralytics.com/modes/predict) — 최신 API의 Results·Boxes·Confidence·plot
+  - [YOLO Performance Metrics](https://docs.ultralytics.com/guides/yolo-performance-metrics) — IoU·Precision·Recall·mAP
+- **집계·시각화**
+  - [NumPy mean](https://numpy.org/doc/stable/reference/generated/numpy.mean.html) — 배열의 평균과 계산 dtype
+  - [NumPy quantile](https://numpy.org/doc/stable/reference/generated/numpy.quantile.html) — 픽셀 밝기 분포의 분위수
+  - [pandas Series.idxmax](https://pandas.pydata.org/docs/reference/api/pandas.Series.idxmax.html) — 최댓값이 있는 인덱스 반환
+  - [Matplotlib imshow](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.imshow.html) — RGB 배열·Grayscale·Colormap·표시 범위
+- **좌표 변환**: [Ultralytics coordinate operations](https://docs.ultralytics.com/reference/utils/ops/) — xyxy·xywh 변환과 Box scaling의 기준을 확인합니다.

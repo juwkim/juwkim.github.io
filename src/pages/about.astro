@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { profile, dreams, now, steps } from '../data/about';
+import { profile, aspirations, dreams, now, steps } from '../data/about';
 import { Image } from 'astro:assets';
 import avatar from '../assets/avatar.jpg';
 ---
@@ -16,6 +16,24 @@ import avatar from '../assets/avatar.jpg';
         <p>{profile.tagline.map((line, i) => <>{i > 0 && <br />}{line}</>)}</p>
       </div>
     </header>
+
+    <section class="aspire" aria-labelledby="aspire">
+      <div class="section-head">
+        <h2 id="aspire">그리는 내일</h2>
+        <span class="note">멀리 보는 방향</span>
+      </div>
+      <div class="aspire-grid">
+        {
+          aspirations.map((a) => (
+            <div class="aspire-item">
+              <span class="label">{a.label}</span>
+              <p class="atitle">{a.title}</p>
+              <p class="abody">{a.body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
 
     <div class="cols">
     <section class="a-dreams" aria-labelledby="dreams">
@@ -69,7 +87,7 @@ import avatar from '../assets/avatar.jpg';
                 <div class="w">{s.title}</div>
                 <div class="x">
                   {s.note}
-                  {s.link && <a href={s.link}> 후기 ›</a>}
+                  {s.link && (s.link.startsWith('http') ? <a href={s.link} target="_blank" rel="noopener">{` ${s.linkLabel ?? '후기'} ↗`}</a> : <a href={s.link}>{` ${s.linkLabel ?? '후기'} ›`}</a>)}
                 </div>
               </div>
             </li>
@@ -82,6 +100,52 @@ import avatar from '../assets/avatar.jpg';
 </Base>
 
 <style>
+  /* 그리는 내일: 작은 목표들 위에 놓인 큰 방향 */
+  .aspire {
+    margin-bottom: 56px;
+  }
+  .aspire-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  @media (min-width: 760px) {
+    .aspire-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+  }
+  .aspire-item {
+    position: relative;
+    padding: 26px 28px 24px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, var(--blue-soft), transparent 140%);
+    border: 1px solid var(--line);
+  }
+  .label {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--blue);
+    letter-spacing: 0.02em;
+    margin-bottom: 10px;
+  }
+  .atitle {
+    margin: 0 0 8px;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.4;
+    word-break: keep-all;
+  }
+  .abody {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--fg-2);
+    word-break: keep-all;
+  }
   /* 넓은 화면: 왼쪽(아직 남은 꿈 → 지나온 발걸음) | 오른쪽(요즘의 나, 스크롤해도 따라옴) */
   .cols {
     display: grid;

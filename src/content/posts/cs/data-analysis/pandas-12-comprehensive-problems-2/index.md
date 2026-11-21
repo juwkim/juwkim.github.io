@@ -4,7 +4,7 @@ date: 2026-10-07T19:17:36+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "Isolation Forest가 5%를 이상치로 표시했다면 실제 이상 비율도 5%일까요? 사진 세 장의 사람·차량 탐지 수로 어떤 관계까지 설명할 수 있을까요? 분류를 모두 맞춘 모델이 회복 기간도 잘 예측할까요?…"
+description: "Isolation Forest로 건강 설문의 드문 기록을 찾고 contamination의 의미를 확인하며, 사진별 사람·차량 탐지 수를 집계합니다. 같은 Test 병사로 상태 분류와 회복 기간 회귀를 각각 Baseline과 비교합니다."
 tistoryId: 62
 ---
 > **이번 글의 질문**
@@ -65,7 +65,7 @@ health_survey.csv 행·열: (100, 6) 결측값: 0 ID 중복: 0
 soldier_full_profile.csv 행·열: (101, 7) 결측값: 0 ID 중복: 0
 ```
 
-건강 설문은 100행, 병사 프로필은 **101행**입니다. 두 파일 모두 결측값과 ID 중복이 없습니다. CSV 두 개와 images 폴더를 같은 작업 폴더에 두고, 결과 그래프는 `plots` 폴더에 저장합니다. 열 이름과 이미지 경로는 실제 파일의 이름을 사용합니다.
+건강 설문은 100행, 병사 프로필은 **101행**입니다. 두 파일 모두 결측값과 ID 중복이 없습니다. CSV 두 개와 `images` 폴더를 같은 작업 폴더에 두고, 결과 그래프는 `plots` 폴더에 저장합니다. 열 이름과 이미지 경로는 실제 파일의 이름을 사용합니다.
 
 ## 2. 실습 1: Isolation Forest로 드문 기록을 찾습니다
 
@@ -122,11 +122,11 @@ Isolation Forest는 Tree의 무작위 분할을 사용합니다. 표준화한 �
 
 전체 데이터를 설명하는 비지도 분석과 새 데이터에 적용하는 평가의 차이는 [파이썬 데이터 분석 공부노트 08](/cs/data-analysis/pandas-08-unsupervised-learning/)의 Pipeline 설명과 연결됩니다.
 
-### 2-2. anomaly, decision\_function, score\_samples를 구분합니다
+### 2-2. anomaly, decision_function, score_samples를 구분합니다
 
 | 값·함수 | 이 실습에서 읽는 기준 |
 | --- | --- |
-| `fit_predict()` | \-1은 Outlier, 1은 Inlier입니다. |
+| `fit_predict()` | -1은 Outlier, 1은 Inlier입니다. |
 | `anomaly` | Outlier를 1, Inlier를 0으로 바꾼 저장용 열입니다. |
 | `score_samples()` | 작을수록 더 드문 기록이며, 0을 판정 기준으로 삼지 않습니다. |
 | `decision_function()` | `score_samples`에서 학습한 `offset_`을 뺀 값입니다. 음수이면 Outlier입니다. |
@@ -300,7 +300,7 @@ Confidence threshold: 0.25
 차량 집계 클래스: ['car', 'truck', 'bus']
 ```
 
-`classes`를 `None`으로 두어 전체 클래스에서 탐지합니다. 이전에 같은 모델에 `classes=[0]`을 설정했다면 차량이 결과에 포함되지 않으므로 설정을 다시 확인합니다. motorcycle·bicycle 등은 이번 `vehicle_count`에 포함하지 않았습니다. COCO의 `person` Label 역시 병사인지 여부까지 분류하지는 않습니다.
+`classes`를 `None`으로 두어 전체 클래스에서 탐지합니다. 이전에 같은 모델에 `classes=[0]`을 설정했다면 차량이 결과에 포함되지 않으므로 설정을 다시 확인합니다. `motorcycle`·`bicycle` 등은 이번 `vehicle_count`에 포함하지 않았습니다. COCO의 `person` Label 역시 병사인지 여부까지 분류하지는 않습니다.
 
 ### 3-2. 파일 읽기 실패와 탐지 0건을 구분해 저장합니다
 
@@ -369,7 +369,7 @@ BGR에서 RGB로 변환한 이미지를 YOLOv5 Hub 모델에 전달합니다. `n
 | `CAM002.png` | 5 | 1 | `truck` 1건 |
 | `CAM003.png` | 3 | 3 | `truck` 2건, `car` 1건 |
 
-세 사진의 합계는 `person` **15건**, 선택한 차량 클래스 **5건**입니다. backpack은 전체 탐지 결과에 포함되어도 차량 집계에서는 제외합니다. 여러 사진에 같은 대상이 반복될 수 있으므로 합계를 고유 인원·차량 수로 바꾸어 읽지 않습니다.
+세 사진의 합계는 `person` **15건**, 선택한 차량 클래스 **5건**입니다. `backpack`은 전체 탐지 결과에 포함되어도 차량 집계에서는 제외합니다. 여러 사진에 같은 대상이 반복될 수 있으므로 합계를 고유 인원·차량 수로 바꾸어 읽지 않습니다.
 
 ```python
 fig, axes = plt.subplots(1, 3, figsize=(15, 5))
@@ -515,7 +515,7 @@ recovery_model = Pipeline([
 
 Logistic Regression은 Feature의 선형 조합으로 클래스 확률을 모델링하며, 기본적으로 Regularization을 적용합니다. 단위가 다른 Feature의 스케일을 맞춰 학습합니다. `max_iter=1000`은 최적화 반복의 상한으로, Tree의 개수나 데이터 반복 학습 횟수를 뜻하지 않습니다.
 
-C는 Regularization 강도의 역수입니다. 값이 작을수록 제약이 강합니다. 최신 API에서는 penalty 인자가 deprecated되었고, Regularization 종류는 l1\_ratio와 C로 지정하는 방향입니다. 이번 코드에서는 기본 L2 설정과 `C=1.0`을 사용하고, solver와 반복 상한을 명시했습니다.
+`C`는 Regularization 강도의 역수입니다. 값이 작을수록 제약이 강합니다. 최신 API에서는 `penalty` 인자가 deprecated되었고, Regularization 종류는 `l1_ratio`와 `C`로 지정하는 방향입니다. 이번 코드에서는 기본 L2 설정과 `C=1.0`을 사용하고, `solver`와 반복 상한을 명시했습니다.
 
 Random Forest에 Scaling이 일반적으로 필수는 아니지만, 여기서는 두 모델 모두 동일한 Feature를 같은 표준화 기준으로 처리합니다. Scaler 객체는 각각 별도로 만들고, `fit`할 Train 행은 동일하게 사용합니다. 회복 기간 Target 자체는 표준화하지 않습니다.
 
@@ -563,7 +563,7 @@ recovery_rmse        2.758
 
 80행의 Train 안에서 다섯 Fold로 나누어 평가합니다. 분류는 `status` 비율을 유지하고, 회귀도 같은 검증 병사를 보도록 **만들어 둔 분할 List를 공유**합니다. 회귀 Target을 구간으로 나눠 `stratify`한 것이 아니라 `status`를 기준으로 만든 Fold를 재사용한 것입니다.
 
-`cross_validate`는 각 Fold마다 Pipeline을 새로 학습하므로 Scaler도 해당 Fold의 학습 부분만 봅니다. 반환값의 `test_score`·`test_accuracy`에서 test는 **Fold의 Validation**을 뜻하며, 따로 보관한 최종 Test 21행이 아닙니다. RMSE scoring에는 음수가 붙어 반환되므로 다시 부호를 바꿉니다.
+`cross_validate`는 각 Fold마다 Pipeline을 새로 학습하므로 Scaler도 해당 Fold의 학습 부분만 봅니다. 반환값의 `test_score`·`test_accuracy`에서 `test`는 **Fold의 Validation**을 뜻하며, 따로 보관한 최종 Test 21행이 아닙니다. RMSE scoring에는 음수가 붙어 반환되므로 다시 부호를 바꿉니다.
 
 분류의 Fold 평균 Accuracy는 **0.938**, Balanced Accuracy는 **0.836**입니다. Balanced Accuracy는 각 클래스의 Recall을 같은 비중으로 평균합니다. Fold별 값이 달라지는 모습을 보면 한 번의 평가 점수만으로 전체 성능을 판단하기 어려운 이유가 드러납니다.
 
@@ -749,7 +749,7 @@ soldier_id status  recovery_days predicted_status  predicted_recovery_days  stat
       S072  unfit             14            unfit                     7.95            True               6.05
 ```
 
-원본 전체 101행에 Test 예측 21개를 붙이면 길이가 맞지 않습니다. `loc[test_index]`로 Test에 해당하는 ID와 실제 Target 두 개만 가져와 예측을 추가합니다. 표시할 때는 round를 사용해도 저장할 예측값은 반올림하지 않아 평가 수치와 일치하도록 둡니다.
+원본 전체 101행에 Test 예측 21개를 붙이면 길이가 맞지 않습니다. `loc[test_index]`로 Test에 해당하는 ID와 실제 Target 두 개만 가져와 예측을 추가합니다. 표시할 때는 `round`를 사용해도 저장할 예측값은 반올림하지 않아 평가 수치와 일치하도록 둡니다.
 
 ### 6-1. 분류 Label과 회귀 예측을 한 그림에 표시합니다
 
@@ -852,7 +852,7 @@ print("새 데이터 후보 비율:", (detector.predict(new) == -1).mean())
 | `recovery_metrics.csv` | 회귀 모델 한 개 | 같은 Test의 RMSE·MAE·R² |
 | `soldier_dual_prediction.csv` | Test 병사 한 명 | 같은 ID의 실제 Target·두 예측·오차 |
 
-### 기억할 문법
+### 8-1. 기억할 문법
 
 | 문법 | 이번 실습에서의 역할 |
 | --- | --- |
@@ -867,14 +867,14 @@ print("새 데이터 후보 비율:", (detector.predict(new) == -1).mean())
 | `confusion_matrix(labels=...)` | 실제·예측 클래스의 방향과 순서를 고정합니다. |
 | `root_mean_squared_error()` | 회복 기간의 예측 오차를 일 단위로 계산합니다. |
 
-### 다시 읽을 때 확인할 질문
+### 8-2. 다시 읽을 때 확인할 질문
 
--   5%라는 비율은 데이터에서 검증한 사실인가요, `contamination`으로 정한 기준인가요?
--   후보 판정은 다섯 Feature에서 했나요, 두 PCA 좌표에서 했나요?
--   `vehicle_count`에 어떤 클래스가 포함됐고, 사진을 읽지 못한 경우는 어떻게 저장했나요?
--   LabelEncoder의 `classes_`에서 `fit`과 `unfit`이 어떤 숫자로 매핑됐나요?
--   두 모델의 Test ID는 같고, 두 Scaler는 Train만 학습했나요?
--   각 Target의 결과는 같은 Test에서 계산한 Baseline보다 나아졌나요?
+- 5%라는 비율은 데이터에서 검증한 사실인가요, `contamination`으로 정한 기준인가요?
+- 후보 판정은 다섯 Feature에서 했나요, 두 PCA 좌표에서 했나요?
+- `vehicle_count`에 어떤 클래스가 포함됐고, 사진을 읽지 못한 경우는 어떻게 저장했나요?
+- LabelEncoder의 `classes_`에서 `fit`과 `unfit`이 어떤 숫자로 매핑됐나요?
+- 두 모델의 Test ID는 같고, 두 Scaler는 Train만 학습했나요?
+- 각 Target의 결과는 같은 Test에서 계산한 Baseline보다 나아졌나요?
 
 전처리부터 예측까지 도구는 달라도 기준은 이어집니다. 입력을 확인하고, 평가 대상을 따로 두고, 결과의 단위를 남깁니다. 다음 문제에서도 이 순서를 먼저 떠올립니다.
 
@@ -882,37 +882,43 @@ print("새 데이터 후보 비율:", (detector.predict(new) == -1).mean())
 
 ### 실습 데이터와 노트북
 
--   **실습 자료**: [Session12 실습 폴더](https://drive.google.com/drive/folders/1h1io0hXELebmP4clbdFvBpCNXDTz8UmW) · [session12\_종합문제풀이(2).pdf](https://drive.google.com/file/d/1aUfZyToX35EOa46u_g9gYFy3nGgLBjgC/view) · [session12.ipynb](https://drive.google.com/file/d/1KaNpc4DDfDiiQXcbQRKMHufBjL-gImuR/view)
--   **CSV 데이터**: [health\_survey.csv](https://drive.google.com/file/d/199SaO22fF38RrWoJSA3g0PC4Bgg1Wd8x/view) · [soldier\_full\_profile.csv](https://drive.google.com/file/d/1ED6eOZukT5Y2Y9bWbc6EssdFyESXFlDQ/view)
--   **이미지 데이터**: [training\_scene: CAM001\~003.png](https://drive.google.com/drive/folders/1MQf8iDAkWxiCxWx-W5nxOUaqYW9K4oev)
--   **심화 예제**: [심화 예제 자료](https://drive.google.com/file/d/1wG0fZ0uhBQ1tniHUVE42xxo2mhkdwzGf/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **실습 자료**: [Session12 실습 폴더](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session12) · [session12_종합문제풀이(2).pdf](/files/maicon-2026/lectures/session12_%EC%A2%85%ED%95%A9%EB%AC%B8%EC%A0%9C%ED%92%80%EC%9D%B4%282%29.pdf) · [session12.ipynb](/files/maicon-2026/code/session12/session12.ipynb)
+- **CSV 데이터**: [health_survey.csv](/files/maicon-2026/code/session12/health_survey.csv) · [soldier_full_profile.csv](/files/maicon-2026/code/session12/soldier_full_profile.csv)
+- **이미지 데이터**: [training_scene: CAM001\~003.png](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session12/images/training_scene)
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 
--   **문제**: [유형 02 문제](/cs/data-analysis/practice-02-tabular-modeling/) — 같은 장비의 반복 기록이 있을 때, 새로운 장비의 고장 여부와 정비 시간을 어떻게 평가할까요?  
-    [유형 06 문제](/cs/data-analysis/practice-06-object-detection/) — 정상 사진·빈 사진·누락 사진이 섞여 있을 때, 장면별 사람·차량 탐지 수를 어떻게 요약할까요?
--   **풀이**: [유형 02 풀이](/cs/data-analysis/practice-02-tabular-modeling-solution/) — 장비별로 데이터를 나누고 전처리 Pipeline과 그룹 CV로 고장 분류·정비 시간 회귀 모델을 평가합니다.  
-    [유형 06 풀이](/cs/data-analysis/practice-06-object-detection-solution/) — YOLO 탐지 결과와 사진별 처리 상태를 저장하고, 탐지 0건과 처리 실패를 구분해 장면별로 집계합니다.
+- **문제**
+  - [유형 02 문제](/cs/data-analysis/practice-02-tabular-modeling/) — 같은 장비의 반복 기록이 있을 때, 새로운 장비의 고장 여부와 정비 시간을 어떻게 평가할까요?
+  - [유형 06 문제](/cs/data-analysis/practice-06-object-detection/) — 정상 사진·빈 사진·누락 사진이 섞여 있을 때, 장면별 사람·차량 탐지 수를 어떻게 요약할까요?
+- **풀이**
+  - [유형 02 풀이](/cs/data-analysis/practice-02-tabular-modeling-solution/) — 장비별로 데이터를 나누고 전처리 Pipeline과 그룹 CV로 고장 분류·정비 시간 회귀 모델을 평가합니다.
+  - [유형 06 풀이](/cs/data-analysis/practice-06-object-detection-solution/) — YOLO 탐지 결과와 사진별 처리 상태를 저장하고, 탐지 0건과 처리 실패를 구분해 장면별로 집계합니다.
 
 ### 공식 문서
 
--   **이상치·PCA**: [IsolationForest](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html) — contamination·Label·Score·offset\_의 의미  
-    [Novelty and Outlier Detection](https://scikit-learn.org/stable/modules/outlier_detection.html) — 현재 데이터의 탐색과 새 관측값 적용의 차이  
-    [PCA](https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html) — 중심화·입력 Scaling·설명 분산
--   **전처리·모델**: [scikit-learn Common pitfalls](https://scikit-learn.org/stable/common_pitfalls.html) — 데이터 누수와 Train 안에서의 전처리 학습  
-    [StandardScaler](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html) — 학습한 평균·표준편차와 transform  
-    [LabelEncoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html) — Target Encoding·classes\_·inverse\_transform  
-    [Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) — 전처리와 모델의 순차 학습·교차검증  
-    [LogisticRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html) — solver·Regularization·max\_iter  
-    [RandomForestRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html) — Tree와 n\_estimators 설정
--   **분할·평가**: [train\_test\_split](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html) — Index 분할과 stratify  
-    [StratifiedKFold](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html) — 클래스 비율을 유지하는 Fold 구성  
-    [cross\_validate](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_validate.html) — 여러 지표와 검증 Fold의 결과 반환  
-    [DummyClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyClassifier.html) — 다수 클래스를 예측하는 Baseline  
-    [confusion\_matrix](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html) — 행·열 방향과 labels 순서  
-    [classification\_report](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html) — 클래스별 Precision·Recall·F1·support  
-    [balanced\_accuracy\_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.balanced_accuracy_score.html) — 클래스별 Recall을 평균한 평가  
-    [root\_mean\_squared\_error](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html) — 회귀 RMSE 계산  
-    [r2\_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html) — 평균 예측 기준과 음수 R²
--   **탐지·그래프**: [YOLOv5 PyTorch Hub](https://docs.ultralytics.com/yolov5/tutorials/pytorch-hub-model-loading) — 클래스 필터·RGB 입력·Pandas 결과  
-    [Matplotlib Axes.scatter](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html) — 범주별 산점도와 색상·투명도
+- **이상치·PCA**
+  - [IsolationForest](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html) — contamination·Label·Score·offset_의 의미
+  - [Novelty and Outlier Detection](https://scikit-learn.org/stable/modules/outlier_detection.html) — 현재 데이터의 탐색과 새 관측값 적용의 차이
+  - [PCA](https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html) — 중심화·입력 Scaling·설명 분산
+- **전처리·모델**
+  - [scikit-learn Common pitfalls](https://scikit-learn.org/stable/common_pitfalls.html) — 데이터 누수와 Train 안에서의 전처리 학습
+  - [StandardScaler](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html) — 학습한 평균·표준편차와 transform
+  - [LabelEncoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html) — Target Encoding·classes_·inverse_transform
+  - [Pipeline](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) — 전처리와 모델의 순차 학습·교차검증
+  - [LogisticRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html) — solver·Regularization·max_iter
+  - [RandomForestRegressor](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html) — Tree와 n_estimators 설정
+- **분할·평가**
+  - [train_test_split](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html) — Index 분할과 stratify
+  - [StratifiedKFold](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html) — 클래스 비율을 유지하는 Fold 구성
+  - [cross_validate](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_validate.html) — 여러 지표와 검증 Fold의 결과 반환
+  - [DummyClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyClassifier.html) — 다수 클래스를 예측하는 Baseline
+  - [confusion_matrix](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html) — 행·열 방향과 labels 순서
+  - [classification_report](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html) — 클래스별 Precision·Recall·F1·support
+  - [balanced_accuracy_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.balanced_accuracy_score.html) — 클래스별 Recall을 평균한 평가
+  - [root_mean_squared_error](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_error.html) — 회귀 RMSE 계산
+  - [r2_score](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html) — 평균 예측 기준과 음수 R²
+- **탐지·그래프**
+  - [YOLOv5 PyTorch Hub](https://docs.ultralytics.com/yolov5/tutorials/pytorch-hub-model-loading) — 클래스 필터·RGB 입력·Pandas 결과
+  - [Matplotlib Axes.scatter](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html) — 범주별 산점도와 색상·투명도

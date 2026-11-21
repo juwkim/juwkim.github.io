@@ -4,7 +4,7 @@ date: 2026-10-06T21:42:16+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "평균과 표준편차만으로 데이터의 모습을 알 수 있을까요? Box Plot의 상자 밖에 있는 값은 모두 이상치일까요? Heatmap에서 상관계수가 높으면 원인과 결과까지 알 수 있을까요? Histogram과 Box…"
+description: "Histogram과 Box Plot으로 체력 기록의 분포와 이상치 후보를 확인하고, Scatter Plot과 Heatmap으로 스트레스 요인과 장비 지표의 관계를 살펴봅니다. 상관계수를 읽을 때 주의할 점과 그래프 저장 방법도 정리합니다."
 tistoryId: 55
 ---
 > **이번 글의 질문**
@@ -195,7 +195,7 @@ run_time_2km(sec)       S080    708 486.375 701.375
 | 항목 | ID | 관측값 | 하한 | 상한 |
 | --- | --- | --- | --- | --- |
 | `pushup_count` | S075 | 23 | 27.625 | 68.625 |
-| run\_time\_2km(sec) | S080 | 708 | 486.375 | 701.375 |
+| `run_time_2km(sec)` | S080 | 708 | 486.375 | 701.375 |
 | `situp_count` | S010 | 75 | 22.125 | 67.125 |
 | `situp_count` | S063 | 19 | 22.125 | 67.125 |
 
@@ -386,8 +386,8 @@ plt.close(fig)
 | 항목 쌍 | Pearson r | 현재 기록에서 보이는 관계 |
 | --- | --- | --- |
 | 훈련 압박 · 지휘 긴장 | 0.942 | 훈련 압박 점수가 높은 응답에서 지휘 긴장 점수도 높은 경향입니다. |
-| 지휘 긴장 · 수면의 질 | \-0.944 | 지휘 긴장 점수가 높은 응답에서 수면의 질 점수는 낮은 경향입니다. |
-| 훈련 압박 · 사회적 지지 | \-0.936 | 훈련 압박 점수가 높은 응답에서 사회적 지지 점수는 낮은 경향입니다. |
+| 지휘 긴장 · 수면의 질 | -0.944 | 지휘 긴장 점수가 높은 응답에서 수면의 질 점수는 낮은 경향입니다. |
+| 훈련 압박 · 사회적 지지 | -0.936 | 훈련 압박 점수가 높은 응답에서 사회적 지지 점수는 낮은 경향입니다. |
 | 수면의 질 · 사회적 지지 | 0.844 | 두 항목이 같은 방향으로 높은 경향입니다. |
 
 `annot=True`는 셀에 숫자를 쓰고, `fmt=".2f"`는 표시할 소수 자릿수를 정합니다. 계산된 `corr` 값 자체는 반올림되지 않습니다. `vmin=-1`, `vmax=1`, `center=0`으로 색의 기준을 고정하면 다른 데이터의 Heatmap도 같은 기준으로 비교할 수 있습니다. 설정하지 않으면 데이터에 따라 색 범위가 달라질 수 있습니다.
@@ -468,7 +468,7 @@ plt.close(fig)
 | --- | --- | --- |
 | 연료 효율 · 임무 성공률 | 0.869 | 같은 방향으로 높은 값이 함께 나타나는 경향입니다. |
 | 운용 시간 · 정비 지표 | 0.588 | 운용 시간이 긴 장비에서 정비 지표도 큰 경향입니다. |
-| 정비 지표 · 임무 성공률 | \-0.269 | 반대 방향의 관계가 나타나지만 앞의 두 쌍보다 선형 관계가 약합니다. |
+| 정비 지표 · 임무 성공률 | -0.269 | 반대 방향의 관계가 나타나지만 앞의 두 쌍보다 선형 관계가 약합니다. |
 
 ### 6-3. 관심 있는 한 쌍은 Scatter Plot으로 다시 확인합니다
 
@@ -579,7 +579,7 @@ x와 x²의 Pearson r: 0.000000
 
 ![x와 x의 제곱 사이에 U자 관계가 있지만 Pearson 상관계수가 0인 예제입니다.](./img-10.png)
 
-*x가 정해지면 y=x²도 정해집니다. Pearson r이 0이라는 숫자만으로 두 변수의 관계가 없다고 결론낼 수 없습니다.*
+*x가 정해지면 y=x²도 정해집니다. Pearson r이 0이라는 숫자만으로 두 변수의 관계가 없다고 결론 낼 수 없습니다.*
 
 ### 7-3. 점수의 순서를 보고 싶다면 Spearman을 비교합니다
 
@@ -683,13 +683,13 @@ if korean_font is not None:
 
 ## 9. 그래프를 읽기 좋게 만드는 기준
 
--   **제목에 질문을 담습니다.** “그래프 1”보다 “훈련 압박과 지휘 긴장 점수의 관계”처럼 무엇을 보는지 적습니다.
--   **축에 단위를 남깁니다.** 횟수·초·비율·점수를 구분하고, Histogram의 Y축이 개수인지 밀도인지 표시합니다.
--   **비교 기준을 맞춥니다.** 집단별 Histogram은 구간과 축 범위를, 상관계수 Heatmap은 -1\~1 색 범위를 맞춥니다.
--   **막대의 기준선을 확인합니다.** Bar Chart의 높이로 크기를 비교한다면 일반적으로 0부터 시작하고, 다른 범위를 쓰면 그 기준을 드러냅니다.
--   **색만으로 구분하지 않습니다.** Scatter Plot에는 점 모양과 범례를 함께 사용하고, Heatmap에는 숫자를 덧붙입니다.
--   **겹침과 누락을 확인합니다.** 점이 겹치는지, 결측치가 빠졌는지, 축 범위 밖의 관측값이 잘렸는지 확인합니다.
--   **꾸민 뒤에도 원본과 연결합니다.** 화면에서 특이한 점을 찾으면 ID로 돌아가 어떤 기록인지 살펴봅니다.
+- **제목에 질문을 담습니다.** “그래프 1”보다 “훈련 압박과 지휘 긴장 점수의 관계”처럼 무엇을 보는지 적습니다.
+- **축에 단위를 남깁니다.** 횟수·초·비율·점수를 구분하고, Histogram의 Y축이 개수인지 밀도인지 표시합니다.
+- **비교 기준을 맞춥니다.** 집단별 Histogram은 구간과 축 범위를, 상관계수 Heatmap은 -1\~1 색 범위를 맞춥니다.
+- **막대의 기준선을 확인합니다.** Bar Chart의 높이로 크기를 비교한다면 일반적으로 0부터 시작하고, 다른 범위를 쓰면 그 기준을 드러냅니다.
+- **색만으로 구분하지 않습니다.** Scatter Plot에는 점 모양과 범례를 함께 사용하고, Heatmap에는 숫자를 덧붙입니다.
+- **겹침과 누락을 확인합니다.** 점이 겹치는지, 결측치가 빠졌는지, 축 범위 밖의 관측값이 잘렸는지 확인합니다.
+- **꾸민 뒤에도 원본과 연결합니다.** 화면에서 특이한 점을 찾으면 ID로 돌아가 어떤 기록인지 살펴봅니다.
 
 그래프를 다시 볼 때는 점·막대·색 하나가 무엇을 나타내는지 먼저 읽습니다. 축 범위와 단위, 표본 수를 확인하면 그림에서 본 차이를 숫자로도 설명할 수 있습니다.
 
@@ -726,7 +726,7 @@ print("집계한 점 수:", int(counts.get_array().sum()))
 집계한 점 수: 5000
 ```
 
-![같은 5,000개 관측을 Scatter와 Hexbin으로 비교합니다. 색상은 구간별 개수입니다.](./img-11.png)
+![왼쪽은 점이 겹쳐 보이는 Scatter Plot, 오른쪽은 육각형 구간별 관측 개수를 Log 색상으로 표시한 Hexbin입니다.](./img-11.png)
 
 *같은 5,000개 관측을 Scatter와 Hexbin으로 비교합니다. 색상은 구간별 개수입니다.*
 
@@ -747,12 +747,12 @@ print("집계한 점 수:", int(counts.get_array().sum()))
 | 특정 관계 선택 | `corr_matrix.loc[열1, 열2]` | 위치보다 항목 이름으로 의미를 남깁니다. |
 | 그림 저장 | `fig.savefig()` · `plt.close(fig)` | 저장할 Figure를 명시하고 닫습니다. |
 
-1.  같은 팔굽혀펴기 기록을 `bins=5`와 `bins=25`로 그리면 왜 다른 모양으로 보이나요?
-2.  Box Plot의 Q1·Q3·수염·따로 표시된 점은 각각 무엇을 뜻하나요?
-3.  Scatter Plot에서 한 점이 보이는데 그 좌표에 다섯 명이 응답했다면 어떻게 표현할 수 있나요?
-4.  y=x² 예제에서 Pearson r이 0인 것이 왜 “관계 없음”을 뜻하지 않나요?
-5.  전체 장비의 관계와 같은 장비 유형 안의 관계는 왜 함께 확인하나요?
-6.  두 Heatmap을 비교할 때 색 범위를 -1\~1로 고정하는 이유는 무엇인가요?
+1. 같은 팔굽혀펴기 기록을 `bins=5`와 `bins=25`로 그리면 왜 다른 모양으로 보이나요?
+2. Box Plot의 Q1·Q3·수염·따로 표시된 점은 각각 무엇을 뜻하나요?
+3. Scatter Plot에서 한 점이 보이는데 그 좌표에 다섯 명이 응답했다면 어떻게 표현할 수 있나요?
+4. y=x² 예제에서 Pearson r이 0인 것이 왜 “관계 없음”을 뜻하지 않나요?
+5. 전체 장비의 관계와 같은 장비 유형 안의 관계는 왜 함께 확인하나요?
+6. 두 Heatmap을 비교할 때 색 범위를 -1\~1로 고정하는 이유는 무엇인가요?
 
 > **숫자로 요약하고, 그래프로 확인하고, 원본으로 돌아가 해석합니다.** 보기 좋은 그림을 만드는 것과 그 그림이 보여 주는 관계를 정확하게 읽는 일을 함께 연습합니다.
 
@@ -760,33 +760,38 @@ print("집계한 점 수:", int(counts.get_array().sum()))
 
 ### 실습 데이터와 노트북
 
--   **실습 자료**: [Session05 실습 폴더](https://drive.google.com/drive/folders/1mQ7v9O6oHukHI3YTJ0W1YBI_jwZcXlRJ) · [session05\_데이터-시각화.pdf](https://drive.google.com/file/d/1mmpkKcMdd1nACy83ONi1FF-tLAYNdlRc/view) · [session05.ipynb](https://drive.google.com/file/d/1TCtbwqnvIey-ZDR1WdT0A70sv9v9krwk/view)
--   **CSV 데이터**: [fitness\_result.csv](https://drive.google.com/file/d/1JvWwcwe4Tw6oRISTHgfYlQDkf9RMJYOY/view) · [stress\_factors.csv](https://drive.google.com/file/d/1bkD5-iVC4nrz1kSx8V-UJIx4RXzXWnWb/view) · [equipment\_performance.csv](https://drive.google.com/file/d/1zhcCQTPaULdurdlCYcXA3n6j5jeWnHKx/view)
--   **심화 예제**: [심화 예제 자료](https://drive.google.com/file/d/1wG0fZ0uhBQ1tniHUVE42xxo2mhkdwzGf/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **실습 자료**: [Session05 실습 폴더](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session05) · [session05_데이터-시각화.pdf](/files/maicon-2026/lectures/session05_%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%8B%9C%EA%B0%81%ED%99%94.pdf) · [session05.ipynb](/files/maicon-2026/code/session05/session05.ipynb)
+- **CSV 데이터**: [fitness_result.csv](/files/maicon-2026/code/session05/fitness_result.csv) · [stress_factors.csv](/files/maicon-2026/code/session05/stress_factors.csv) · [equipment_performance.csv](/files/maicon-2026/code/session05/equipment_performance.csv)
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 
--   **복습 안내**: — 통계량과 그래프는 모든 유형의 입력 점검과 결과 해석에서 함께 사용합니다. 유형별 문제에서 관측 단위·비교 기준·분모를 설명하는 부분을 찾아 복습합니다.
+- **복습 안내**: 통계량과 그래프는 모든 유형의 입력 점검과 결과 해석에서 함께 사용합니다. 유형별 문제에서 관측 단위·비교 기준·분모를 설명하는 부분을 찾아 복습합니다.
 
 ### 공식 문서
 
--   **Matplotlib**: [Quick start guide](https://matplotlib.org/stable/users/explain/quick_start.html) — Figure·Axes와 그래프 구성  
-    [pyplot.subplot](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplot.html) — 현재 그래프 영역 선택  
-    [pyplot.subplots](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html) — Figure와 여러 Axes 생성  
-    [Axes.hist](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hist.html) — bins·구간 경계·density  
-    [Figure.savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html) — dpi·bbox\_inches와 이미지 저장  
-    [pyplot.close](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.close.html) — Figure 닫기  
-    [font\_manager](https://matplotlib.org/stable/api/font_manager_api.html) — 설치된 폰트와 폰트 파일 등록  
-    [PercentFormatter](https://matplotlib.org/stable/api/ticker_api.html#matplotlib.ticker.PercentFormatter) — 비율을 백분율 눈금으로 표시
--   **Seaborn**: [Seaborn 소개](https://seaborn.pydata.org/tutorial/introduction.html) — DataFrame을 활용한 통계 시각화  
-    [boxplot](https://seaborn.pydata.org/generated/seaborn.boxplot.html) — 중앙값·IQR·whis·이상치 후보  
-    [scatterplot](https://seaborn.pydata.org/generated/seaborn.scatterplot.html) — hue·style·size와 범주 표현  
-    [heatmap](https://seaborn.pydata.org/generated/seaborn.heatmap.html) — annot·fmt·색상 범위와 행렬 시각화
--   **pandas**: [DataFrame.corr](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.corr.html) — Pearson·Spearman·결측치·min\_periods·numeric\_only  
-    [Series.quantile](https://pandas.pydata.org/docs/reference/api/pandas.Series.quantile.html) — Q1·Q3와 IQR 계산
--   **SciPy**: [pearsonr](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html) — 선형 상관계수와 비선형 관계 예제  
-    [spearmanr](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.spearmanr.html) — 순위와 단조 관계
--   **Python**: [os.makedirs](https://docs.python.org/3/library/os.html#os.makedirs) — 결과 폴더 생성과 exist\_ok  
-    [Path.mkdir](https://docs.python.org/3/library/pathlib.html#pathlib.Path.mkdir) — Path 객체로 폴더 생성
--   **Plotly**: [Plotly Python 문서](https://plotly.com/python/) — Hover·Zoom을 이용한 대화형 시각화
--   **밀도 집계**: [Axes.hexbin](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hexbin.html) — gridsize·bins·mincnt와 구간별 집계를 확인합니다.
+- **Matplotlib**
+  - [Quick start guide](https://matplotlib.org/stable/users/explain/quick_start.html) — Figure·Axes와 그래프 구성
+  - [pyplot.subplot](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplot.html) — 현재 그래프 영역 선택
+  - [pyplot.subplots](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html) — Figure와 여러 Axes 생성
+  - [Axes.hist](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hist.html) — bins·구간 경계·density
+  - [Figure.savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html) — dpi·bbox_inches와 이미지 저장
+  - [pyplot.close](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.close.html) — Figure 닫기
+  - [font_manager](https://matplotlib.org/stable/api/font_manager_api.html) — 설치된 폰트와 폰트 파일 등록
+  - [PercentFormatter](https://matplotlib.org/stable/api/ticker_api.html#matplotlib.ticker.PercentFormatter) — 비율을 백분율 눈금으로 표시
+- **Seaborn**
+  - [Seaborn 소개](https://seaborn.pydata.org/tutorial/introduction.html) — DataFrame을 활용한 통계 시각화
+  - [boxplot](https://seaborn.pydata.org/generated/seaborn.boxplot.html) — 중앙값·IQR·whis·이상치 후보
+  - [scatterplot](https://seaborn.pydata.org/generated/seaborn.scatterplot.html) — hue·style·size와 범주 표현
+  - [heatmap](https://seaborn.pydata.org/generated/seaborn.heatmap.html) — annot·fmt·색상 범위와 행렬 시각화
+- **pandas**
+  - [DataFrame.corr](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.corr.html) — Pearson·Spearman·결측치·min_periods·numeric_only
+  - [Series.quantile](https://pandas.pydata.org/docs/reference/api/pandas.Series.quantile.html) — Q1·Q3와 IQR 계산
+- **SciPy**
+  - [pearsonr](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html) — 선형 상관계수와 비선형 관계 예제
+  - [spearmanr](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.spearmanr.html) — 순위와 단조 관계
+- **Python**
+  - [os.makedirs](https://docs.python.org/3/library/os.html#os.makedirs) — 결과 폴더 생성과 exist_ok
+  - [Path.mkdir](https://docs.python.org/3/library/pathlib.html#pathlib.Path.mkdir) — Path 객체로 폴더 생성
+- **Plotly**: [Plotly Python 문서](https://plotly.com/python/) — Hover·Zoom을 이용한 대화형 시각화
+- **밀도 집계**: [Axes.hexbin](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hexbin.html) — gridsize·bins·mincnt와 구간별 집계를 확인합니다.

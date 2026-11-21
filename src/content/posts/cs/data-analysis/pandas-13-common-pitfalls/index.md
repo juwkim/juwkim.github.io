@@ -4,7 +4,7 @@ date: 2026-10-09T18:06:45+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "코드는 잘 실행됐는데 결과가 틀릴 수도 있을까요? 높은 평가 점수, 깔끔한 그래프, 비어 있지 않은 CSV를 믿기 전에 무엇을 확인해야 할까요? 데이터 한 행의 의미와 예측 시점부터 정합니다. 결측값·0·처리…"
+description: "코드는 실행되지만 결과가 틀리는 흔한 실수를 관측 단위, 타입 변환, 결측치, 병합, 시간 누수, Scaling, Encoding, 평가 지표, 비지도 학습, 이미지·OCR, 결과 저장 순서로 정리합니다."
 tistoryId: 63
 ---
 > **이번 글의 질문**
@@ -37,12 +37,12 @@ ID 0012가 12로 바뀌어도 코드는 실행됩니다. 하지만 원본 파일
 
 | 착각 | 확인할 기준 |
 | --- | --- |
-| object면 모두 문자열입니다. | object에는 숫자·문자열·다른 객체가 섞일 수 있습니다. 실제 값과 `dtype`을 함께 봅니다. |
+| `object`면 모두 문자열입니다. | `object`에는 숫자·문자열·다른 객체가 섞일 수 있습니다. 실제 값과 `dtype`을 함께 봅니다. |
 | `astype(float)`만 하면 숫자가 됩니다. | 쉼표·단위·error 문자열이 있으면 먼저 변환 규칙을 정합니다. |
 | `errors="coerce"`가 데이터를 고쳐 줍니다. | 변환 실패를 결측값으로 표시합니다. 어떤 원문이 실패했는지 남깁니다. |
 | 시간 문자열은 그대로 정렬하면 됩니다. | 일관된 ISO 문자열은 정렬이 맞을 수 있지만, 형식·시간대가 섞이면 datetime으로 통일합니다. |
 | 단위는 열 이름에서 대충 알 수 있습니다. | 분·초, m·km, kg·g를 데이터 정의에서 확인하고 통일합니다. |
-| 빈 문자열과 NA는 언제나 같습니다. | `read_csv`의 na\_values·keep\_default\_na에 따라 NA 같은 문자열이 결측값으로 해석될 수 있습니다. |
+| 빈 문자열과 NA는 언제나 같습니다. | `read_csv`의 `na_values`·`keep_default_na`에 따라 NA 같은 문자열이 결측값으로 해석될 수 있습니다. |
 
 ```python
 import io
@@ -105,7 +105,7 @@ print("최소 관측 1개를 요구한 합계:", empty.sum(min_count=1))
 
 Join 전후 행 수가 늘었다면 정말 기록이 많아진 것인지, 같은 키의 모든 조합이 생긴 것인지부터 봅니다. 양쪽에 같은 키가 두 번 있으면 그 키에서 네 행이 만들어질 수 있습니다.
 
-Pandas는 양쪽의 null key도 서로 매칭합니다. 일반적인 SQL Join과 다른 부분입니다. 미확인 ID끼리 연결해도 되는지 먼저 정하고, 보통은 오른쪽 기준표의 미확인 키를 분리합니다.
+pandas는 양쪽의 null key도 서로 매칭합니다. 일반적인 SQL Join과 다른 부분입니다. 미확인 ID끼리 연결해도 되는지 먼저 정하고, 보통은 오른쪽 기준표의 미확인 키를 분리합니다.
 
 ```python
 left = pd.DataFrame({"id": ["A", "A", None], "quantity": [5, 7, 9]})
@@ -134,7 +134,7 @@ None         9      NaN   NaN left_only
 
 중복을 발견했다고 아무 행이나 `drop_duplicates`로 버리면 근거가 사라집니다. 여기서는 최신 `version`을 선택한다는 규칙을 먼저 두었습니다. 실제 자료에 그런 규칙이 없다면 중복이 생긴 원인부터 확인합니다.
 
-### Index 정렬과 행 순서는 다릅니다
+### 4-1. Index 정렬과 행 순서는 다릅니다
 
 ```python
 result = pd.DataFrame({"record_id": ["R42", "R09"]}, index=[42, 9])
@@ -150,7 +150,7 @@ print(result.to_string())
 9        R09              NaN             0.8
 ```
 
-Series를 대입하면 Index Label을 맞춥니다. 예측이 result의 행 순서대로 나왔다는 조건에서는 NumPy 배열로 대입할 수 있습니다. 예측에 별도의 ID가 있다면 ID로 Join하는 편이 안전합니다. 길이가 같다는 사실만으로 같은 기록이라는 보장은 없습니다.
+Series를 대입하면 Index Label을 맞춥니다. 예측이 `result`의 행 순서대로 나왔다는 조건에서는 NumPy 배열로 대입할 수 있습니다. 예측에 별도의 ID가 있다면 ID로 Join하는 편이 안전합니다. 길이가 같다는 사실만으로 같은 기록이라는 보장은 없습니다.
 
 | 연산 | 자동으로 맞추는 것 | 별도로 확인할 것 |
 | --- | --- | --- |
@@ -282,7 +282,7 @@ fig.tight_layout(); fig.savefig("nonlinear_correlation.png", dpi=150); plt.close
 Pearson correlation: 0.0
 ```
 
-![Pearson 상관계수는 0이지만 두 값 사이에 뚜렷한 비선형 관계가 있습니다.](./img-01.png)
+![x가 -5부터 5까지일 때 x의 제곱을 나타낸 U자 모양의 산점도](./img-01.png)
 
 *Pearson 상관계수는 0이지만 두 값 사이에 뚜렷한 비선형 관계가 있습니다.*
 
@@ -290,18 +290,18 @@ Pearson correlation: 0.0
 | --- | --- |
 | 그룹 평균들의 평균이 전체 평균입니다. | 그룹별 관측 수가 다르면 가중치가 다릅니다. 각 항목의 유효 `count`를 봅니다. |
 | 상관계수는 영향의 크기입니다. | 함께 변하는 정도입니다. 원인·개입 효과는 다른 설계가 필요합니다. |
-| 음의 상관이면 반비례식입니다. | 큰 값이 낮은 값과 함께 나타나는 경향입니다. `y`\=k/x 관계를 보장하지 않습니다. |
+| 음의 상관이면 반비례식입니다. | 큰 값이 낮은 값과 함께 나타나는 경향입니다. `y = k/x` 관계를 보장하지 않습니다. |
 | `std`는 어디에서 계산해도 같습니다. | pandas의 기본 `ddof=1`, NumPy·StandardScaler의 기본 `ddof=0` 등 정의를 맞춥니다. |
-| `quantile`에 1·2·3을 넣습니다. | q는 보통 0\~1입니다. Q1·Q2·Q3은 0.25·0.5·0.75입니다. |
+| `quantile`에 1·2·3을 넣습니다. | `q`는 보통 0\~1입니다. Q1·Q2·Q3은 0.25·0.5·0.75입니다. |
 | 박스 밖의 모든 점이 이상치입니다. | 기본 Box Plot의 점은 보통 1.5×IQR 울타리 바깥입니다. Q1\~Q3 밖과 다릅니다. |
-| Histogram은 bins를 바꿔도 같은 모습입니다. | 구간 크기·경계에 따라 봉우리와 꼬리가 달라 보입니다. 여러 기준을 비교합니다. |
+| Histogram은 `bins`를 바꿔도 같은 모습입니다. | 구간 크기·경계에 따라 봉우리와 꼬리가 달라 보입니다. 여러 기준을 비교합니다. |
 | Box Plot만 보면 분포를 알 수 있습니다. | 여러 봉우리와 점의 밀도는 가려질 수 있습니다. Histogram·Strip·Violin 등으로 보완합니다. |
 | Heatmap의 진한 색은 항상 같은 강도입니다. | 비교할 상관 Heatmap은 `vmin=-1`·`vmax=1`·`center=0` 같은 공통 기준을 둡니다. |
 | 막대의 높이 차이가 곧 효과 크기입니다. | `y`축 시작점·단위·관측 수·불확실성을 같이 봅니다. |
 
 Scatter의 겹친 점을 투명도·Jitter·Hexbin으로 보여 주더라도, 시각화용 Jitter를 모델 입력에 다시 섞지 않습니다. 선택한 그룹 안에서는 보이던 관계가 전체에서는 반대로 보이는 Simpson’s paradox도 가능합니다. 그룹 크기와 조건을 나눠 보는 습관이 도움이 됩니다.
 
-통계량의 기준은 [파이썬 데이터 분석노트 04](/cs/data-analysis/pandas-04-descriptive-statistics/), 그래프 선택과 밀도 표현은 [파이썬 데이터 분석노트 05](/cs/data-analysis/pandas-05-data-visualization/), 그룹 평균의 분모는 [파이썬 데이터 분석 공부노트 06](/cs/data-analysis/pandas-06-data-interpretation/)에서 확인할 수 있습니다.
+통계량의 기준은 [파이썬 데이터 분석 공부노트 04](/cs/data-analysis/pandas-04-descriptive-statistics/), 그래프 선택과 밀도 표현은 [파이썬 데이터 분석 공부노트 05](/cs/data-analysis/pandas-05-data-visualization/), 그룹 평균의 분모는 [파이썬 데이터 분석 공부노트 06](/cs/data-analysis/pandas-06-data-interpretation/)에서 확인할 수 있습니다.
 
 ## 9. Pipeline을 썼어도 분할과 Feature 정의는 직접 확인합니다
 
@@ -328,7 +328,7 @@ Pipeline은 전처리와 모델의 학습 범위를 함께 관리합니다. 그�
 
 ## 10. 점수 하나로 모델을 평가하지 않습니다
 
-### Accuracy가 높아도 관심 클래스를 놓칠 수 있습니다
+### 10-1. Accuracy가 높아도 관심 클래스를 놓칠 수 있습니다
 
 ```python
 from sklearn.metrics import (accuracy_score, balanced_accuracy_score,
@@ -357,7 +357,7 @@ Average Precision: 0.662
 
 ROC-AUC와 Average Precision은 확률 점수의 순서를 평가하며, 어느 Threshold에서 클래스를 결정했는지와 구분합니다. AP는 Recall 증가량으로 Precision을 가중한 값입니다. PR 곡선을 어떤 방식으로 적분했는지에 따라 값이 달라질 수 있어 AP와 모든 PR-AUC를 같은 숫자로 부르지 않습니다.
 
-### 로그로 예측했다면 평가할 단위도 확인합니다
+### 10-2. 로그로 예측했다면 평가할 단위도 확인합니다
 
 ```python
 from sklearn.metrics import mean_absolute_error, root_mean_squared_error
@@ -403,7 +403,7 @@ RMSE: 11.662
 | `anomaly=-1` | 실제 오류·건강 위험이 확인됐습니다. | 선택한 Feature에서 상대적으로 드문 기록입니다. 원본을 검토합니다. |
 | 비지도이므로 Test는 필요 없습니다. | 새 데이터 일반화 평가에도 모두 `fit`합니다. | 현재 데이터 탐색과 새로운 데이터 적용·평가를 구분합니다. |
 
-Isolation Forest의 score\_samples는 작을수록 드문 기록이며, decision\_function은 학습한 offset을 뺀 값입니다. 0보다 작을 때 Outlier로 판정합니다. 이 숫자를 위험 확률로 바꾸어 읽지 않습니다. 참조 데이터에 5%를 설정했어도 분포가 다른 새 데이터의 후보 비율은 달라집니다.
+Isolation Forest의 `score_samples`는 작을수록 드문 기록이며, `decision_function`은 학습한 `offset_`을 뺀 값입니다. 0보다 작을 때 Outlier로 판정합니다. 이 숫자를 위험 확률로 바꾸어 읽지 않습니다. 참조 데이터에 5%를 설정했어도 분포가 다른 새 데이터의 후보 비율은 달라집니다.
 
 군집의 재표집 안정성은 [파이썬 데이터 분석 공부노트 08](/cs/data-analysis/pandas-08-unsupervised-learning/), 새 데이터의 이상치 후보 비율은 [파이썬 데이터 분석 공부노트 12](/cs/data-analysis/pandas-12-comprehensive-problems-2/)의 심화 예제로 비교할 수 있습니다.
 
@@ -413,7 +413,7 @@ Isolation Forest의 score\_samples는 작을수록 드문 기록이며, decision
 | --- | --- |
 | 이미지 `shape`와 Resize 인자는 같은 순서입니다. | `shape`는 보통 H·W·C, OpenCV resize의 크기는 W·H입니다. |
 | OpenCV 이미지는 모두 RGB입니다. | 기본 컬러 읽기는 BGR입니다. API마다 NumPy·PIL 입력 규칙을 확인합니다. |
-| img\[::-1\]로 색상 채널을 바꿉니다. | 첫 축을 뒤집으면 상하 반전입니다. cvtColor 또는 img\[:, :, ::-1\]의 의미를 확인합니다. |
+| `img[::-1]`로 색상 채널을 바꿉니다. | 첫 축을 뒤집으면 상하 반전입니다. `cvtColor` 또는 `img[:, :, ::-1]`의 의미를 확인합니다. |
 | `uint8`에서 밝기를 더하면 안전합니다. | 범위를 넘으면 Wraparound가 생길 수 있습니다. 실수형 변환·Clip·`dtype`을 정합니다. |
 | Mask를 선형 보간해도 됩니다. | Label Mask는 중간 클래스 값이 생기지 않도록 Nearest 등을 선택합니다. |
 | 네 숫자는 어느 API에서나 같은 Box입니다. | xyxy·중심 xywh·좌측 상단 xywh, 정규화 여부와 원본 크기를 확인합니다. |
@@ -422,7 +422,7 @@ Isolation Forest의 score\_samples는 작을수록 드문 기록이며, decision
 | FPS가 29.97이어도 30프레임이면 항상 1초입니다. | 긴 영상에서 시점이 어긋날 수 있습니다. 목표 시각·실제 시각·시간 속성을 기록합니다. |
 | 탐지 0건 프레임은 생략해도 됩니다. | 분모와 시계열이 달라집니다. 정상 분석한 0건을 남깁니다. |
 | `re.match`가 특수문자를 지웁니다. | 시작 부분의 일치를 확인합니다. 전체 검사는 `fullmatch`, 교체는 `sub`입니다. |
-| OCR 숫자는 기호를 지운 뒤 int로 바꿉니다. | 날짜·소수점·음수·단위를 보존하고 항목별로 파싱합니다. |
+| OCR 숫자는 기호를 지운 뒤 `int`로 바꿉니다. | 날짜·소수점·음수·단위를 보존하고 항목별로 파싱합니다. |
 | 사전 학습 모델을 불러왔으니 독립 Test입니다. | Test 사진이 사전 학습 데이터와 겹치는지도 자료의 출처에서 확인합니다. |
 
 ```python
@@ -457,14 +457,14 @@ print("부호·소수점을 보존한 값:", float(number) if valid_number else 
 | 행 수 | 예측할 대상 수와 같은지, 실패 기록이 사라지지 않았는지 |
 | ID 대응 | 실제값·예측값·두 Target이 같은 ID의 행인지 |
 | Index | 일반 결과 CSV는 `index=False`, 시간 Index를 저장할 때는 이름을 명시합니다. |
-| 열 이름·순서 | 요구한 정확한 이름·순서인지, Unnamed: 0이 생기지 않았는지 |
+| 열 이름·순서 | 요구한 정확한 이름·순서인지, `Unnamed: 0`이 생기지 않았는지 |
 | Label | 숫자 Label과 문자열 매핑이 일치하고 Positive 순서가 명확한지 |
 | 반올림 | 지표는 원래 예측값으로 계산하고 필요한 표시만 반올림했는지 |
 | 그래프 | `savefig` 전에 레이아웃을 정하고, 다른 Figure·빈 Figure를 저장하지 않았는지 |
 | 반복 실행 | Counter를 두 번 누적하거나 이전 결과를 다시 읽어 더하지 않았는지 |
 | 원본과 처리 결과 | raw text·상태·키·모델 설정·분할 기준을 다시 추적할 수 있는지 |
 
-### 원본 수정은 한 번의 명확한 대입으로 씁니다
+### 13-1. 원본 수정은 한 번의 명확한 대입으로 씁니다
 
 pandas 3.0의 Copy-on-Write에서는 연속 선택한 임시 객체를 바꾸는 Chained assignment로 부모 DataFrame을 수정할 수 없습니다. `df["score"].fillna(0, inplace=True)`처럼 선택한 Series의 `inplace` 연산에 기대기보다 열을 재할당하거나 `loc` 한 번으로 대입합니다.
 
@@ -513,43 +513,53 @@ CSV를 다시 읽어 확인하면 저장하면서 바뀐 ID나 불필요한 Inde
 
 ### 실습 데이터와 노트북
 
--   **심화 예제**: [심화 예제 자료](https://drive.google.com/file/d/1wG0fZ0uhBQ1tniHUVE42xxo2mhkdwzGf/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 
--   **문제**: [유형 03 문제](/cs/data-analysis/practice-03-sensor-time-series/) — 누락된 센서 구간을 남기면서 다음 시간의 온도와 기준 초과 여부를 어떻게 함께 예측할까요?  
-    [유형 04 문제](/cs/data-analysis/practice-04-text-classification/) — 표현이 조금씩 다른 접수 문장을 분류하면서, 같은 양식의 문장이 Train과 Test에 섞이는 문제를 어떻게 막을까요?  
-    [유형 05 문제](/cs/data-analysis/practice-05-image-transfer-learning/) — 사전 학습된 이미지 모델을 고정한 채, 사진이 개미인지 벌인지 분류하는 새 모델을 어떻게 만들까요?  
-    [유형 07 문제](/cs/data-analysis/practice-07-video-frame-sampling/) — 29.97 FPS 영상에서 1초마다 관측하려면 어떤 프레임을 골라야 하며, 빈 프레임은 그래프에 어떻게 남겨야 할까요?  
-    [유형 08 문제](/cs/data-analysis/practice-08-ocr-structured-data/) — 이미지에서 읽은 날짜·수량·가격을 표로 옮길 때, 구분 기호와 음수 부호를 어떻게 보존할까요?
--   **풀이**: [유형 03 풀이](/cs/data-analysis/practice-03-sensor-time-series-solution/) — 센서별 시간 격자와 관측 수를 만들고 시간 순서대로 나눠 다음 시간 온도와 기준 초과를 예측합니다.  
-    [유형 04 풀이](/cs/data-analysis/practice-04-text-classification-solution/) — 문장 양식별로 데이터를 나누고 TF-IDF와 Logistic Regression을 Pipeline으로 연결해 그룹 CV로 검증합니다.  
-    [유형 05 풀이](/cs/data-analysis/practice-05-image-transfer-learning-solution/) — 고정한 MobileNet에서 특징을 추출하고 Validation에서 분류기를 선택한 뒤 Test 사진을 평가합니다.  
-    [유형 07 풀이](/cs/data-analysis/practice-07-video-frame-sampling-solution/) — 목표 시각마다 프레임을 계산하고 객체가 없는 프레임도 포함해 시간 구간별 개수를 요약합니다.  
-    [유형 08 풀이](/cs/data-analysis/practice-08-ocr-structured-data-solution/) — OCR 원문과 좌표를 보관하고 항목별 값을 추출·검증한 뒤, 정답 표와 필드별 일치도를 비교합니다.
+- **문제**
+  - [유형 03 문제](/cs/data-analysis/practice-03-sensor-time-series/) — 누락된 센서 구간을 남기면서 다음 시간의 온도와 기준 초과 여부를 어떻게 함께 예측할까요?
+  - [유형 04 문제](/cs/data-analysis/practice-04-text-classification/) — 표현이 조금씩 다른 접수 문장을 분류하면서, 같은 양식의 문장이 Train과 Test에 섞이는 문제를 어떻게 막을까요?
+  - [유형 05 문제](/cs/data-analysis/practice-05-image-transfer-learning/) — 사전 학습된 이미지 모델을 고정한 채, 사진이 개미인지 벌인지 분류하는 새 모델을 어떻게 만들까요?
+  - [유형 07 문제](/cs/data-analysis/practice-07-video-frame-sampling/) — 29.97 FPS 영상에서 1초마다 관측하려면 어떤 프레임을 골라야 하며, 빈 프레임은 그래프에 어떻게 남겨야 할까요?
+  - [유형 08 문제](/cs/data-analysis/practice-08-ocr-structured-data/) — 이미지에서 읽은 날짜·수량·가격을 표로 옮길 때, 구분 기호와 음수 부호를 어떻게 보존할까요?
+- **풀이**
+  - [유형 03 풀이](/cs/data-analysis/practice-03-sensor-time-series-solution/) — 센서별 시간 격자와 관측 수를 만들고 시간 순서대로 나눠 다음 시간 온도와 기준 초과를 예측합니다.
+  - [유형 04 풀이](/cs/data-analysis/practice-04-text-classification-solution/) — 문장 양식별로 데이터를 나누고 TF-IDF와 Logistic Regression을 Pipeline으로 연결해 그룹 CV로 검증합니다.
+  - [유형 05 풀이](/cs/data-analysis/practice-05-image-transfer-learning-solution/) — 고정한 MobileNet에서 특징을 추출하고 Validation에서 분류기를 선택한 뒤 Test 사진을 평가합니다.
+  - [유형 07 풀이](/cs/data-analysis/practice-07-video-frame-sampling-solution/) — 목표 시각마다 프레임을 계산하고 객체가 없는 프레임도 포함해 시간 구간별 개수를 요약합니다.
+  - [유형 08 풀이](/cs/data-analysis/practice-08-ocr-structured-data-solution/) — OCR 원문과 좌표를 보관하고 항목별 값을 추출·검증한 뒤, 정답 표와 필드별 일치도를 비교합니다.
 
 ### 공식 문서
 
--   **전처리·누수**: [Common pitfalls and recommended practices](https://scikit-learn.org/stable/common_pitfalls.html) — 누수·일관된 전처리·Pipeline의 학습 범위를 확인합니다.  
-    [Pipelines and composite estimators](https://scikit-learn.org/stable/modules/compose.html) — ColumnTransformer·Pipeline·Target 변환을 확인합니다.
--   **Pandas**: [Working with missing data](https://pandas.pydata.org/docs/user_guide/missing_data.html) — 결측값·Nullable dtype·집계 기준입니다.  
-    [pandas.merge](https://pandas.pydata.org/docs/reference/api/pandas.merge.html) — 중복 Key·null 매칭·validate를 확인합니다.  
-    [Time series](https://pandas.pydata.org/docs/user_guide/timeseries.html) — 시간대·리샘플링·시간 구간을 확인합니다.  
-    [Copy-on-Write](https://pandas.pydata.org/docs/user_guide/copy_on_write.html) — Chained assignment와 명확한 대입을 확인합니다.
--   **전처리**: [Preprocessing data](https://scikit-learn.org/stable/modules/preprocessing.html) — Scaling·Normalizer·범주 표현을 비교합니다.  
-    [OneHotEncoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html) — unknown·드문 범주·열 구성을 확인합니다.  
-    [TargetEncoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.TargetEncoder.html) — fit\_transform의 내부 Cross-fitting을 확인합니다.
--   **검증·평가**: [Cross-validation](https://scikit-learn.org/stable/modules/cross_validation.html) — 그룹·시간과 검증의 역할입니다.  
-    [Metrics and scoring](https://scikit-learn.org/stable/modules/model_evaluation.html) — 분류·회귀·평균 방식의 정의입니다.  
-    [Decision threshold](https://scikit-learn.org/stable/modules/classification_threshold.html) — Validation으로 의사결정 기준을 선택합니다.  
-    [Probability calibration](https://scikit-learn.org/stable/modules/calibration.html) — 확률의 순위와 보정 정도를 구분합니다.
--   **비지도 학습**: [Clustering](https://scikit-learn.org/stable/modules/clustering.html) — 거리·군집 구조·평가 기준입니다.  
-    [PCA](https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html) — 주성분·설명 분산·Scaling 기준입니다.  
-    [IsolationForest](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html) — Label·Score·contamination의 의미입니다.
--   **시각화**: [Box Plot](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.boxplot.html) — 사분위수·Whisker·울타리 밖 점의 정의입니다.  
-    [Seaborn Heatmap](https://seaborn.pydata.org/generated/seaborn.heatmap.html) — 공통 색상 범위와 중심을 지정합니다.
--   **이미지·영상**: [OpenCV image codecs](https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html) — 이미지 채널과 읽기 규칙입니다.  
-    [OpenCV VideoCapture](https://docs.opencv.org/4.x/dd/d43/tutorial_py_video_display.html) — FPS·프레임 읽기·시간을 확인합니다.  
-    [Ultralytics predict](https://docs.ultralytics.com/modes/predict/) — 입력 형식·Boxes·Confidence·영상 결과입니다.
--   **텍스트·OCR**: [Python re](https://docs.python.org/3/library/re.html) — match·fullmatch·sub의 범위입니다.  
-    [EasyOCR API](https://www.jaided.ai/easyocr/documentation/) — 텍스트·좌표·Confidence 반환을 확인합니다.
+- **전처리·누수**
+  - [Common pitfalls and recommended practices](https://scikit-learn.org/stable/common_pitfalls.html) — 누수·일관된 전처리·Pipeline의 학습 범위를 확인합니다.
+  - [Pipelines and composite estimators](https://scikit-learn.org/stable/modules/compose.html) — ColumnTransformer·Pipeline·Target 변환을 확인합니다.
+- **pandas**
+  - [Working with missing data](https://pandas.pydata.org/docs/user_guide/missing_data.html) — 결측값·Nullable dtype·집계 기준입니다.
+  - [pandas.merge](https://pandas.pydata.org/docs/reference/api/pandas.merge.html) — 중복 Key·null 매칭·validate를 확인합니다.
+  - [Time series](https://pandas.pydata.org/docs/user_guide/timeseries.html) — 시간대·리샘플링·시간 구간을 확인합니다.
+  - [Copy-on-Write](https://pandas.pydata.org/docs/user_guide/copy_on_write.html) — Chained assignment와 명확한 대입을 확인합니다.
+- **전처리**
+  - [Preprocessing data](https://scikit-learn.org/stable/modules/preprocessing.html) — Scaling·Normalizer·범주 표현을 비교합니다.
+  - [OneHotEncoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html) — unknown·드문 범주·열 구성을 확인합니다.
+  - [TargetEncoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.TargetEncoder.html) — fit_transform의 내부 Cross-fitting을 확인합니다.
+- **검증·평가**
+  - [Cross-validation](https://scikit-learn.org/stable/modules/cross_validation.html) — 그룹·시간과 검증의 역할입니다.
+  - [Metrics and scoring](https://scikit-learn.org/stable/modules/model_evaluation.html) — 분류·회귀·평균 방식의 정의입니다.
+  - [Decision threshold](https://scikit-learn.org/stable/modules/classification_threshold.html) — Validation으로 의사결정 기준을 선택합니다.
+  - [Probability calibration](https://scikit-learn.org/stable/modules/calibration.html) — 확률의 순위와 보정 정도를 구분합니다.
+- **비지도 학습**
+  - [Clustering](https://scikit-learn.org/stable/modules/clustering.html) — 거리·군집 구조·평가 기준입니다.
+  - [PCA](https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html) — 주성분·설명 분산·Scaling 기준입니다.
+  - [IsolationForest](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html) — Label·Score·contamination의 의미입니다.
+- **시각화**
+  - [Box Plot](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.boxplot.html) — 사분위수·Whisker·울타리 밖 점의 정의입니다.
+  - [Seaborn Heatmap](https://seaborn.pydata.org/generated/seaborn.heatmap.html) — 공통 색상 범위와 중심을 지정합니다.
+- **이미지·영상**
+  - [OpenCV image codecs](https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html) — 이미지 채널과 읽기 규칙입니다.
+  - [OpenCV VideoCapture](https://docs.opencv.org/4.x/dd/d43/tutorial_py_video_display.html) — FPS·프레임 읽기·시간을 확인합니다.
+  - [Ultralytics predict](https://docs.ultralytics.com/modes/predict/) — 입력 형식·Boxes·Confidence·영상 결과입니다.
+- **텍스트·OCR**
+  - [Python re](https://docs.python.org/3/library/re.html) — match·fullmatch·sub의 범위입니다.
+  - [EasyOCR API](https://www.jaided.ai/easyocr/documentation/) — 텍스트·좌표·Confidence 반환을 확인합니다.

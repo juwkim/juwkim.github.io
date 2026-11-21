@@ -4,7 +4,7 @@ date: 2026-10-09T19:08:57+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "표현이 조금씩 다른 접수 문장을 분류하면서, 같은 양식의 문장이 Train과 Test에 섞이는 문제를 어떻게 막을까요? JSONL 텍스트를 읽고 빈 입력을 분리합니다. 문장 양식별로 Train/Test를 나누고,…"
+description: "JSONL 접수 문장에서 빈 입력을 분리하고 양식 그룹별로 나눈 뒤, Char n-gram TF-IDF와 Logistic Regression을 그룹 CV로 검증하는 풀이입니다. 낮은 Test 점수와 확률 점수의 해석도 다룹니다."
 tistoryId: 71
 ---
 > **이번 글의 질문**
@@ -19,11 +19,11 @@ tistoryId: 71
 
 정비·보급·네트워크 요청을 분류하는 접수 기록입니다. 핵심 요청과 다른 분야의 상황 설명이 한 문장에 함께 들어 있습니다. 같은 양식의 반복 문장과 완전히 같은 재접수 문장도 포함했습니다. 실제 접수 기록 대신 분류와 검증 방식을 연습하도록 작성한 문장 데이터입니다.
 
--   JSONL과 빈 입력을 확인합니다
--   Char n-gram과 모델을 하나의 Pipeline으로 둡니다
--   Baseline과 클래스별 오류를 읽습니다
+- JSONL과 빈 입력을 확인합니다
+- Char n-gram과 모델을 하나의 Pipeline으로 둡니다
+- Baseline과 클래스별 오류를 읽습니다
 
-아래 기본 풀이의 출력은 첨부한 solution.ipynb와 결과 CSV에 기록된 실제 실행 결과입니다. 추가 비교 예제는 별도 Notebook에서 실행했으며, 가상 예제는 그 범위를 표시했습니다.
+아래 기본 풀이의 출력은 첨부한 `solution.ipynb`와 결과 CSV에 기록된 실제 실행 결과입니다. 추가 비교 예제는 별도 Notebook에서 실행했으며, 가상 예제는 그 범위를 표시했습니다.
 
 ## 2. 단계별 코드와 실행 결과
 
@@ -155,13 +155,13 @@ weighted avg       0.25      0.30      0.27       110
 
 Char n-gram은 한국어에서 별도 형태소 분석기 없이 시작하기 좋은 Baseline입니다. 철자가 조금 바뀐 표현도 일부 조각을 공유하지만, 문맥을 완전히 이해하는 모델은 아닙니다.
 
-없는 증상에 대한 설명도 문장에 들어 있습니다. 없음·발생하지 않았습니다를 지우면 요청의 뜻이 바뀔 수 있습니다.
+없는 증상에 대한 설명도 문장에 들어 있습니다. '없음'이나 '발생하지 않았습니다' 같은 표현을 지우면 요청의 뜻이 바뀔 수 있습니다.
 
 이 실행의 Test macro F1은 약 0.268로 Train 내부 CV의 약 0.632보다 낮습니다. 특히 logistics의 Recall이 0이므로, Baseline을 넘었다는 사실만으로 충분한 모델이라고 판단하기 어렵습니다. 처음 보는 양식에서 요청과 부정 문맥을 잘 구분하는지 오류 문장을 다시 읽습니다.
 
-Test 결과를 보고 C나 데이터 분할을 계속 바꾸면 그 자료는 Validation 역할을 하게 됩니다. 후속 실험은 Train 내부에서 비교하고, 최종 성능 확인에는 새 양식 그룹을 따로 남깁니다.
+Test 결과를 보고 `C`나 데이터 분할을 계속 바꾸면 그 자료는 Validation 역할을 하게 됩니다. 후속 실험은 Train 내부에서 비교하고, 최종 성능 확인에는 새 양식 그룹을 따로 남깁니다.
 
-![비정형 텍스트 분류의 실행 결과를 보여 줍니다. 단위와 관측 대상을 본문의 기준으로 읽습니다.](./img-01.png)
+![처음 보는 양식의 Test 문장에 대한 logistics·maintenance·network 혼동 행렬](./img-01.png)
 
 *비정형 텍스트 분류의 실행 결과를 보여 줍니다. 단위와 관측 대상을 본문의 기준으로 읽습니다.*
 
@@ -268,25 +268,25 @@ Train 내부 Validation에서 검토 Threshold를 정하고 자동 처리 비율
 
 ### 실습 데이터와 노트북
 
--   **문제 자료**: [문제 자료](https://drive.google.com/file/d/1ZJ0Or7ZgaxOOODqDFb7KpUClHd9yQJTM/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 입력 데이터와 starter.ipynb로 직접 구현을 시작합니다.
--   **풀이 자료**: [풀이와 결과](https://drive.google.com/file/d/19y8VoqP_wYdQKxTOHT9kGRNbYeShgjap/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 전체 Python 코드, 노트북과 실행 결과를 함께 받습니다.
--   **공통 자료**: [실습 공통 자료](https://drive.google.com/file/d/1-W9cVOlqQ4BUYRX3AGH3qbC9CsUQjf-g/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
--   **예선 가이드**: [국방AI경진대회 예선가이드](https://drive.google.com/file/d/1YDxg9ngucdJR7y4zUaBuW5bEYhzh1EJl/view) — 제공된 가이드의 범위를 바탕으로 만든 연습문제입니다.
--   **실행 안내**: — 같은 작업 폴더에 압축을 푼 뒤 유형 폴더에서 solution.ipynb 또는 solution.py를 실행합니다. blog\_comparison.ipynb에는 본문에서 추가한 두 비교 예제와 실제 출력이 들어 있습니다.
--   **데이터 출처**: — 한국어 요청 문장은 이 실습을 위해 작성한 양식과 변형입니다. 실제 접수 기록에서 추출한 데이터가 아닙니다.
+- **문제 자료**: [문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_04_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip "Google Drive에서 자료를 엽니다.") — 입력 데이터와 `starter.ipynb`로 직접 구현을 시작합니다.
+- **풀이 자료**: [풀이와 결과](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_04_%ED%92%80%EC%9D%B4%EC%99%80_%EA%B2%B0%EA%B3%BC.zip "Google Drive에서 자료를 엽니다.") — 전체 Python 코드, 노트북과 실행 결과를 함께 받습니다.
+- **공통 자료**: [실습 공통 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_%EA%B3%B5%ED%86%B5%EC%A4%80%EB%B9%84.zip "Google Drive에서 자료를 엽니다.") — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
+- **예선 가이드**: [국방AI경진대회 예선가이드](/files/maicon-2026/%EA%B5%AD%EB%B0%A9AI%EA%B2%BD%EC%A7%84%EB%8C%80%ED%9A%8C%20%EC%98%88%EC%84%A0%EA%B0%80%EC%9D%B4%EB%93%9C.pdf) — 제공된 가이드의 범위를 바탕으로 만든 연습문제입니다.
+- **실행 안내**: 같은 작업 폴더에 압축을 푼 뒤 유형 폴더에서 `solution.ipynb` 또는 `solution.py`를 실행합니다. `blog_comparison.ipynb`에는 본문에서 추가한 두 비교 예제와 실제 출력이 들어 있습니다.
+- **데이터 출처**: 한국어 요청 문장은 이 실습을 위해 작성한 양식과 변형입니다. 실제 접수 기록에서 추출한 데이터가 아닙니다.
 
 ### 연습문제
 
--   **문제**: [유형 04 문제](/cs/data-analysis/practice-04-text-classification/) — 표현이 조금씩 다른 접수 문장을 분류하면서, 같은 양식의 문장이 Train과 Test에 섞이는 문제를 어떻게 막을까요?
--   **모의 실습**: [모의 실습 A](/cs/data-analysis/mock-exam-a-90-min-review/) — 세 문항을 20·35·45점으로 묶어 입력부터 저장까지 연습합니다.
+- **문제**: [유형 04 문제](/cs/data-analysis/practice-04-text-classification/) — 표현이 조금씩 다른 접수 문장을 분류하면서, 같은 양식의 문장이 Train과 Test에 섞이는 문제를 어떻게 막을까요?
+- **모의 실습**: [모의 실습 A](/cs/data-analysis/mock-exam-a-90-min-review/) — 세 문항을 20·35·45점으로 묶어 입력부터 저장까지 연습합니다.
 
 ### 관련 공부노트
 
--   **공부노트 07**: [지도 학습 및 평가](/cs/data-analysis/pandas-07-supervised-learning/)
--   **공부노트 10**: [이미지·영상 데이터 분석](/cs/data-analysis/pandas-10-image-video-analysis/)
--   **공부노트 13**: [데이터 분석의 흔한 착각과 실수](/cs/data-analysis/pandas-13-common-pitfalls/)
+- **공부노트 07**: [지도 학습 및 평가](/cs/data-analysis/pandas-07-supervised-learning/)
+- **공부노트 10**: [이미지·영상 데이터 분석](/cs/data-analysis/pandas-10-image-video-analysis/)
+- **공부노트 13**: [데이터 분석의 흔한 착각과 실수](/cs/data-analysis/pandas-13-common-pitfalls/)
 
 ### 공식 문서
 
--   **사용한 도구**: [TfidfVectorizer](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html) — char n-gram·vocabulary·idf의 학습 범위를 확인합니다.  
-    [StratifiedGroupKFold](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedGroupKFold.html) — 그룹을 유지하며 클래스 비율을 고려합니다.
+- **사용한 도구**: [TfidfVectorizer](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html) — char n-gram·vocabulary·idf의 학습 범위를 확인합니다.  
+  [StratifiedGroupKFold](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedGroupKFold.html) — 그룹을 유지하며 클래스 비율을 고려합니다.

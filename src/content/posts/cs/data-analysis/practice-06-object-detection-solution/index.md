@@ -4,7 +4,7 @@ date: 2026-10-09T19:12:29+09:00
 category: "Computer Science"
 subcategory: "데이터 분석"
 tags: []
-description: "정상 사진·빈 사진·누락 사진이 섞여 있을 때, 장면별 사람·차량 탐지 수를 어떻게 요약할까요? 메타데이터를 먼저 정리하고 YOLO의 결과를 객체별·사진별로 저장합니다. 탐지 0건과 처리 실패를 구분하고 정상 처리…"
+description: "YOLOv5u 탐지 결과를 객체별·사진별로 저장하고, 탐지 0건과 처리 실패를 구분해 정상 처리 사진 수로 평균을 내는 풀이입니다. 실패를 0으로 채우거나 Confidence를 높일 때의 차이도 비교합니다."
 tistoryId: 75
 ---
 > **이번 글의 질문**
@@ -19,11 +19,11 @@ tistoryId: 75
 
 Drive 실습 사진 세 장을 사용하고, 빈 화면·읽을 수 없는 파일·누락 파일을 별도 사례로 추가했습니다. 이미지 전체 분류와 달리 객체마다 클래스·Box를 얻습니다. 정답 Box Annotation은 제공되지 않으므로 탐지 정확도 대신 집계와 추적 가능성을 점검합니다.
 
--   파일 목록을 정리하고 모델 기준을 둡니다
--   모든 사진의 처리 상태와 객체별 결과를 남깁니다
--   정상 사진의 분모로 합계와 평균을 계산합니다
+- 파일 목록을 정리하고 모델 기준을 둡니다
+- 모든 사진의 처리 상태와 객체별 결과를 남깁니다
+- 정상 사진의 분모로 합계와 평균을 계산합니다
 
-아래 기본 풀이의 출력은 첨부한 solution.ipynb와 결과 CSV에 기록된 실제 실행 결과입니다. 추가 비교 예제는 별도 Notebook에서 실행했으며, 가상 예제는 그 범위를 표시했습니다.
+아래 기본 풀이의 출력은 첨부한 `solution.ipynb`와 결과 CSV에 기록된 실제 실행 결과입니다. 추가 비교 예제는 별도 Notebook에서 실행했으며, 가상 예제는 그 범위를 표시했습니다.
 
 ## 2. 단계별 코드와 실행 결과
 
@@ -115,7 +115,7 @@ photo_id    filename scene  person_count  vehicle_count       status
 
 ### 정상 사진의 분모로 합계와 평균을 계산합니다
 
-평균의 분모는 정상 처리한 사진 수입니다. 등록 사진만 세면 누락 파일이 사실상 0명으로 계산되어 평균이 줄어듭니다.
+평균의 분모는 정상 처리한 사진 수입니다. 등록 사진 수를 분모로 쓰면 누락 파일이 사실상 0명으로 계산되어 평균이 줄어듭니다.
 
 ```python
 scene=counts.groupby("scene",as_index=False).agg(
@@ -159,7 +159,7 @@ scene  registered_images  processed_images  person_detections  vehicle_detection
 
 0.50·0.75 비교는 0.25에서 남은 결과를 다시 필터링했습니다. 기준을 더 낮춰 새로운 후보를 보려면 추론을 다시 실행해야 합니다.
 
-![사진 객체 탐지와 상태를 보존한 집계의 실행 결과를 보여 줍니다. 단위와 관측 대상을 본문의 기준으로 읽습니다.](./img-01.png)
+![CAM001·CAM003·CAM002 사진에 person·truck·car 예측 Box와 Confidence를 표시한 결과](./img-01.png)
 
 *원본 실습 사진에 남긴 예측 Box입니다. 눈으로 오류 후보를 확인하는 자료이며 정답 Box와 비교한 정확도 그림은 아닙니다.*
 
@@ -268,26 +268,26 @@ python check_outputs.py --types 6
 
 ### 실습 데이터와 노트북
 
--   **문제 자료**: [문제 자료](https://drive.google.com/file/d/1lFRQfPo8lZBqzQOGyEslBHWKX-RBF0KM/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 입력 데이터와 starter.ipynb로 직접 구현을 시작합니다.
--   **풀이 자료**: [풀이와 결과](https://drive.google.com/file/d/1Z0VX2Tqp1emgBIU7PUKnWjt9hdmfkeuY/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 전체 Python 코드, 노트북과 실행 결과를 함께 받습니다.
--   **공통 자료**: [실습 공통 자료](https://drive.google.com/file/d/1-W9cVOlqQ4BUYRX3AGH3qbC9CsUQjf-g/view?usp=drivesdk "Google Drive에서 자료를 엽니다.") — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
--   **예선 가이드**: [국방AI경진대회 예선가이드](https://drive.google.com/file/d/1YDxg9ngucdJR7y4zUaBuW5bEYhzh1EJl/view) — 제공된 가이드의 범위를 바탕으로 만든 연습문제입니다.
--   **실행 안내**: — 같은 작업 폴더에 압축을 푼 뒤 유형 폴더에서 solution.ipynb 또는 solution.py를 실행합니다. blog\_comparison.ipynb에는 본문에서 추가한 두 비교 예제와 실제 출력이 들어 있습니다.
--   **데이터 출처**: — 제공된 Drive 실습 사진 세 장과 직접 만든 빈 화면·손상·누락 사례를 사용했습니다. 정답 Box가 제공되지 않아 집계와 처리 상태를 검증하며, AP나 탐지 정확도를 보고하지 않습니다.
+- **문제 자료**: [문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_06_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip "Google Drive에서 자료를 엽니다.") — 입력 데이터와 `starter.ipynb`로 직접 구현을 시작합니다.
+- **풀이 자료**: [풀이와 결과](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_06_%ED%92%80%EC%9D%B4%EC%99%80_%EA%B2%B0%EA%B3%BC.zip "Google Drive에서 자료를 엽니다.") — 전체 Python 코드, 노트북과 실행 결과를 함께 받습니다.
+- **공통 자료**: [실습 공통 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_%EA%B3%B5%ED%86%B5%EC%A4%80%EB%B9%84.zip "Google Drive에서 자료를 엽니다.") — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
+- **예선 가이드**: [국방AI경진대회 예선가이드](/files/maicon-2026/%EA%B5%AD%EB%B0%A9AI%EA%B2%BD%EC%A7%84%EB%8C%80%ED%9A%8C%20%EC%98%88%EC%84%A0%EA%B0%80%EC%9D%B4%EB%93%9C.pdf) — 제공된 가이드의 범위를 바탕으로 만든 연습문제입니다.
+- **실행 안내**: 같은 작업 폴더에 압축을 푼 뒤 유형 폴더에서 `solution.ipynb` 또는 `solution.py`를 실행합니다. `blog_comparison.ipynb`에는 본문에서 추가한 두 비교 예제와 실제 출력이 들어 있습니다.
+- **데이터 출처**: 제공된 Drive 실습 사진 세 장과 직접 만든 빈 화면·손상·누락 사례를 사용했습니다. 정답 Box가 제공되지 않아 집계와 처리 상태를 검증하며, AP나 탐지 정확도를 보고하지 않습니다.
 
 ### 연습문제
 
--   **문제**: [유형 06 문제](/cs/data-analysis/practice-06-object-detection/) — 정상 사진·빈 사진·누락 사진이 섞여 있을 때, 장면별 사람·차량 탐지 수를 어떻게 요약할까요?
--   **모의 실습**: [모의 실습 B](/cs/data-analysis/mock-exam-b-90-min-review/) — 세 문항을 20·35·45점으로 묶어 입력부터 저장까지 연습합니다.
+- **문제**: [유형 06 문제](/cs/data-analysis/practice-06-object-detection/) — 정상 사진·빈 사진·누락 사진이 섞여 있을 때, 장면별 사람·차량 탐지 수를 어떻게 요약할까요?
+- **모의 실습**: [모의 실습 B](/cs/data-analysis/mock-exam-b-90-min-review/) — 세 문항을 20·35·45점으로 묶어 입력부터 저장까지 연습합니다.
 
 ### 관련 공부노트
 
--   **공부노트 09**: [이미지 처리 및 객체 탐지](/cs/data-analysis/pandas-09-image-object-detection/)
--   **공부노트 10**: [이미지·영상 데이터 분석](/cs/data-analysis/pandas-10-image-video-analysis/)
--   **공부노트 11**: [종합 문제 풀이 (1)](/cs/data-analysis/pandas-11-comprehensive-problems-1/)
--   **공부노트 12**: [종합 문제 풀이 (2)](/cs/data-analysis/pandas-12-comprehensive-problems-2/)
+- **공부노트 09**: [이미지 처리 및 객체 탐지](/cs/data-analysis/pandas-09-image-object-detection/)
+- **공부노트 10**: [이미지·영상 데이터 분석](/cs/data-analysis/pandas-10-image-video-analysis/)
+- **공부노트 11**: [종합 문제 풀이 (1)](/cs/data-analysis/pandas-11-comprehensive-problems-1/)
+- **공부노트 12**: [종합 문제 풀이 (2)](/cs/data-analysis/pandas-12-comprehensive-problems-2/)
 
 ### 공식 문서
 
--   **사용한 도구**: [YOLOv5u](https://docs.ultralytics.com/models/yolov5/) — 원래 YOLOv5 Hub 모델과 구분되는 가중치·API입니다.  
-    [Ultralytics predict](https://docs.ultralytics.com/modes/predict/) — BGR 입력·Results·Boxes·plot 반환 형식을 확인합니다.
+- **사용한 도구**: [YOLOv5u](https://docs.ultralytics.com/models/yolov5/) — 원래 YOLOv5 Hub 모델과 구분되는 가중치·API입니다.  
+  [Ultralytics predict](https://docs.ultralytics.com/modes/predict/) — BGR 입력·Results·Boxes·plot 반환 형식을 확인합니다.
