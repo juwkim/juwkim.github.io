@@ -1,6 +1,7 @@
 ---
 import { render } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
+import CategoryNav from '../../../components/CategoryNav.astro';
 import '../../../styles/prose.css';
 import katexCss from 'katex/dist/katex.min.css?url';
 import {
@@ -38,6 +39,7 @@ interface Props {
 }
 
 const { post, newer, older } = Astro.props;
+const allPosts = await getPosts(); // 왼쪽 카테고리 글 수 계산용
 const { Content, headings } = await render(post);
 // 오른쪽 목차: 소제목(h2, h3)이 2개 이상일 때만
 const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
@@ -53,6 +55,9 @@ const hasMath = /\$\$|\$[^\s$][^$\n]*\$/.test((post.body ?? '').replace(/```[\s\
   <meta slot="head" property="article:published_time" content={date.toISOString()} />
   {hasMath && <link slot="head" rel="stylesheet" href={katexCss} />}
   <div class="post-layout">
+  <aside class="side">
+    <CategoryNav mode="sidebar" posts={allPosts} current={{ cat: cat.slug, sub: sub.slug }} />
+  </aside>
   <div class="col">
     <header class="article-head">
       <nav class="crumb" aria-label="카테고리 경로">
@@ -136,31 +141,55 @@ const hasMath = /\$\$|\$[^\s$][^$\n]*\$/.test((post.body ?? '').replace(/```[\s\
 </script>
 
 <style>
-  /* 레이아웃: 가운데 읽기 칼럼 + 넓은 화면에서는 오른쪽 목차 */
+  /* 레이아웃
+     좁은 화면: 본문 한 칸
+     1080px 이상: 왼쪽 카테고리 | 본문
+     1280px 이상: 왼쪽 카테고리 | 본문 | 오른쪽 목차 */
   .post-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) min(var(--width), calc(100% - 48px)) minmax(0, 1fr);
+    max-width: calc(var(--width) + 48px);
+    margin: 0 auto;
+    padding: 0 24px;
   }
-  .col {
-    grid-column: 2;
-    min-width: 0;
-  }
+  .side,
   .toc {
     display: none;
   }
-  @media (min-width: 1200px) {
+  .col {
+    min-width: 0;
+  }
+  @media (min-width: 1080px) {
+    .post-layout {
+      max-width: var(--page);
+      padding: 0 32px;
+      display: grid;
+      grid-template-columns: 200px minmax(0, var(--width));
+      column-gap: 64px;
+    }
+    .side {
+      display: block;
+      padding-top: 72px;
+    }
+    .side :global(.sidebar) {
+      top: 84px;
+    }
+  }
+  @media (min-width: 1280px) {
+    .post-layout {
+      grid-template-columns: 200px minmax(0, var(--width)) 160px;
+      column-gap: 48px;
+    }
     .toc {
       display: block;
-      grid-column: 3;
-      grid-row: 1;
       position: sticky;
       top: 96px;
       align-self: start;
       max-height: calc(100dvh - 128px);
       overflow-y: auto;
-      margin: 240px 0 0 56px;
-      max-width: 240px;
-      scrollbar-width: thin;
+      margin-top: 240px;
+      scrollbar-width: none;
+    }
+    .toc::-webkit-scrollbar {
+      display: none;
     }
   }
   .toc p {

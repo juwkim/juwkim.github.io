@@ -97,11 +97,15 @@ const active = tree.find((t) => t.cat.slug === current.cat);
       max-height: calc(100dvh - 104px);
       overflow-y: auto;
       padding: 0 4px 24px 0;
-      scrollbar-width: thin;
+      /* 스크롤바는 숨김 (내용이 길면 스크롤은 그대로 됨) */
+      scrollbar-width: none;
     }
     .chips-nav {
       display: none;
     }
+  }
+  .sidebar::-webkit-scrollbar {
+    display: none;
   }
   .sidebar a {
     display: flex;

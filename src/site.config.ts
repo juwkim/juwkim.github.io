@@ -1,6 +1,7 @@
 // 사이트 전체에서 쓰는 문구, 링크, 카테고리. 여기만 고치면 전체에 반영됩니다.
 export const SITE = {
   title: 'juwkim',
+  homeTitle: 'juwkim의 이야기', // 홈 화면 브라우저 탭 이름
   blogName: 'The Heuristic Learner',
   author: '김주원',
   authorEn: 'Juwon Kim',
