@@ -153,3 +153,18 @@ li,
 dd {
   text-wrap: pretty;
 }
+
+/* 넓은 화면용 컨테이너 (홈·목록·About). 글 본문은 읽기 좋은 폭(--width)을 유지 */
+:root {
+  --page: 1120px;
+}
+.page {
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+@media (max-width: 640px) {
+  .page {
+    padding: 0 24px;
+  }
+}

@@ -7,7 +7,7 @@ import { getPosts, postUrl } from '../lib/posts';
 export async function GET(context: APIContext) {
   const posts = await getPosts();
   return rss({
-    title: `${SITE.title} — ${SITE.blogName}`,
+    title: SITE.title,
     description: SITE.description,
     site: context.site!,
     items: posts.map((post) => ({

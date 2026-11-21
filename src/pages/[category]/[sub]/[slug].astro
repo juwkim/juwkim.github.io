@@ -38,7 +38,10 @@ interface Props {
 }
 
 const { post, newer, older } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
+// 오른쪽 목차: 소제목(h2, h3)이 2개 이상일 때만
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const showToc = toc.length >= 2;
 const { title, date, category, subcategory, description, tags } = post.data;
 const cat = findCategory(category);
 const sub = findSub(cat, subcategory);
@@ -49,7 +52,8 @@ const hasMath = /\$\$|\$[^\s$][^$\n]*\$/.test((post.body ?? '').replace(/```[\s\
 <Base title={title} description={description} type="article">
   <meta slot="head" property="article:published_time" content={date.toISOString()} />
   {hasMath && <link slot="head" rel="stylesheet" href={katexCss} />}
-  <div class="wrap">
+  <div class="post-layout">
+  <div class="col">
     <header class="article-head">
       <nav class="crumb" aria-label="카테고리 경로">
         <a href={categoryUrl(cat)}>{category}</a>
@@ -97,9 +101,102 @@ const hasMath = /\$\$|\$[^\s$][^$\n]*\$/.test((post.body ?? '').replace(/```[\s\
       }
     </nav>
   </div>
+  {
+    showToc && (
+      <aside class="toc" aria-label="목차">
+        <p>목차</p>
+        <ul>
+          {toc.map((h) => (
+            <li class={`d${h.depth}`}>
+              <a href={`#${h.slug}`}>{h.text}</a>
+            </li>
+          ))}
+        </ul>
+      </aside>
+    )
+  }
+  </div>
 </Base>
 
+<script>
+  // 목차: 지금 읽는 소제목을 파란색으로 표시
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('.toc a')];
+  if (links.length) {
+    const targets = links
+      .map((a) => document.getElementById(decodeURIComponent(a.hash.slice(1))))
+      .filter((el): el is HTMLElement => !!el);
+    const setActive = () => {
+      let current = targets[0];
+      for (const t of targets) if (t.getBoundingClientRect().top < 120) current = t;
+      links.forEach((a) => a.classList.toggle('on', decodeURIComponent(a.hash.slice(1)) === current?.id));
+    };
+    addEventListener('scroll', setActive, { passive: true });
+    setActive();
+  }
+</script>
+
 <style>
+  /* 레이아웃: 가운데 읽기 칼럼 + 넓은 화면에서는 오른쪽 목차 */
+  .post-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) min(var(--width), calc(100% - 48px)) minmax(0, 1fr);
+  }
+  .col {
+    grid-column: 2;
+    min-width: 0;
+  }
+  .toc {
+    display: none;
+  }
+  @media (min-width: 1200px) {
+    .toc {
+      display: block;
+      grid-column: 3;
+      grid-row: 1;
+      position: sticky;
+      top: 96px;
+      align-self: start;
+      max-height: calc(100dvh - 128px);
+      overflow-y: auto;
+      margin: 240px 0 0 56px;
+      max-width: 240px;
+      scrollbar-width: thin;
+    }
+  }
+  .toc p {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--fg-3);
+    margin: 0 0 10px;
+  }
+  .toc ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-left: 1px solid var(--line);
+  }
+  .toc a {
+    display: block;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--fg-3);
+    padding: 5px 0 5px 14px;
+    margin-left: -1px;
+    border-left: 1px solid transparent;
+    word-break: keep-all;
+    transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+  }
+  .toc .d3 a {
+    padding-left: 26px;
+    font-size: 12.5px;
+  }
+  .toc a:hover {
+    color: var(--fg);
+  }
+  .toc a.on {
+    color: var(--blue);
+    border-left-color: var(--blue);
+  }
   .article-head {
     padding: 72px 0 36px;
     border-bottom: 1px solid var(--line);

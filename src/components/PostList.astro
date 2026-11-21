@@ -3,23 +3,33 @@ import { postUrl, shortDate, type Post } from '../lib/posts';
 
 interface Props {
   posts: Post[];
+  /** 카테고리 표시 방식: full(카테고리 · 세부), sub(세부만), none */
+  showCategory?: 'full' | 'sub' | 'none';
 }
-const { posts } = Astro.props;
+const { posts, showCategory = 'full' } = Astro.props;
 ---
 
 <ul class="post-list">
   {
     posts.map((post) => (
-      <li class="post-item" data-category={post.data.category}>
+      <li class="post-item">
         <a href={postUrl(post)}>
           <span class="t">{post.data.title}</span>
           <time class="d" datetime={post.data.date.toISOString()}>
             {shortDate(post.data.date)}
           </time>
-          <span class="c">
-            <b>{post.data.category}</b>
-            {post.data.subcategory && <> · {post.data.subcategory}</>}
-          </span>
+          {post.data.description && <span class="desc">{post.data.description}</span>}
+          {showCategory !== 'none' && (
+            <span class="c">
+              {showCategory === 'full' ? (
+                <>
+                  <b>{post.data.category}</b> · {post.data.subcategory}
+                </>
+              ) : (
+                <b>{post.data.subcategory}</b>
+              )}
+            </span>
+          )}
         </a>
       </li>
     ))
@@ -35,23 +45,20 @@ const { posts } = Astro.props;
   .post-item + .post-item {
     border-top: 1px solid var(--line);
   }
-  .post-item[hidden] {
-    display: none;
-  }
   a {
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 4px 16px;
-    padding: 20px 12px;
-    margin: 0 -12px;
-    border-radius: 12px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 24px;
+    padding: 20px 14px;
+    margin: 0 -14px;
+    border-radius: 14px;
     transition: background 0.2s var(--ease);
   }
   a:hover {
     background: var(--bg-subtle);
   }
   .t {
-    font-size: 16.5px;
+    font-size: 17px;
     font-weight: 600;
     line-height: 1.45;
     letter-spacing: -0.02em;
@@ -63,6 +70,15 @@ const { posts } = Astro.props;
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
     padding-top: 3px;
+  }
+  .desc {
+    grid-column: 1 / -1;
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--fg-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .c {
     font-size: 13px;

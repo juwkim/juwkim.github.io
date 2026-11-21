@@ -4,7 +4,7 @@ import { profile, dreams, now, steps } from '../data/about';
 ---
 
 <Base title="About" description={profile.tagline.join(" ")}>
-  <div class="wrap">
+  <div class="page">
     <header class="profile">
       <div class="avatar" aria-hidden="true">{profile.avatar}</div>
       <div>
@@ -13,7 +13,8 @@ import { profile, dreams, now, steps } from '../data/about';
       </div>
     </header>
 
-    <section aria-labelledby="dreams">
+    <div class="cols">
+    <section class="a-dreams" aria-labelledby="dreams">
       <div class="section-head">
         <h2 id="dreams">아직 남은 꿈</h2>
         <span class="note">지금, 나아가는 중</span>
@@ -33,7 +34,7 @@ import { profile, dreams, now, steps } from '../data/about';
       </ol>
     </section>
 
-    <section aria-labelledby="now">
+    <section class="a-now" aria-labelledby="now">
       <div class="section-head">
         <h2 id="now">요즘의 나</h2>
         <span class="note">{now.updated} 업데이트</span>
@@ -50,7 +51,7 @@ import { profile, dreams, now, steps } from '../data/about';
       </dl>
     </section>
 
-    <section aria-labelledby="steps">
+    <section class="a-steps" aria-labelledby="steps">
       <div class="section-head">
         <h2 id="steps">지나온 발걸음</h2>
         <span class="note">넘어지고, 다시 일어선 기록</span>
@@ -72,10 +73,35 @@ import { profile, dreams, now, steps } from '../data/about';
         }
       </ol>
     </section>
+    </div>
   </div>
 </Base>
 
 <style>
+  /* 넓은 화면: 왼쪽(아직 남은 꿈 → 지나온 발걸음) | 오른쪽(요즘의 나, 스크롤해도 따라옴) */
+  .cols {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 960px) {
+    .cols {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      grid-template-areas: "dreams now" "steps now";
+      column-gap: 72px;
+      align-items: start;
+    }
+    .a-dreams {
+      grid-area: dreams;
+    }
+    .a-steps {
+      grid-area: steps;
+    }
+    .a-now {
+      grid-area: now;
+      position: sticky;
+      top: 84px;
+    }
+  }
   .profile {
     display: flex;
     gap: 24px;

@@ -13,7 +13,8 @@ interface Props {
 }
 
 const { title, description = SITE.description, type = 'website' } = Astro.props;
-const pageTitle = title ? `${title} · ${SITE.title}` : `${SITE.title} — ${SITE.blogName}`;
+// 탭 이름: 홈은 "juwkim", 나머지는 "페이지 이름 · juwkim"
+const pageTitle = title ? `${title} · ${SITE.title}` : SITE.title;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 

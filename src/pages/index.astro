@@ -1,15 +1,16 @@
 ---
 import Base from '../layouts/Base.astro';
-import PostList from '../components/PostList.astro';
+import PostCard from '../components/PostCard.astro';
 import { SITE } from '../site.config';
-import { getPosts } from '../lib/posts';
+import { getPosts, countTree, categoryUrl, subUrl } from '../lib/posts';
 
 const posts = await getPosts();
-const recent = posts.slice(0, 8);
+const recent = posts.slice(0, 6);
+const tree = countTree(posts);
 ---
 
 <Base>
-  <div class="wrap">
+  <div class="page">
     <header class="hero">
       <div class="eyebrow">{SITE.blogName}</div>
       <h1>{SITE.hero.title[0]}<br />{SITE.hero.title[1]}</h1>
@@ -22,34 +23,67 @@ const recent = posts.slice(0, 8);
 
     <section aria-labelledby="recent">
       <div class="section-head">
-        <h2 id="recent">최근 글 · {posts.length}</h2>
-        <a href="/posts/">전체 보기</a>
+        <h2 id="recent">최근 글</h2>
+        <a href="/posts/">전체 {posts.length}개 보기 ›</a>
       </div>
-      {recent.length > 0 ? <PostList posts={recent} /> : <p class="empty">아직 글이 없습니다.</p>}
+      <div class="grid">
+        {recent.map((post) => <PostCard post={post} />)}
+      </div>
+    </section>
+
+    <section aria-labelledby="cats">
+      <div class="section-head">
+        <h2 id="cats">카테고리</h2>
+      </div>
+      <div class="cats">
+        {
+          tree.map(({ cat, count, subs }) => (
+            <div class="cat">
+              <a class="cat-head" href={categoryUrl(cat)}>
+                <span class="name">{cat.name}</span>
+                <span class="count">{count}</span>
+              </a>
+              <ul>
+                {subs
+                  .filter((s) => s.count > 0)
+                  .map(({ sub, count }) => (
+                    <li>
+                      <a href={subUrl(cat, sub)}>
+                        <span>{sub.name}</span>
+                        <span class="n">{count}</span>
+                      </a>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
     </section>
   </div>
 </Base>
 
 <style>
   .hero {
-    padding: 88px 0 56px;
+    padding: 104px 0 80px;
+    max-width: 720px;
   }
   .eyebrow {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     color: var(--blue);
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
   h1 {
-    font-size: 40px;
-    line-height: 1.2;
+    font-size: 56px;
+    line-height: 1.15;
     font-weight: 700;
-    letter-spacing: -0.035em;
-    margin: 0 0 18px;
+    letter-spacing: -0.04em;
+    margin: 0 0 22px;
   }
   .hero p {
-    font-size: 18px;
-    line-height: 1.65;
+    font-size: 20px;
+    line-height: 1.6;
     color: var(--fg-2);
     margin: 0;
     letter-spacing: -0.015em;
@@ -57,9 +91,9 @@ const recent = posts.slice(0, 8);
   }
   .links {
     display: flex;
-    gap: 20px;
-    margin-top: 28px;
-    font-size: 15px;
+    gap: 22px;
+    margin-top: 30px;
+    font-size: 16px;
   }
   .links a {
     color: var(--blue);
@@ -68,19 +102,95 @@ const recent = posts.slice(0, 8);
     text-decoration: underline;
     text-underline-offset: 3px;
   }
-  section :global(.post-list) {
-    margin-top: 8px;
+
+  section {
+    margin-bottom: 72px;
   }
-  .empty {
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .cats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .cat {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 8px;
+  }
+  .cat-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 12px 14px 10px;
+    border-radius: 12px;
+    transition: background 0.2s var(--ease);
+  }
+  .cat-head:hover {
+    background: var(--bg-subtle);
+  }
+  .name {
+    font-size: 17px;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+  }
+  .count {
+    font-size: 13px;
     color: var(--fg-3);
-    padding: 24px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  li a {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 14.5px;
+    color: var(--fg-2);
+    transition: background 0.2s var(--ease), color 0.2s var(--ease);
+  }
+  li a:hover {
+    background: var(--bg-subtle);
+    color: var(--fg);
+  }
+  .n {
+    font-size: 12.5px;
+    color: var(--fg-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 960px) {
+    .grid,
+    .cats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
   @media (max-width: 640px) {
     .hero {
-      padding: 64px 0 44px;
+      padding: 64px 0 52px;
     }
     h1 {
-      font-size: 30px;
+      font-size: 34px;
+    }
+    .hero p {
+      font-size: 17px;
+    }
+    .grid,
+    .cats {
+      grid-template-columns: 1fr;
+    }
+    .grid :global(.card) {
+      min-height: 0;
     }
   }
 </style>

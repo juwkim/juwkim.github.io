@@ -31,7 +31,7 @@ const { title, crumb, allPosts, posts, current } = Astro.props;
       </header>
       <CategoryNav mode="chips" posts={allPosts} current={current} />
       <div class="list">
-        <PostList posts={posts} />
+        <PostList posts={posts} showCategory={current?.sub ? 'none' : current?.cat ? 'sub' : 'full'} />
       </div>
     </div>
   </div>
@@ -39,10 +39,14 @@ const { title, crumb, allPosts, posts, current } = Astro.props;
 
 <style>
   .layout {
-    max-width: var(--width);
+    max-width: var(--page);
     margin: 0 auto;
-    padding: 0 24px;
-    box-sizing: content-box;
+    padding: 0 32px;
+  }
+  @media (max-width: 640px) {
+    .layout {
+      padding: 0 24px;
+    }
   }
   aside {
     display: none;
@@ -56,10 +60,10 @@ const { title, crumb, allPosts, posts, current } = Astro.props;
   }
   @media (min-width: 1080px) {
     .layout {
-      max-width: calc(var(--width) + 208px + 64px);
+      max-width: var(--page);
       display: grid;
-      grid-template-columns: 208px minmax(0, 1fr);
-      gap: 64px;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 72px;
       padding-top: 72px;
     }
     aside {
