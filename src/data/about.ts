@@ -1,5 +1,5 @@
 // About 페이지 내용. 여기만 고치면 About 페이지에 반영됩니다.
-// ⚠️ now, steps의 내용은 아직 예시입니다 → docs/discussion-backlog.md 참고
+// 주의: steps의 내용은 아직 예시입니다 → docs/discussion-backlog.md 참고
 
 export const profile = {
   name: '김주원',
@@ -24,10 +24,22 @@ export const dreams = [
 export const now = {
   updated: '2026년 11월',
   items: [
-    { label: '공부', text: '정보처리기사를 마치고, 다음에 도전할 것을 고르는 중' },
-    { label: '고민', text: '불확실한 길 위에서 몰입하는 사람들은 무엇이 다를까' },
-    { label: '습관', text: '아침 운동 루틴 다시 붙이기' },
-    { label: '빠져 있는 것', text: 'AI가 바꿔 갈 사회와 일의 모습' },
+    {
+      label: '공부',
+      text: 'OPIc 준비 중. 시험 영어로 기초를 단단히 다진 뒤, 실전 회화로 넘어가려 합니다.',
+    },
+    {
+      label: '고민',
+      text: 'AI가 당연해진 시대에 나만의 강점은 무엇일까. 앞서가는 사람들은 무엇이 다르고, 나는 어떻게 그 능력을 기를 수 있을까.',
+    },
+    {
+      label: '습관',
+      text: '외출 전 선크림, 하루 물 2L는 이미 몸에 붙었습니다. 이제는 운동을 하루도 거르지 않는 습관을 만드는 중.',
+    },
+    {
+      label: '빠져 있는 것',
+      text: 'AI로 주변 사람들의 불편한 일과 반복 업무를 덜어 주는 도구 만들기.',
+    },
   ],
 };
 

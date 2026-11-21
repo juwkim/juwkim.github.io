@@ -192,7 +192,7 @@
   <button data-go="post">글 상세</button>
   <button data-go="about">About</button>
   <span class="sep"></span>
-  <button id="mode">🌙 다크 모드</button>
+  <button id="mode">다크 모드</button>
 </div>
 
 <div class="site" id="site">
@@ -251,7 +251,7 @@
 <span class="k">GROUP BY</span> dept
 <span class="k">HAVING</span>  <span class="k">COUNT</span>(*) &gt; <span class="n">2</span>
 <span class="k">ORDER BY</span> cnt <span class="k">DESC</span>;  <span class="cm">-- FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY</span></code></pre>
-        <blockquote><p>💡 실행 순서와 작성 순서가 다르다는 점이 단골 함정입니다.</p></blockquote>
+        <blockquote><p>실행 순서와 작성 순서가 다르다는 점이 단골 함정입니다.</p></blockquote>
         <h2>2. 명령어 분류</h2>
         <table>
           <thead><tr><th>분류</th><th>명령어</th><th>설명</th></tr></thead>
@@ -342,7 +342,7 @@ function setProf(i){
 document.querySelectorAll('[data-prof]').forEach(b=>b.addEventListener('click',()=>setProf(+b.dataset.prof)));
 setProf(1);go('home');
 document.getElementById('mode').addEventListener('click',e=>{
-  const d=site.classList.toggle('dark');e.target.textContent=d?'☀️ 라이트 모드':'🌙 다크 모드';
+  const d=site.classList.toggle('dark');e.target.textContent=d?'라이트 모드':'다크 모드';
 });
 </script>
 </body>
