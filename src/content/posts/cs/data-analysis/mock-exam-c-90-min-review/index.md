@@ -105,11 +105,11 @@ python check_outputs.py --types 8 7 5
 
 ### 실습 데이터와 노트북
 
-- **모의 실습**: [모의 C 자료](/files/maicon-2026/practice/%EB%AA%A8%EC%9D%98_C_%EB%AC%B8%EC%A0%9C%EC%99%80_%EA%B5%AC%EC%84%B1.zip "Google Drive에서 자료를 엽니다.") — 세 문항의 구성과 90분 실습 진행 자료를 확인합니다.
-- **공통 자료**: [실습 공통 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_%EA%B3%B5%ED%86%B5%EC%A4%80%EB%B9%84.zip "Google Drive에서 자료를 엽니다.") — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
-- **문항 1 자료**: [유형 08 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_08_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip "Google Drive에서 자료를 엽니다.") — OCR 문서에서 구조화 데이터 만들기 실습에 사용할 입력 자료입니다.
-- **문항 2 자료**: [유형 07 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_07_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip "Google Drive에서 자료를 엽니다.") — 영상 프레임 샘플링과 시계열 분석 실습에 사용할 입력 자료입니다.
-- **문항 3 자료**: [유형 05 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_05_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip "Google Drive에서 자료를 엽니다.") — 사진 분류와 Transfer Learning 실습에 사용할 입력 자료입니다.
+- **모의 실습**: [모의 C 자료](/files/maicon-2026/practice/%EB%AA%A8%EC%9D%98_C_%EB%AC%B8%EC%A0%9C%EC%99%80_%EA%B5%AC%EC%84%B1.zip) — 세 문항의 구성과 90분 실습 진행 자료를 확인합니다.
+- **공통 자료**: [실습 공통 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_%EA%B3%B5%ED%86%B5%EC%A4%80%EB%B9%84.zip) — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
+- **문항 1 자료**: [유형 08 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_08_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — OCR 문서에서 구조화 데이터 만들기 실습에 사용할 입력 자료입니다.
+- **문항 2 자료**: [유형 07 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_07_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — 영상 프레임 샘플링과 시계열 분석 실습에 사용할 입력 자료입니다.
+- **문항 3 자료**: [유형 05 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_05_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — 사진 분류와 Transfer Learning 실습에 사용할 입력 자료입니다.
 
 ### 연습문제
 

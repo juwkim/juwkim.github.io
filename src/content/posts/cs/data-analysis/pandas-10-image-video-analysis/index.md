@@ -816,10 +816,10 @@ print("유지 가정의 시간 가중 평균:", np.average(counts, weights=durat
 
 ### 실습 데이터와 노트북
 
-- **실습 자료**: [Session10 실습 폴더](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session10) · [session10_이미지-분류.pdf](/files/maicon-2026/lectures/session10_%EC%9D%B4%EB%AF%B8%EC%A7%80-%EB%B6%84%EB%A5%98.pdf) · [session10.ipynb](/files/maicon-2026/code/session10/session10.ipynb)
-- **이미지 데이터**: [surv_imgs: CAM001\~003.png](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session10/images/surv_imgs) · [supplies_imgs: BOX001\~004.png](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session10/images/supplies_imgs)
+- **실습 자료**: [session10_이미지-분류.pdf](/files/maicon-2026/lectures/session10_%EC%9D%B4%EB%AF%B8%EC%A7%80-%EB%B6%84%EB%A5%98.pdf) · [session10.ipynb](/files/maicon-2026/code/session10/session10.ipynb)
+- **이미지 데이터**: surv_imgs: [CAM001.png](/files/maicon-2026/code/session10/images/surv_imgs/CAM001.png) · [CAM002.png](/files/maicon-2026/code/session10/images/surv_imgs/CAM002.png) · [CAM003.png](/files/maicon-2026/code/session10/images/surv_imgs/CAM003.png) · supplies_imgs: [BOX001.png](/files/maicon-2026/code/session10/images/supplies_imgs/BOX001.png) · [BOX002.png](/files/maicon-2026/code/session10/images/supplies_imgs/BOX002.png) · [BOX003.png](/files/maicon-2026/code/session10/images/supplies_imgs/BOX003.png) · [BOX004.png](/files/maicon-2026/code/session10/images/supplies_imgs/BOX004.png)
 - **영상 데이터**: [drone_mission.mp4](/files/maicon-2026/code/session10/videos/drone_mission.mp4)
-- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip) — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 

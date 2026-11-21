@@ -778,9 +778,9 @@ Scaling은 숫자의 비교 기준을, Encoding은 범주의 표현 방식을 �
 
 ### 실습 데이터와 노트북
 
-- **실습 자료**: [Session02 실습 폴더](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session02) · [session02_정규화-및-인코딩.pdf](/files/maicon-2026/lectures/session02_%EC%A0%95%EA%B7%9C%ED%99%94-%EB%B0%8F-%EC%9D%B8%EC%BD%94%EB%94%A9.pdf) · [session02.ipynb](/files/maicon-2026/code/session02/session02.ipynb)
+- **실습 자료**: [session02_정규화-및-인코딩.pdf](/files/maicon-2026/lectures/session02_%EC%A0%95%EA%B7%9C%ED%99%94-%EB%B0%8F-%EC%9D%B8%EC%BD%94%EB%94%A9.pdf) · [session02.ipynb](/files/maicon-2026/code/session02/session02.ipynb)
 - **CSV 데이터**: [fitness_test.csv](/files/maicon-2026/code/session02/fitness_test.csv) · [soldier_info.csv](/files/maicon-2026/code/session02/soldier_info.csv) · [video_metadata.csv](/files/maicon-2026/code/session02/video_metadata.csv)
-- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip) — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 

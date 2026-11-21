@@ -785,9 +785,9 @@ print("복원한 원본 xyxy:", restored.tolist())
 
 ### 실습 데이터와 노트북
 
-- **실습 자료**: [Session09 실습 폴더](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session09) · [session09_이미지-처리.pdf](/files/maicon-2026/lectures/session09_%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%B2%98%EB%A6%AC.pdf) · [session09.ipynb](/files/maicon-2026/code/session09/session09.ipynb)
-- **이미지 데이터**: [night_ops: IMG001\~003.png](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session09/images/night_ops) · [blueprints: BP001\~003.png](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session09/images/blueprints) · [surv_imgs: CAM001\~003.png](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session09/images/surv_imgs)
-- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **실습 자료**: [session09_이미지-처리.pdf](/files/maicon-2026/lectures/session09_%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%B2%98%EB%A6%AC.pdf) · [session09.ipynb](/files/maicon-2026/code/session09/session09.ipynb)
+- **이미지 데이터**: night_ops: [IMG001.png](/files/maicon-2026/code/session09/images/night_ops/IMG001.png) · [IMG002.png](/files/maicon-2026/code/session09/images/night_ops/IMG002.png) · [IMG003.png](/files/maicon-2026/code/session09/images/night_ops/IMG003.png) · blueprints: [BP001.png](/files/maicon-2026/code/session09/images/blueprints/BP001.png) · [BP002.png](/files/maicon-2026/code/session09/images/blueprints/BP002.png) · [BP003.png](/files/maicon-2026/code/session09/images/blueprints/BP003.png) · surv_imgs: [CAM001.png](/files/maicon-2026/code/session09/images/surv_imgs/CAM001.png) · [CAM002.png](/files/maicon-2026/code/session09/images/surv_imgs/CAM002.png) · [CAM003.png](/files/maicon-2026/code/session09/images/surv_imgs/CAM003.png)
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip) — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 

@@ -760,9 +760,9 @@ print("집계한 점 수:", int(counts.get_array().sum()))
 
 ### 실습 데이터와 노트북
 
-- **실습 자료**: [Session05 실습 폴더](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session05) · [session05_데이터-시각화.pdf](/files/maicon-2026/lectures/session05_%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%8B%9C%EA%B0%81%ED%99%94.pdf) · [session05.ipynb](/files/maicon-2026/code/session05/session05.ipynb)
+- **실습 자료**: [session05_데이터-시각화.pdf](/files/maicon-2026/lectures/session05_%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%8B%9C%EA%B0%81%ED%99%94.pdf) · [session05.ipynb](/files/maicon-2026/code/session05/session05.ipynb)
 - **CSV 데이터**: [fitness_result.csv](/files/maicon-2026/code/session05/fitness_result.csv) · [stress_factors.csv](/files/maicon-2026/code/session05/stress_factors.csv) · [equipment_performance.csv](/files/maicon-2026/code/session05/equipment_performance.csv)
-- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip) — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 

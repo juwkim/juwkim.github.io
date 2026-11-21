@@ -105,11 +105,11 @@ python check_outputs.py --types 1 3 4
 
 ### 실습 데이터와 노트북
 
-- **모의 실습**: [모의 A 자료](/files/maicon-2026/practice/%EB%AA%A8%EC%9D%98_A_%EB%AC%B8%EC%A0%9C%EC%99%80_%EA%B5%AC%EC%84%B1.zip "Google Drive에서 자료를 엽니다.") — 세 문항의 구성과 90분 실습 진행 자료를 확인합니다.
-- **공통 자료**: [실습 공통 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_%EA%B3%B5%ED%86%B5%EC%A4%80%EB%B9%84.zip "Google Drive에서 자료를 엽니다.") — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
-- **문항 1 자료**: [유형 01 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_01_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip "Google Drive에서 자료를 엽니다.") — 정형 데이터 전처리와 집계 실습에 사용할 입력 자료입니다.
-- **문항 2 자료**: [유형 03 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_03_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip "Google Drive에서 자료를 엽니다.") — 센서 시계열 정리와 분류·예측 실습에 사용할 입력 자료입니다.
-- **문항 3 자료**: [유형 04 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_04_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip "Google Drive에서 자료를 엽니다.") — 비정형 텍스트 분류 실습에 사용할 입력 자료입니다.
+- **모의 실습**: [모의 A 자료](/files/maicon-2026/practice/%EB%AA%A8%EC%9D%98_A_%EB%AC%B8%EC%A0%9C%EC%99%80_%EA%B5%AC%EC%84%B1.zip) — 세 문항의 구성과 90분 실습 진행 자료를 확인합니다.
+- **공통 자료**: [실습 공통 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_%EA%B3%B5%ED%86%B5%EC%A4%80%EB%B9%84.zip) — 공유 모델과 유형별 실습에 필요한 공통 준비 자료입니다.
+- **문항 1 자료**: [유형 01 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_01_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — 정형 데이터 전처리와 집계 실습에 사용할 입력 자료입니다.
+- **문항 2 자료**: [유형 03 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_03_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — 센서 시계열 정리와 분류·예측 실습에 사용할 입력 자료입니다.
+- **문항 3 자료**: [유형 04 문제 자료](/files/maicon-2026/practice/%EC%8B%A4%EC%8A%B5_04_%EB%AC%B8%EC%A0%9C%EC%9E%90%EB%A3%8C.zip) — 비정형 텍스트 분류 실습에 사용할 입력 자료입니다.
 
 ### 연습문제
 

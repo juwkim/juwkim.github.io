@@ -819,10 +819,10 @@ OOF 오차가 큰 ID를 찾아 입력과 Label을 검토하거나 오류 유형�
 
 ### 실습 데이터와 노트북
 
-- **실습 자료**: [Session11 실습 폴더](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session11) · [session11_종합문제풀이(1).pdf](/files/maicon-2026/lectures/session11_%EC%A2%85%ED%95%A9%EB%AC%B8%EC%A0%9C%ED%92%80%EC%9D%B4%281%29.pdf) · [session11.ipynb](/files/maicon-2026/code/session11/session11.ipynb)
+- **실습 자료**: [session11_종합문제풀이(1).pdf](/files/maicon-2026/lectures/session11_%EC%A2%85%ED%95%A9%EB%AC%B8%EC%A0%9C%ED%92%80%EC%9D%B4%281%29.pdf) · [session11.ipynb](/files/maicon-2026/code/session11/session11.ipynb)
 - **CSV 데이터**: [sleep_fatigue.csv](/files/maicon-2026/code/session11/sleep_fatigue.csv) · [event_meta.csv](/files/maicon-2026/code/session11/event_meta.csv) · [service_survey.csv](/files/maicon-2026/code/session11/service_survey.csv)
-- **이미지 데이터**: [unit_events: event_001\~003.png](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session11/images/unit_events)
-- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **이미지 데이터**: unit_events: [event_001.png](/files/maicon-2026/code/session11/images/unit_events/event_001.png) · [event_002.png](/files/maicon-2026/code/session11/images/unit_events/event_002.png) · [event_003.png](/files/maicon-2026/code/session11/images/unit_events/event_003.png)
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip) — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 

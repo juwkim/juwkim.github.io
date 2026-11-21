@@ -950,9 +950,9 @@ Threshold 선택도 모델 선택의 일부입니다. Validation이나 Train 내
 
 ### 실습 데이터와 노트북
 
-- **실습 자료**: [Session07 실습 폴더](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session07) · [session07_지도학습-및-평가.pdf](/files/maicon-2026/lectures/session07_%EC%A7%80%EB%8F%84%ED%95%99%EC%8A%B5-%EB%B0%8F-%ED%8F%89%EA%B0%80.pdf) · [session07.ipynb](/files/maicon-2026/code/session07/session07.ipynb)
+- **실습 자료**: [session07_지도학습-및-평가.pdf](/files/maicon-2026/lectures/session07_%EC%A7%80%EB%8F%84%ED%95%99%EC%8A%B5-%EB%B0%8F-%ED%8F%89%EA%B0%80.pdf) · [session07.ipynb](/files/maicon-2026/code/session07/session07.ipynb)
 - **CSV 데이터**: [combat_ready.csv](/files/maicon-2026/code/session07/combat_ready.csv) · [equipment_life.csv](/files/maicon-2026/code/session07/equipment_life.csv) · [maintenance_priority.csv](/files/maicon-2026/code/session07/maintenance_priority.csv)
-- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip) — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 

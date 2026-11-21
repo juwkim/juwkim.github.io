@@ -839,9 +839,9 @@ print("전체 운용 시간 기준:", round(pooled_rate, 3))
 
 ### 실습 데이터와 노트북
 
-- **실습 자료**: [Session06 실습 폴더](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session06) · [session06_데이터-해석.pdf](/files/maicon-2026/lectures/session06_%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%95%B4%EC%84%9D.pdf) · [session06.ipynb](/files/maicon-2026/code/session06/session06.ipynb)
+- **실습 자료**: [session06_데이터-해석.pdf](/files/maicon-2026/lectures/session06_%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%95%B4%EC%84%9D.pdf) · [session06.ipynb](/files/maicon-2026/code/session06/session06.ipynb)
 - **CSV 데이터**: [stress_analysis.csv](/files/maicon-2026/code/session06/stress_analysis.csv) · [meal_feedback.csv](/files/maicon-2026/code/session06/meal_feedback.csv) · [equipment_operational.csv](/files/maicon-2026/code/session06/equipment_operational.csv)
-- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip) — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 

@@ -726,9 +726,9 @@ print(example.to_string(index=False))
 
 ### 실습 데이터와 노트북
 
-- **실습 자료**: [Session01 실습 폴더](https://github.com/juwkim/juwkim.github.io/tree/master/public/files/maicon-2026/code/session01) · [session01_결측치-및-이상치-처리.pdf](/files/maicon-2026/lectures/session01_%EA%B2%B0%EC%B8%A1%EC%B9%98-%EB%B0%8F-%EC%9D%B4%EC%83%81%EC%B9%98-%EC%B2%98%EB%A6%AC.pdf) · [session01.ipynb](/files/maicon-2026/code/session01/session01.ipynb)
+- **실습 자료**: [session01_결측치-및-이상치-처리.pdf](/files/maicon-2026/lectures/session01_%EA%B2%B0%EC%B8%A1%EC%B9%98-%EB%B0%8F-%EC%9D%B4%EC%83%81%EC%B9%98-%EC%B2%98%EB%A6%AC.pdf) · [session01.ipynb](/files/maicon-2026/code/session01/session01.ipynb)
 - **CSV 데이터**: [maintenance_log.csv](/files/maicon-2026/code/session01/maintenance_log.csv) · [health_check.csv](/files/maicon-2026/code/session01/health_check.csv) · [motion_sensor.csv](/files/maicon-2026/code/session01/motion_sensor.csv) · [temp_sensor.csv](/files/maicon-2026/code/session01/temp_sensor.csv)
-- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip "Google Drive에서 자료를 엽니다.") — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
+- **심화 예제**: [심화 예제 자료](/files/maicon-2026/practice/%EA%B3%B5%EB%B6%80%EB%85%B8%ED%8A%B8_%EC%8B%AC%ED%99%94_%EC%98%88%EC%A0%9C.zip) — 공부노트 01\~13의 Python 코드, 노트북, 예제 CSV와 실행 결과를 함께 받습니다.
 
 ### 연습문제
 
