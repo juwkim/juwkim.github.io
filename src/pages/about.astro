@@ -24,7 +24,14 @@ const links = [
         <p>{profile.tagline.map((line, i) => <>{i > 0 && <br />}{line}</>)}</p>
         {links.length > 0 && (
           <ul class="profile-links">
-            {links.map(({ label, href }) => <li><a href={href}>{label}</a></li>)}
+            {links.map(({ label, href }) => (
+              <li>
+                <a href={href}>
+                  <span>{label}</span>
+                  <span class="profile-link-arrow" aria-hidden="true">{href.startsWith('mailto:') ? '→' : '↗'}</span>
+                </a>
+              </li>
+            ))}
           </ul>
         )}
       </div>
@@ -116,15 +123,55 @@ const links = [
   .profile-links {
     display: flex;
     flex-wrap: wrap;
-    margin: 0.75rem 0 0;
+    gap: 8px;
+    margin: 14px 0 0;
     padding: 0;
     list-style: none;
-    font-size: 0.875rem;
+    font-size: 13.5px;
   }
-  .profile-links li + li::before {
-    content: '·';
-    content: '·' / '';
-    margin: 0 0.5em;
+  .profile-links li {
+    display: flex;
+  }
+  .profile-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 32px;
+    padding: 5px 12px 5px 13px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    border-color: color-mix(in srgb, var(--blue) 22%, transparent);
+    background: var(--blue-soft);
+    color: var(--blue);
+    color: color-mix(in srgb, var(--blue) 82%, var(--fg));
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    transition:
+      background 0.2s var(--ease),
+      border-color 0.2s var(--ease),
+      color 0.2s var(--ease);
+  }
+  .profile-link-arrow {
+    font-size: 0.9em;
+    opacity: 0.75;
+    transition: transform 0.2s var(--ease), opacity 0.2s var(--ease);
+  }
+  .profile-links a:hover {
+    background: color-mix(in srgb, var(--blue) 15%, transparent);
+    border-color: color-mix(in srgb, var(--blue) 45%, transparent);
+  }
+  .profile-links a:hover .profile-link-arrow,
+  .profile-links a:focus-visible .profile-link-arrow {
+    opacity: 1;
+    transform: translateX(2px);
+  }
+  .profile-links a:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+    border-radius: 999px;
+    border-color: color-mix(in srgb, var(--blue) 45%, transparent);
   }
   /* 그리는 내일: 작은 목표들 위에 놓인 큰 방향 */
   .aspire {
