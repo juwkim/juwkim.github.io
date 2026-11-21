@@ -7,9 +7,8 @@ import { SITE } from '../site.config';
 
 const links = [
   { label: 'GitHub', href: SITE.links.github },
-  { label: 'solved.ac', href: SITE.links.solvedac },
   { label: 'Instagram', href: SITE.links.instagram },
-  { label: 'Email', href: SITE.links.email && `mailto:${SITE.links.email}` },
+  { label: 'solved.ac', href: SITE.links.solvedac },
 ].filter((link) => link.href);
 ---
 
@@ -28,12 +27,13 @@ const links = [
               <li>
                 <a href={href}>
                   <span>{label}</span>
-                  <span class="profile-link-arrow" aria-hidden="true">{href.startsWith('mailto:') ? '→' : '↗'}</span>
+                  <span class="profile-link-arrow" aria-hidden="true">↗</span>
                 </a>
               </li>
             ))}
           </ul>
         )}
+        {SITE.links.email && <div class="profile-email">{SITE.links.email}</div>}
       </div>
     </header>
 
@@ -172,6 +172,15 @@ const links = [
     outline-offset: 2px;
     border-radius: 999px;
     border-color: color-mix(in srgb, var(--blue) 45%, transparent);
+  }
+  .profile-email {
+    margin: 10px 0 0;
+    color: var(--fg-2);
+    font-size: 13.5px;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    overflow-wrap: anywhere;
+    user-select: text;
   }
   /* 그리는 내일: 작은 목표들 위에 놓인 큰 방향 */
   .aspire {
