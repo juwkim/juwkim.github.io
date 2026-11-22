@@ -2,6 +2,10 @@
 
 공개 Astro 블로그 저장소용 에이전트 작업 지침입니다.
 
+## 새 세션
+
+- 새 세션에서 이어갈 때는 [오르카 인수인계](docs/orca-handoff.md)와 [논의 백로그](docs/discussion-backlog.md)를 읽어 현재 상태를 확인합니다.
+
 ## 위임
 - 가능한 경우 기본 위임 모델은 Claude Opus 5.5 medium입니다. Anthropic API에서는 model `claude-opus-5-5`, `output_config.effort: medium`을 사용합니다.
 - 호출 가능 여부와 실제 위임 여부를 사실대로 밝힙니다. 토큰 값은 어디에도 기록하지 않습니다.

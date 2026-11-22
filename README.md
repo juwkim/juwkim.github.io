@@ -6,6 +6,8 @@
 
 블로그: https://juwkim.github.io · 새 글 쓰는 법: [docs/writing-guide.md](docs/writing-guide.md)
 
+새 세션에서 작업을 이어갈 때는 [오르카 인수인계](docs/orca-handoff.md)와 [논의 백로그](docs/discussion-backlog.md)를 읽으세요.
+
 ## 자주 하는 일
 
 | 하고 싶은 것 | 어디를 고치면 되나 |
@@ -37,8 +39,10 @@ draft: true               # 선택: true면 사이트에 안 보임
 
 ## 명령어
 
+CI와 같은 Node.js 26(`.nvmrc`)에서 실행합니다.
+
 ```bash
-npm install        # 처음 한 번
+npm ci             # 잠금 파일 기준으로 설치
 npm run new        # 새 글 틀 만들기
 npm run dev        # 미리보기 → http://localhost:4321 (저장하면 바로 반영)
 npm run build      # 검사 + 빌드 + 검색 색인 → dist/
