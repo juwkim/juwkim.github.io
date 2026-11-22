@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
 import CategoryNav from '../../../components/CategoryNav.astro';
 import PostImageViewer from '../../../components/PostImageViewer.astro';
+import Comments from '../../../components/Comments.astro';
 import '../../../styles/prose.css';
 import katexCss from 'katex/dist/katex.min.css?url';
 import {
@@ -88,6 +89,8 @@ const hasMath = /\$\$|\$[^\s$][^$\n]*\$/.test((post.body ?? '').replace(/```[\s\
         </ul>
       )
     }
+
+    <Comments />
 
     <nav class="pager" aria-label="이전/다음 글">
       {

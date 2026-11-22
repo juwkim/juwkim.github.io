@@ -1,0 +1,67 @@
+---
+// giscus 댓글. SITE.comments.categoryId가 채워졌을 때만 출력됩니다.
+import { SITE } from '../site.config';
+
+const c = SITE.comments;
+const enabled = c.categoryId !== '';
+---
+
+{
+  enabled && (
+    <section
+      class="comments"
+      aria-label="댓글"
+      data-repo={c.repo}
+      data-repo-id={c.repoId}
+      data-category={c.category}
+      data-category-id={c.categoryId}
+    >
+      <div class="giscus" />
+    </section>
+  )
+}
+
+<script>
+  const box = document.querySelector<HTMLElement>('.comments[data-repo]');
+  if (box) {
+    const root = document.documentElement;
+    // 사이트 테마(수동 선택 또는 시스템 설정)를 그대로 따름
+    const theme = () =>
+      root.dataset.theme === 'dark' ? 'dark' : root.dataset.theme === 'light' ? 'light' : 'preferred_color_scheme';
+    const d = box.dataset;
+    const attrs: Record<string, string> = {
+      repo: d.repo!,
+      'repo-id': d.repoId!,
+      category: d.category!,
+      'category-id': d.categoryId!,
+      mapping: 'pathname',
+      strict: '1',
+      'reactions-enabled': '0',
+      'emit-metadata': '0',
+      'input-position': 'bottom',
+      theme: theme(),
+      lang: 'ko',
+      loading: 'lazy',
+    };
+    const s = document.createElement('script');
+    s.src = 'https://giscus.app/client.js';
+    s.async = true;
+    s.crossOrigin = 'anonymous';
+    for (const [k, v] of Object.entries(attrs)) s.setAttribute(`data-${k}`, v);
+    box.append(s);
+
+    // 다크 모드 전환 시 댓글 테마도 함께 변경
+    new MutationObserver(() => {
+      const frame = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+      frame?.contentWindow?.postMessage({ giscus: { setConfig: { theme: theme() } } }, 'https://giscus.app');
+    }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  }
+</script>
+
+<style>
+  .comments {
+    margin: 56px 0 0;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+  }
+</style>

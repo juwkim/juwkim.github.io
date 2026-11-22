@@ -22,6 +22,14 @@ export const SITE = {
     google: 'c2PuWQ46H6zZ8qQOVFDRJ_uWskV6w64Jmyz5z2DJKOU',
     naver: '2089745ad341aef578581908c44918027c1341ee',
   },
+  // 댓글(giscus). 저장소에서 Discussions를 켜고 giscus 앱을 설치한 뒤 https://giscus.app 에서 확인한 categoryId를 넣으면 댓글이 표시됩니다.
+  // categoryId가 비어 있으면 댓글 영역은 출력되지 않습니다.
+  comments: {
+    repo: 'juwkim/juwkim.github.io',
+    repoId: 'R_kgDOKxOQ9g',
+    category: 'General',
+    categoryId: '',
+  },
 };
 
 /**
