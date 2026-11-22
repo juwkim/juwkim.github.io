@@ -79,6 +79,7 @@
   - pathname 매핑, 테마 동기화, lazy 로딩을 적용했습니다.
   - 실제 Chrome 브라우저에서 `iframe.giscus-frame` 렌더링, 한국어 UI, 다크/라이트 테마 동기화를 확인했습니다(2026-11-22).
   - 실제 GitHub 로그인 후 테스트 댓글 작성·Discussions 자동 생성·giscus API 연동을 확인했고, 테스트용 Discussion #3은 삭제했습니다(2026-11-22).
+  - 블로그 디자인(Pretendard, 애플 블루 `#0071e3`, `14px` 카드, 라이트/다크)에 맞춘 커스텀 테마(`public/giscus/light.css`, `dark.css`, `5d5102a`)를 적용하고 라이브 사이트 반영까지 확인했습니다(2026-11-22).
 - **SEO**
   - Google과 Naver 소유 확인 HTML 태그를 배포했으며, 계속 유지합니다.
   - 사용자가 Google에는 사이트맵(`sitemap-index.xml`)을, Naver에는 사이트맵과 RSS(`rss.xml`)를 제출했습니다.
