@@ -1,0 +1,330 @@
+---
+// 글 본문 코드 블록 위에 언어 표시와 복사 버튼을 얹습니다.
+// JS가 없으면 아무것도 바뀌지 않고 기존 .prose pre 스타일 그대로 보입니다.
+// 페이지마다 한 번 실행되며, 중복 실행은 data-ready로 막습니다.
+interface Props {
+  /** 코드 블록을 담은 본문 요소의 id */
+  for: string;
+}
+const { for: target } = Astro.props;
+---
+
+<div class="pcb-announcer visually-hidden" data-pcb-for={target} role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+  const LANGS: Record<string, string> = {
+    python: 'Python',
+    sql: 'SQL',
+    bash: 'Bash',
+    sh: 'Bash',
+    shell: 'Bash',
+    js: 'JavaScript',
+    javascript: 'JavaScript',
+    ts: 'TypeScript',
+    typescript: 'TypeScript',
+    cpp: 'C++',
+    'c++': 'C++',
+    c: 'C',
+    html: 'HTML',
+    css: 'CSS',
+    json: 'JSON',
+    yaml: 'YAML',
+    yml: 'YAML',
+    md: 'Markdown',
+    markdown: 'Markdown',
+  };
+  // 출력 블록 등 언어가 없는 코드는 라벨을 비워 조용하게 둠
+  const QUIET = new Set(['', 'text', 'plaintext']);
+  const RESET_MS = 1800;
+
+  const langLabelOf = (raw: string) => {
+    if (QUIET.has(raw)) return '';
+    return Object.hasOwn(LANGS, raw) ? LANGS[raw] : raw.charAt(0).toUpperCase() + raw.slice(1);
+  };
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const makeIcon = (cls: string, paths: string[]) => {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('class', `pcb-icon ${cls}`);
+    svg.setAttribute('width', '14');
+    svg.setAttribute('height', '14');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.8');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    for (const d of paths) {
+      const p = document.createElementNS(SVG_NS, 'path');
+      p.setAttribute('d', d);
+      svg.append(p);
+    }
+    return svg;
+  };
+  const copyIcon = () =>
+    makeIcon('pcb-icon-copy', [
+      'M9 9h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2z',
+      'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1',
+    ]);
+  const checkIcon = () => makeIcon('pcb-icon-check', ['M5 12.5l4.5 4.5L19 7.5']);
+
+  const fallbackCopy = (text: string) => {
+    const prevFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const sel = document.getSelection();
+    const savedRanges = sel ? Array.from({ length: sel.rangeCount }, (_, i) => sel.getRangeAt(i).cloneRange()) : [];
+
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.tabIndex = -1;
+    ta.style.cssText = 'position: fixed; top: 0; left: 0; opacity: 0; pointer-events: none;';
+    document.body.append(ta);
+    try {
+      ta.select();
+      const execCopy = (document as { execCommand?: (id: string) => boolean }).execCommand;
+      if (!execCopy?.call(document, 'copy')) throw new Error('execCommand copy failed');
+    } finally {
+      ta.remove();
+      if (sel) {
+        sel.removeAllRanges();
+        for (const r of savedRanges) sel.addRange(r);
+      }
+      if (prevFocus?.isConnected) prevFocus.focus({ preventScroll: true });
+    }
+  };
+
+  const copyText = async (text: string) => {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch {
+        // 권한 거부 등: 아래 대체 방식으로 재시도
+      }
+    }
+    fallbackCopy(text);
+  };
+
+  const setup = (announcer: HTMLElement) => {
+    if (announcer.dataset.ready) return;
+    announcer.dataset.ready = '1';
+    const article = document.getElementById(announcer.dataset.pcbFor ?? '');
+    if (!article) return;
+
+    const pres = [...article.querySelectorAll<HTMLPreElement>('pre')].filter((pre) => !pre.closest('.code-block'));
+    if (!pres.length) return;
+
+    const timers = new WeakMap<HTMLButtonElement, number>();
+    const busy = new WeakSet<HTMLButtonElement>();
+    let raf1 = 0;
+    let raf2 = 0;
+    const announce = (msg: string) => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      announcer.textContent = '';
+      raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => {
+          announcer.textContent = msg;
+        });
+      });
+    };
+
+    for (const pre of pres) {
+      const langLabel = langLabelOf(pre.dataset.language?.toLowerCase() ?? '');
+      const baseAria = langLabel ? `${langLabel} 코드 복사` : '코드 복사';
+      const copiedAria = langLabel ? `${langLabel} 코드 복사됨` : '코드 복사됨';
+      const failedAria = langLabel ? `${langLabel} 코드 복사 실패` : '코드 복사 실패';
+
+      const wrap = document.createElement('div');
+      wrap.className = 'code-block';
+      const head = document.createElement('div');
+      head.className = 'code-head';
+
+      const lang = document.createElement('span');
+      lang.className = 'code-lang';
+      lang.textContent = langLabel;
+      if (!langLabel) lang.setAttribute('aria-hidden', 'true');
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.setAttribute('aria-label', baseAria);
+      const icons = document.createElement('span');
+      icons.className = 'pcb-icons';
+      icons.setAttribute('aria-hidden', 'true');
+      icons.append(copyIcon(), checkIcon());
+      const label = document.createElement('span');
+      label.className = 'code-copy-label';
+      label.textContent = '복사';
+      btn.append(icons, label);
+
+      head.append(lang, btn);
+      pre.replaceWith(wrap);
+      wrap.append(head, pre);
+
+      const scheduleReset = () => {
+        timers.set(
+          btn,
+          window.setTimeout(() => {
+            delete btn.dataset.copied;
+            label.textContent = '복사';
+            btn.setAttribute('aria-label', baseAria);
+            timers.delete(btn);
+          }, RESET_MS)
+        );
+      };
+
+      btn.addEventListener('click', async () => {
+        if (busy.has(btn)) return;
+        busy.add(btn);
+        const text = pre.querySelector('code')?.textContent ?? pre.textContent ?? '';
+        try {
+          await copyText(text);
+          clearTimeout(timers.get(btn));
+          btn.dataset.copied = '1';
+          label.textContent = '복사됨';
+          btn.setAttribute('aria-label', copiedAria);
+          announce('코드를 복사했습니다');
+          scheduleReset();
+        } catch {
+          clearTimeout(timers.get(btn));
+          delete btn.dataset.copied;
+          label.textContent = '실패';
+          btn.setAttribute('aria-label', failedAria);
+          announce('복사에 실패했습니다');
+          scheduleReset();
+        } finally {
+          busy.delete(btn);
+        }
+      });
+    }
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-pcb-for]').forEach(setup);
+</script>
+
+<style>
+  :global(.prose .code-block) {
+    margin: 1.6em 0;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--code-bg);
+    overflow: hidden;
+  }
+  :global(.prose .code-head) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 36px;
+    padding: 6px 10px 6px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  :global(.prose .code-lang) {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1.3;
+    color: #636366;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  :global(:root[data-theme='dark'] .prose .code-lang) {
+    color: #98989d;
+  }
+
+  :global(.prose .code-copy) {
+    flex: none;
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--fg-2);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0;
+    cursor: pointer;
+    transition: color 0.18s var(--ease), background 0.18s var(--ease);
+  }
+  :global(.prose .code-copy:hover) {
+    color: var(--fg);
+    background: rgba(0, 0, 0, 0.05);
+  }
+  :global(:root[data-theme='dark'] .prose .code-copy:hover) {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  :global(.prose .code-copy:focus-visible) {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+    border-radius: 999px;
+  }
+  :global(.prose .code-copy[data-copied]) {
+    color: #0066cc;
+    background: var(--blue-soft);
+  }
+  :global(:root[data-theme='dark'] .prose .code-copy[data-copied]) {
+    color: var(--blue);
+    background: var(--blue-soft);
+  }
+
+  /* 복사/체크 아이콘을 같은 자리에 겹쳐 두고 부드럽게 전환 */
+  :global(.prose .pcb-icons) {
+    display: inline-grid;
+    width: 14px;
+    height: 14px;
+  }
+  :global(.prose .pcb-icon) {
+    grid-area: 1 / 1;
+    display: block;
+    width: 14px;
+    height: 14px;
+    transition: opacity 0.18s var(--ease), transform 0.18s var(--ease);
+  }
+  :global(.prose .pcb-icon-check) {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  :global(.prose .code-copy[data-copied] .pcb-icon-copy) {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  :global(.prose .code-copy[data-copied] .pcb-icon-check) {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* JS로 감싼 경우에만 적용. JS가 없으면 기존 .prose pre 스타일 유지 */
+  :global(.prose .code-block pre) {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    padding: 16px 20px;
+    scrollbar-width: thin;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.prose .code-copy),
+    :global(.prose .pcb-icon) {
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    :global(.prose .code-head) {
+      padding: 6px 8px 6px 14px;
+    }
+    :global(.prose .code-block pre) {
+      padding: 14px 16px;
+    }
+  }
+</style>

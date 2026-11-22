@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
 import CategoryNav from '../../../components/CategoryNav.astro';
 import PostImageViewer from '../../../components/PostImageViewer.astro';
+import PostCodeBlocks from '../../../components/PostCodeBlocks.astro';
 import Comments from '../../../components/Comments.astro';
 import '../../../styles/prose.css';
 import katexCss from 'katex/dist/katex.min.css?url';
@@ -79,6 +80,7 @@ const hasMath = /\$\$|\$[^\s$][^$\n]*\$/.test((post.body ?? '').replace(/```[\s\
       <Content />
     </article>
     <PostImageViewer for="post-body" />
+    <PostCodeBlocks for="post-body" />
 
     {
       tags.length > 0 && (
