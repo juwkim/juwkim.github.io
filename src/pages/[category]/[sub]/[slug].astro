@@ -4,6 +4,7 @@ import Base from '../../../layouts/Base.astro';
 import CategoryNav from '../../../components/CategoryNav.astro';
 import PostImageViewer from '../../../components/PostImageViewer.astro';
 import PostCodeBlocks from '../../../components/PostCodeBlocks.astro';
+import PostHeadingLinks from '../../../components/PostHeadingLinks.astro';
 import Comments from '../../../components/Comments.astro';
 import '../../../styles/prose.css';
 import katexCss from 'katex/dist/katex.min.css?url';
@@ -76,11 +77,37 @@ const hasMath = /\$\$|\$[^\s$][^$\n]*\$/.test((post.body ?? '').replace(/```[\s\
       </div>
     </header>
 
+    {
+      showToc && (
+        <nav class="toc-mobile-wrap" aria-label="이 글의 목차">
+          <details class="toc-mobile">
+            <summary>
+              <span class="toc-mobile-title">
+                <span>목차</span>
+                <span class="toc-mobile-count">{toc.length}</span>
+              </span>
+              <svg class="toc-mobile-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+            <ul>
+              {toc.map((h) => (
+                <li class={`d${h.depth}`}>
+                  <a href={`#${h.slug}`}>{h.text}</a>
+                </li>
+              ))}
+            </ul>
+          </details>
+        </nav>
+      )
+    }
+
     <article id="post-body" class="prose" data-pagefind-body>
       <Content />
     </article>
     <PostImageViewer for="post-body" />
     <PostCodeBlocks for="post-body" />
+    <PostHeadingLinks for="post-body" />
 
     {
       tags.length > 0 && (
@@ -131,19 +158,62 @@ const hasMath = /\$\$|\$[^\s$][^$\n]*\$/.test((post.body ?? '').replace(/```[\s\
 </Base>
 
 <script>
-  // 목차: 지금 읽는 소제목을 파란색으로 표시
-  const links = [...document.querySelectorAll<HTMLAnchorElement>('.toc a')];
+  // 목차(데스크톱·모바일 공통): 지금 읽는 소제목을 파란색으로 표시 + 모바일 목차 클릭 시 자동 접기
+  const idOf = (a: HTMLAnchorElement) => {
+    const href = a.getAttribute('href');
+    if (href?.startsWith('#')) return href.slice(1);
+    const raw = a.hash.slice(1);
+    try {
+      return decodeURIComponent(raw);
+    } catch {
+      return raw;
+    }
+  };
+
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('.toc a, .toc-mobile a')];
   if (links.length) {
-    const targets = links
-      .map((a) => document.getElementById(decodeURIComponent(a.hash.slice(1))))
-      .filter((el): el is HTMLElement => !!el);
+    const seen = new Set<string>();
+    const targets: HTMLElement[] = [];
+    for (const a of links) {
+      const id = idOf(a);
+      if (!id || seen.has(id)) continue;
+      seen.add(id);
+      const el = document.getElementById(id);
+      if (el) targets.push(el);
+    }
+
     const setActive = () => {
       let current = targets[0];
       for (const t of targets) if (t.getBoundingClientRect().top < 120) current = t;
-      links.forEach((a) => a.classList.toggle('on', decodeURIComponent(a.hash.slice(1)) === current?.id));
+      for (const a of links) {
+        const active = !!current && idOf(a) === current.id;
+        a.classList.toggle('on', active);
+        if (active) a.setAttribute('aria-current', 'location');
+        else a.removeAttribute('aria-current');
+      }
     };
     addEventListener('scroll', setActive, { passive: true });
     setActive();
+
+    const mobileToc = document.querySelector<HTMLDetailsElement>('.toc-mobile');
+    mobileToc?.addEventListener('click', (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      const anchor = (e.target as Element | null)?.closest<HTMLAnchorElement>('a[href^="#"]');
+      if (!anchor) return;
+      const id = idOf(anchor);
+      const target = id ? document.getElementById(id) : null;
+      if (!target) return;
+
+      e.preventDefault();
+      mobileToc.open = false;
+      requestAnimationFrame(() => {
+        history.pushState(null, '', `#${encodeURIComponent(id)}`);
+        target.scrollIntoView();
+        if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+        target.focus({ preventScroll: true });
+        setActive();
+      });
+    });
   }
 </script>
 
@@ -185,6 +255,9 @@ const hasMath = /\$\$|\$[^\s$][^$\n]*\$/.test((post.body ?? '').replace(/```[\s\
       grid-template-columns: 200px minmax(0, var(--width)) 160px;
       column-gap: 48px;
     }
+    .toc-mobile-wrap {
+      display: none;
+    }
     .toc {
       display: block;
       position: sticky;
@@ -196,6 +269,100 @@ const hasMath = /\$\$|\$[^\s$][^$\n]*\$/.test((post.body ?? '').replace(/```[\s\
       scrollbar-width: none;
     }
     .toc::-webkit-scrollbar {
+      display: none;
+    }
+  }
+  .toc-mobile-wrap {
+    margin: 0 0 32px;
+  }
+  .toc-mobile {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--bg-subtle);
+    overflow: hidden;
+  }
+  .toc-mobile summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    padding: 10px 16px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--fg-2);
+    cursor: pointer;
+    user-select: none;
+  }
+  .toc-mobile summary::-webkit-details-marker {
+    display: none;
+  }
+  .toc-mobile summary:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: -2px;
+    border-radius: 14px;
+  }
+  .toc-mobile-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .toc-mobile-count {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--fg-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .toc-mobile-chevron {
+    flex: none;
+    color: var(--fg-3);
+    transition: transform 0.2s var(--ease);
+  }
+  .toc-mobile[open] .toc-mobile-chevron {
+    transform: rotate(180deg);
+  }
+  .toc-mobile ul {
+    list-style: none;
+    margin: 0;
+    padding: 8px 12px 12px;
+    border-top: 1px solid var(--line);
+  }
+  .toc-mobile a {
+    display: block;
+    padding: 7px 10px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    line-height: 1.45;
+    color: var(--fg-2);
+    word-break: keep-all;
+    transition: background 0.18s var(--ease), color 0.18s var(--ease);
+  }
+  .toc-mobile .d3 a {
+    padding-left: 24px;
+    font-size: 13px;
+    color: var(--fg-3);
+  }
+  .toc-mobile a:hover {
+    color: var(--fg);
+    background: rgba(0, 0, 0, 0.04);
+  }
+  :global(:root[data-theme='dark']) .toc-mobile a:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .toc-mobile a.on {
+    color: var(--blue);
+    background: var(--blue-soft);
+    font-weight: 500;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .toc-mobile-chevron,
+    .toc-mobile a {
+      transition-duration: 0.01ms !important;
+    }
+  }
+  @media print {
+    .toc,
+    .toc-mobile-wrap {
       display: none;
     }
   }

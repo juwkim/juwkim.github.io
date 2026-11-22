@@ -95,11 +95,13 @@
 
 ### 남은 할 일 (지금 바로 가능)
 
-- 현재 없음 *(지금 당장 실행할 작업만 여기에 적고, 며칠 뒤·특정 날짜·분기별 작업은 아래 **나중에 확인할 일**에 보관합니다.)*
+- 현재 없음 *(지금 당장 실행할 작업만 여기에 적고, 아래 **막힌 일**·**나중에 확인할 일**은 구분해 보관합니다.)*
 
 ### 막힌 일
 
-- 현재 없음 *(막힌 작업이 생기면 원인과 해제 조건을 여기에 기록합니다.)*
+1. **댓글 시스템 Firebase Spark 전환 (A안 확정)**
+   - 원인: 외부 콘솔 설정(Firebase 프로젝트 생성, Google 로그인 활성화, GitHub OAuth App 연결, 승인 도메인 `juwkim.github.io` 등록, Cloud Firestore `asia-northeast3` DB 생성) 필요.
+   - 해제 조건: 사용자가 콘솔 설정 완료 후 공개 `firebaseConfig`(및 작성 취소/본인 삭제·답글 범위 확인)를 공유하면 자체 댓글 UI·보안 규칙·전환 배포를 진행.
 
 ### 나중에 확인할 일 (특정 날짜·조건 이후)
 
@@ -110,18 +112,24 @@
    - [x] **지나온 발걸음** — 한 줄 설명과 현재 이력 항목 유지
    - [ ] 정보처리기사 합격 여부와 취득 시점 *(선행 조건: 2026-12-18 합격 발표 후 사용자 결과 확인 → `src/data/about.ts` `"응시"` 표기 및 백로그 갱신)*
    - [x] 발걸음에 넣을 순간 고르기 — 현재 이력으로 충분하다고 확인
-3. **`분기별 / 다음 의존성 정리 시점` — 신규 Dependabot PR 검토 및 Markdown 플러그인 정리**
-   - [ ] 분기별 자동 Dependabot PR 생성 시 빌드 통과 여부 확인 후 수동 판단 (첫 PR #2 `typescript 6.0.3 → 7.0.2`는 무시 처리·종료 완료)
-   - [ ] *(확정 대응)* 다음 Astro 마이너/의존성 정리 시 `astro.config.mjs`의 `markdown.remarkPlugins`/`rehypePlugins` deprecated 경고를 `@astrojs/markdown-remark` `unified({...})` 방식으로 함께 이전 (KaTeX 수식 회귀 검증 포함)
+3. **`분기별` — major / 0.x minor Dependabot PR 수동 검토**
+   - [x] minor/patch Dependabot PR은 `.github/workflows/dependabot-auto-merge.yml` 봇이 `Deploy` 통과 검증 후 자동 squash 머지·재배포하도록 자동화 완료 (2026-11-22)
+   - [x] `astro.config.mjs`의 Markdown 플러그인 설정을 `@astrojs/markdown-remark` `unified({...})` 방식으로 이전 완료 (2026-11-22)
+   - [ ] 자동 머지 대상에서 제외되는 `semver-major`, `0.x` minor, `0.0.x` 등 수동 검토 PR이 새로 열리면 빌드 결과와 변경점 확인 후 직접 판단 (첫 PR #2 `typescript 6.0.3 → 7.0.2`는 무시 처리·종료 완료)
 
 ### 더 논의할 결정 (추천안 포함)
 
-1. **다음 기존 글·UI 개선 우선순위 정하기**
-   - 배경: 댓글 커스텀 테마(`5d5102a`)와 글 본문 코드 블록 복사 UI(`PostCodeBlocks.astro`) 반영 이후 다음 개선 주제를 정할 단계.
-   - 선택지: A) 홈·글 목록·About 레이아웃 및 비주얼 디테일 다듬기 / B) 글 본문 추가 읽기 편의(모바일·태블릿 목차 또는 소제목 링크 복사) / C) 특정 기존 글 내용 보강·다듬기.
-   - **추천안**: **B안(글 본문 추가 읽기 편의 — 모바일·태블릿 목차 우선)**. 현재 1280px 이상 넓은 화면에만 목차가 표시되므로, 한국사·데이터 분석 같은 긴 학습 글의 모바일 탐색 편의가 크게 좋아집니다.
+1. **Firebase 댓글 전환 이후 다음 글·UI 다듬기 주제 정하기** *(선행 조건: 위 막힌 일인 Firebase 댓글 시스템 전환 완료 후 논의)*
+   - 배경: 모바일·태블릿 접이식 목차와 소제목 링크 복사 UI(기존 B안)까지 반영한 뒤 남는 다음 개선 후보입니다.
+   - 선택지: A) 홈·글 목록·About 레이아웃 및 비주얼 디테일 다듬기 / B) 특정 기존 글 내용 보강·다듬기.
+   - **추천안**: **A안(홈·글 목록·About 레이아웃 및 비주얼 디테일 다듬기)**. 전체 페이지의 시각적 완성도를 한 번 더 끌어올린 뒤 개별 글 내용 보강을 이어가는 편이 흐름상 깔끔합니다.
 
 ### 해결된 논의
+- 댓글 시스템 전환 방향 → **A안(Firebase Spark 무료 플랜: Google + GitHub 로그인 + Cloud Firestore + 자체 평문 댓글 UI)**으로 방향 확정, 콘솔 설정 대기 (2026-11-22)
+- 테스트용 GitHub Discussion #4(`"안녕"`) 삭제 완료 (2026-11-22)
+- 다음 기존 글·UI 개선 우선순위 → **B안(모바일·태블릿 접이식 목차 + 소제목 링크 복사 UI)** 확정 및 반영 완료 (2026-11-22)
+- Dependabot minor/patch 자동 머지·재배포 봇 → `.github/workflows/dependabot-auto-merge.yml`로 safe minor/patch만 자동 squash 머지 후 `deploy.yml` 재실행하도록 구축 완료, major/`0.x` minor는 수동 검토 유지 (2026-11-22)
+- Astro 7 Markdown 플러그인 deprecated 경고 → `astro.config.mjs`에서 `@astrojs/markdown-remark` `unified({...})` 방식으로 이전 완료 (2026-11-22)
 - 글 본문 코드 블록 복사 UI → `PostCodeBlocks.astro`에서 언어 표시 헤더와 복사 버튼 추가 (2026-11-22)
 - Google Search Console `/sitemap-index.xml` 오류 지속 시 대응 → 재확인 후에도 유지되면 GSC에 `sitemap-0.xml` 직접 추가 제출하기로 확정 (2026-11-22)
 - Astro 7 Markdown 플러그인 deprecated 경고 → 다음 의존성 정리 시 `@astrojs/markdown-remark` `unified({...})` 방식으로 함께 이전하기로 확정 (2026-11-22)

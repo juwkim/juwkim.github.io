@@ -32,6 +32,14 @@
   font-weight: 600;
   margin: 1.8em 0 0.5em;
 }
+.prose h2[id],
+.prose h3[id] {
+  scroll-margin-top: 76px;
+}
+.prose h2[tabindex='-1']:focus:not(:focus-visible),
+.prose h3[tabindex='-1']:focus:not(:focus-visible) {
+  outline: none;
+}
 .prose a {
   color: var(--blue);
   text-decoration: underline;

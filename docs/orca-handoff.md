@@ -50,8 +50,9 @@
 | About 연락처 | `src/components/ProfileContacts.astro` |
 | 사진 뷰어 | `src/components/PostImageViewer.astro` |
 | 코드 블록 복사 | `src/components/PostCodeBlocks.astro` |
+| 소제목 링크 복사 | `src/components/PostHeadingLinks.astro` |
 | 댓글 | `src/components/Comments.astro` |
-| 배포·의존성 점검 | `.github/workflows/deploy.yml`, `.github/dependabot.yml` |
+| 배포·의존성 점검·자동 머지 | `.github/workflows/deploy.yml`, `.github/dependabot.yml`, `.github/workflows/dependabot-auto-merge.yml` |
 | 프로필 사진 / 첨부 자료 | `src/assets/avatar.jpg` / `public/files/maicon-2026/` |
 
 - 공개 사이트에서 [홈](https://juwkim.github.io/), [About](https://juwkim.github.io/about/), [갤러리와 댓글이 있는 글](https://juwkim.github.io/cs/algorithm/scpc-2026-finals-review/)을 확인할 수 있습니다.
@@ -76,12 +77,12 @@
   - reduced motion과 모바일 동작을 확인했습니다.
   - 링크가 걸린 이미지는 원래 링크 목적지로 이동합니다. 세로 사진에 별도 높이 제한은 두지 않습니다.
   - 본문 코드 블록(`PostCodeBlocks.astro`)에는 언어 표시 헤더와 복사 버튼을 제공하며, JS가 없으면 기존 `.prose pre` 스타일 그대로 보입니다(2026-11-22).
-- **giscus**
-  - 공개 저장소의 Discussions General 카테고리에 연결했습니다.
-  - pathname 매핑, 테마 동기화, lazy 로딩을 적용했습니다.
-  - 실제 Chrome 브라우저에서 `iframe.giscus-frame` 렌더링, 한국어 UI, 다크/라이트 테마 동기화를 확인했습니다(2026-11-22).
-  - 실제 GitHub 로그인 후 테스트 댓글 작성·Discussions 자동 생성·giscus API 연동을 확인했고, 테스트용 Discussion #3은 삭제했습니다(2026-11-22).
-  - 블로그 디자인(Pretendard, 애플 블루 `#0071e3`, `14px` 카드, 라이트/다크)에 맞춘 커스텀 테마(`public/giscus/light.css`, `dark.css`, `5d5102a`)를 적용하고 라이브 사이트 반영까지 확인했습니다(2026-11-22).
+  - **모바일·태블릿 목차 + 소제목 링크 복사**(B안, 2026-11-22): `1280px` 미만 화면 본문 상단에 접이식 목차(`<details class="toc-mobile">`, 항목 선택 시 자동 접힘)를 두고, `PostHeadingLinks.astro`로 `h2[id]`·`h3[id]` 오른쪽에 소제목 링크 복사 버튼을 제공합니다.
+  - **Markdown 수식 설정 이전**(2026-11-22): `astro.config.mjs`에서 deprecated 경고가 나던 최상위 `remarkPlugins`/`rehypePlugins`를 `@astrojs/markdown-remark` `unified({...})` 방식으로 이전했습니다.
+- **댓글 / giscus → Firebase Spark 전환 예정**
+  - 현재 라이브 댓글은 공개 저장소 Discussions `General` 카테고리의 giscus(자체 라이트/다크 CSS `?v=2`)로 동작 중입니다.
+  - 2026-11-22 테스트 댓글 Discussion #3·#4 삭제 완료.
+  - **방향 확정**: Google 로그인 + GitHub 로그인 + 작성 취소/본인 댓글 삭제 요구사항을 위해 **Firebase Spark 무료 플랜 (Auth + Cloud Firestore + 자체 평문 댓글 UI, A안)** 으로 전환하기로 확정했으며, 사용자 측 Firebase 콘솔 설정 공유를 기다리는 중입니다.
 - **SEO**
   - Google과 Naver 소유 확인 HTML 태그를 배포했으며, 계속 유지합니다.
   - 사용자가 Google에는 사이트맵(`sitemap-index.xml`)을, Naver에는 사이트맵과 RSS(`rss.xml`)를 제출했습니다.
@@ -89,7 +90,8 @@
     - **Google Search Console**: 소유 확인 완료, `robots.txt` 유효, 직접 조치·보안 문제 없음. 루트(`https://juwkim.github.io/`) URL 검사에서는 색인 생성 확인(2026-11-22 12:30 크롤링)되었으나, 전체 `색인 생성 → 페이지` 리포트는 집계 대기 중이고 `/sitemap-index.xml`은 `가져올 수 없음`("일시적인 처리 오류", 실제 `sitemap-index.xml`·`sitemap-0.xml` HTTP 200 정상) 상태로 재확인이 필요합니다.
     - **네이버 서치어드바이저**: 소유 확인 완료, 사이트맵(`2026-11-22 11:08:53`)·RSS(`2026-11-22 11:09:14`) 등록 완료. 사이트 진단·수집 현황·노출/클릭 리포트는 신규 등록 초기라 아직 집계 전입니다.
 - **Dependabot**
-  - npm과 GitHub Actions를 분기마다 점검해 PR을 만듭니다. 자동 merge는 하지 않습니다.
+  - npm과 GitHub Actions를 분기마다 점검해 PR을 만듭니다.
+  - `.github/workflows/dependabot-auto-merge.yml`이 `Deploy` PR 빌드가 성공한 `1.x` 이상 minor/patch PR만 검증 후 자동 squash 머지하고 `deploy.yml`을 재실행합니다(2026-11-22). `semver-major`, `0.x` minor, `0.0.x` PR은 자동 머지하지 않고 수동 검토로 남깁니다.
   - 첫 PR #2(`typescript` `6.0.3 → 7.0.2`)는 `@astrojs/check@0.9.12`의 peer 의존성 충돌(`ERESOLVE`)로 빌드가 실패해 `@dependabot ignore this major version`으로 보류·종료했습니다(2026-11-22).
 - **Google Drive**: Cloud Drive 연결과 rclone 전용 `client_id` 설정은 진행하지 않습니다. 로컬 Windows 환경에서는 데스크톱용 Google 드라이브(`G:\내 드라이브`)를 설치해 일반 파일을 읽기 전용 원칙으로 참조할 수 있습니다(2026-11-22 확인, `.gdoc`/`.gsheet`는 웹 바로가기 파일).
 - **Discipline**: 원본 위치와 제목은 확인했습니다. 링크는 공개하지 않습니다.
@@ -102,16 +104,17 @@
 | About 프로필·문구 | `b1b2c9b`, `1619be6`, `81a46d0`, `0a66613`, `f099aa8` |
 | 사진 뷰어 | `f099aa8`, `388eb46` |
 | 홈 연락처 추가→제거 | `24c7b7f`, `7dfee44`, `b95c897` |
-| giscus·Dependabot | `24c7b7f`, `2d28db4` |
+| giscus·Dependabot | `24c7b7f`, `2d28db4`, `5d5102a`, `bb7f2ad` |
 | 검색엔진 | `ddfb0c5`, `77d9fb0`, `bfa7d58` |
-| 에이전트 지침 | `b7a0813`, `3589a65` |
+| 에이전트 지침 | `b7a0813`, `3589a65`, `51a92c6` |
 
 ## 7. 남은 일
 
+- **대기 중 (막힌 일)**: 사용자 Firebase 콘솔 설정 완료 후 공개 `firebaseConfig` 공유 시 Firebase Auth(Google + GitHub) + Firestore 자체 댓글 UI 구현
 - **핵심**: 2026-12-18 이후 정보처리기사 실제 결과를 사용자에게 확인합니다. 결과에 따라 About의 "응시" 표기와 백로그를 갱신합니다.
 - **운영 확인**
   - 구글·네이버 콘솔에서 검색 색인 집계 및 Google Search Console `/sitemap-index.xml` 처리 상태 재확인
-  - 이후 새로 생성되는 Dependabot PR 검토 (PR #2 `typescript 7.0.2`는 무시 처리 완료)
+  - 이후 새로 생성되는 `major`/`0.x minor` Dependabot PR 수동 검토 (PR #2 `typescript 7.0.2`는 무시 처리 완료)
 
 ## 8. 위임과 보안
 

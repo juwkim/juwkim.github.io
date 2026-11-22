@@ -1,0 +1,181 @@
+# Deploy 빌드 검사를 통과한 Dependabot minor/patch PR만 자동으로 squash 머지하고 배포를 다시 실행합니다.
+# major 업데이트, 0.x minor/0.0.x 업데이트, 형식 불명의 업데이트는 수동 검토 대상으로 남깁니다.
+name: Dependabot Auto-Merge
+
+on:
+  workflow_run:
+    workflows: ['Deploy']
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: dependabot-auto-merge
+  cancel-in-progress: false
+
+jobs:
+  auto-merge:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Dependabot minor/patch PR and auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          node - <<'EOF'
+          const { execFileSync } = require('node:child_process');
+
+          const repo = process.env.REPO;
+          const headSha = process.env.HEAD_SHA;
+          if (!repo || !headSha) {
+            throw new Error('Missing REPO or HEAD_SHA environment variable');
+          }
+
+          function ghJson(apiPath) {
+            const out = execFileSync('gh', ['api', apiPath], { encoding: 'utf8' });
+            return JSON.parse(out);
+          }
+
+          function stripQuotes(value) {
+            const trimmed = value.trim();
+            if (
+              (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+              (trimmed.startsWith("'") && trimmed.endsWith("'"))
+            ) {
+              return trimmed.slice(1, -1).trim();
+            }
+            return trimmed;
+          }
+
+          function parseUpdatedDependencies(message) {
+            const lines = String(message || '').split(/\r?\n/);
+            const entries = [];
+            let sawBlock = false;
+            let inBlock = false;
+            let current = null;
+
+            for (const raw of lines) {
+              const line = raw.trimEnd();
+              const trimmed = line.trim();
+              if (!inBlock) {
+                if (trimmed === 'updated-dependencies:') {
+                  sawBlock = true;
+                  inBlock = true;
+                }
+                continue;
+              }
+              if (!trimmed || trimmed === '...' || trimmed === '---') {
+                if (current) entries.push(current);
+                current = null;
+                inBlock = false;
+                continue;
+              }
+              const bulletMatch = line.match(/^-\s+([a-zA-Z0-9_-]+):\s*(.*)$/);
+              if (bulletMatch) {
+                if (current) entries.push(current);
+                current = { [bulletMatch[1]]: stripQuotes(bulletMatch[2]) };
+                continue;
+              }
+              const propMatch = line.match(/^\s+([a-zA-Z0-9_-]+):\s*(.*)$/);
+              if (propMatch && current) {
+                current[propMatch[1]] = stripQuotes(propMatch[2]);
+                continue;
+              }
+              if (current) entries.push(current);
+              current = null;
+              inBlock = false;
+            }
+            if (current) entries.push(current);
+            return { sawBlock, entries };
+          }
+
+          function validateEntry(entry) {
+            const name = entry['dependency-name'] || '(unknown)';
+            const version = entry['dependency-version'] || '';
+            const updateType = entry['update-type'] || '';
+
+            if (updateType !== 'version-update:semver-patch' && updateType !== 'version-update:semver-minor') {
+              return { ok: false, reason: `${name}: disallowed update-type "${updateType}"` };
+            }
+            const match = version.match(/^v?(\d+)(?:\.(\d+))?(?:\.(\d+))?$/);
+            if (!match) {
+              return { ok: false, reason: `${name}: unsupported version format "${version}"` };
+            }
+            const major = Number(match[1]);
+            const minor = Number(match[2] ?? 0);
+            if (major === 0) {
+              if (minor === 0) {
+                return { ok: false, reason: `${name}: 0.0.x update ("${version}") requires manual review` };
+              }
+              if (updateType !== 'version-update:semver-patch') {
+                return { ok: false, reason: `${name}: 0.x minor update ("${version}") requires manual review` };
+              }
+            }
+            return { ok: true, reason: `${name} -> ${version} (${updateType})` };
+          }
+
+          const pulls = ghJson(`repos/${repo}/pulls?state=open&base=master&per_page=100`);
+          const pr = pulls.find(
+            (item) =>
+              !item.draft &&
+              item.head?.sha === headSha &&
+              item.user?.login === 'dependabot[bot]' &&
+              item.head?.repo?.full_name === repo
+          );
+
+          if (!pr) {
+            console.log(`No matching open non-draft Dependabot PR for head ${headSha}. Skipping.`);
+            process.exit(0);
+          }
+
+          const commits = ghJson(`repos/${repo}/pulls/${pr.number}/commits?per_page=100`);
+          if (!Array.isArray(commits) || commits.length === 0) {
+            console.log(`PR #${pr.number} has no commits. Leaving open for manual review.`);
+            process.exit(0);
+          }
+
+          if (!commits.every((c) => c.author?.login === 'dependabot[bot]')) {
+            console.log(`PR #${pr.number} contains commits not authored by dependabot[bot]. Leaving open.`);
+            process.exit(0);
+          }
+
+          const allEntries = [];
+          for (const commit of commits) {
+            const parsed = parseUpdatedDependencies(commit.commit?.message);
+            if (parsed.sawBlock && parsed.entries.length === 0) {
+              console.log(`PR #${pr.number} has unparseable updated-dependencies block. Leaving open.`);
+              process.exit(0);
+            }
+            allEntries.push(...parsed.entries);
+          }
+
+          if (allEntries.length === 0) {
+            console.log(`PR #${pr.number} has no updated-dependencies metadata. Leaving open for manual review.`);
+            process.exit(0);
+          }
+
+          const results = allEntries.map(validateEntry);
+          const rejected = results.filter((r) => !r.ok);
+          if (rejected.length > 0) {
+            console.log(`PR #${pr.number} requires manual review:`);
+            for (const item of rejected) console.log(` - ${item.reason}`);
+            process.exit(0);
+          }
+
+          console.log(`PR #${pr.number} approved for auto-merge:`);
+          for (const item of results) console.log(` + ${item.reason}`);
+
+          execFileSync(
+            'gh',
+            ['pr', 'merge', String(pr.number), '--squash', '--delete-branch', '--match-head-commit', headSha],
+            { stdio: 'inherit' }
+          );
+
+          // GITHUB_TOKEN 머지는 push 이벤트를 발생시키지 않으므로 workflow_dispatch로 배포를 명시 실행
+          execFileSync('gh', ['workflow', 'run', 'deploy.yml', '--ref', 'master'], { stdio: 'inherit' });
+          EOF

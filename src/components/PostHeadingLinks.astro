@@ -1,0 +1,293 @@
+---
+// 글 본문 소제목(h2, h3) 오른쪽에 링크 복사 버튼을 붙입니다.
+// JS가 없으면 아무것도 바뀌지 않고 기존 본문 제목 그대로 보입니다.
+// 버튼은 제목 바깥 형제 요소로 두어 스크린 리더 제목 텍스트에 섞이지 않게 합니다.
+interface Props {
+  /** 소제목이 들어 있는 본문 요소의 id */
+  for: string;
+}
+const { for: target } = Astro.props;
+---
+
+<div class="phl-announcer visually-hidden" data-phl-for={target} role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+  const RESET_MS = 1800;
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  const makeIcon = (cls: string, paths: string[]) => {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('class', `phl-icon ${cls}`);
+    svg.setAttribute('width', '15');
+    svg.setAttribute('height', '15');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.8');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    for (const d of paths) {
+      const p = document.createElementNS(SVG_NS, 'path');
+      p.setAttribute('d', d);
+      svg.append(p);
+    }
+    return svg;
+  };
+
+  const linkIcon = () =>
+    makeIcon('phl-icon-link', [
+      'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71',
+      'M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71',
+    ]);
+  const checkIcon = () => makeIcon('phl-icon-check', ['M5 12.5l4.5 4.5L19 7.5']);
+
+  const fallbackCopy = (text: string) => {
+    const prevFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const sel = document.getSelection();
+    const savedRanges = sel ? Array.from({ length: sel.rangeCount }, (_, i) => sel.getRangeAt(i).cloneRange()) : [];
+
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.tabIndex = -1;
+    ta.style.cssText = 'position: fixed; top: 0; left: 0; opacity: 0; pointer-events: none;';
+    document.body.append(ta);
+    try {
+      ta.select();
+      const execCopy = (document as { execCommand?: (id: string) => boolean }).execCommand;
+      if (!execCopy?.call(document, 'copy')) throw new Error('execCommand copy failed');
+    } finally {
+      ta.remove();
+      if (sel) {
+        sel.removeAllRanges();
+        for (const r of savedRanges) sel.addRange(r);
+      }
+      if (prevFocus?.isConnected) prevFocus.focus({ preventScroll: true });
+    }
+  };
+
+  const copyText = async (text: string) => {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch {
+        // 권한 거부 등: 아래 대체 방식으로 재시도
+      }
+    }
+    fallbackCopy(text);
+  };
+
+  const setup = (announcer: HTMLElement) => {
+    if (announcer.dataset.ready) return;
+    announcer.dataset.ready = '1';
+    const article = document.getElementById(announcer.dataset.phlFor ?? '');
+    if (!article) return;
+
+    const headings = [...article.querySelectorAll<HTMLHeadingElement>('h2[id], h3[id]')].filter(
+      (h) => !h.closest('.heading-row')
+    );
+    if (!headings.length) return;
+
+    const timers = new WeakMap<HTMLButtonElement, number>();
+    const busy = new WeakSet<HTMLButtonElement>();
+    let raf1 = 0;
+    let raf2 = 0;
+    const announce = (msg: string) => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      announcer.textContent = '';
+      raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => {
+          announcer.textContent = msg;
+        });
+      });
+    };
+
+    for (const heading of headings) {
+      const title = (heading.textContent ?? '').trim();
+      const baseAria = title ? `${title} 링크 복사` : '소제목 링크 복사';
+      const copiedAria = title ? `${title} 링크 복사됨` : '소제목 링크 복사됨';
+      const failedAria = title ? `${title} 링크 복사 실패` : '소제목 링크 복사 실패';
+
+      const row = document.createElement('div');
+      row.className = `heading-row heading-row-${heading.tagName.toLowerCase()}`;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'heading-link';
+      btn.setAttribute('aria-label', baseAria);
+      const icons = document.createElement('span');
+      icons.className = 'phl-icons';
+      icons.setAttribute('aria-hidden', 'true');
+      icons.append(linkIcon(), checkIcon());
+      btn.append(icons);
+
+      heading.replaceWith(row);
+      row.append(heading, btn);
+
+      const scheduleReset = () => {
+        timers.set(
+          btn,
+          window.setTimeout(() => {
+            delete btn.dataset.copied;
+            btn.setAttribute('aria-label', baseAria);
+            timers.delete(btn);
+          }, RESET_MS)
+        );
+      };
+
+      btn.addEventListener('click', async () => {
+        if (busy.has(btn)) return;
+        busy.add(btn);
+        const url = `${location.origin}${location.pathname}#${encodeURIComponent(heading.id)}`;
+        try {
+          await copyText(url);
+          clearTimeout(timers.get(btn));
+          btn.dataset.copied = '1';
+          btn.setAttribute('aria-label', copiedAria);
+          announce('소제목 링크를 복사했습니다');
+          scheduleReset();
+        } catch {
+          clearTimeout(timers.get(btn));
+          delete btn.dataset.copied;
+          btn.setAttribute('aria-label', failedAria);
+          announce('링크 복사에 실패했습니다');
+          scheduleReset();
+        } finally {
+          busy.delete(btn);
+        }
+      });
+    }
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-phl-for]').forEach(setup);
+</script>
+
+<style>
+  :global(.prose .heading-row) {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  :global(.prose .heading-row-h2) {
+    margin: 55px 0 18px;
+  }
+  :global(.prose .heading-row-h3) {
+    margin: 38px 0 11px;
+  }
+  :global(.prose > .heading-row:first-child) {
+    margin-top: 0;
+  }
+  :global(.prose .heading-row > h2),
+  :global(.prose .heading-row > h3) {
+    margin: 0;
+    min-width: 0;
+    flex: 0 1 auto;
+  }
+
+  :global(.prose .heading-link) {
+    position: relative;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--fg-3);
+    cursor: pointer;
+    transition: opacity 0.18s var(--ease), color 0.18s var(--ease), background 0.18s var(--ease);
+  }
+  :global(.prose .heading-row-h2 .heading-link) {
+    margin-top: 2px;
+  }
+  :global(.prose .heading-row-h3 .heading-link) {
+    margin-top: 0;
+  }
+  /* 레이아웃 높이는 유지하고 터치·클릭 영역(44×44px)만 확보 */
+  :global(.prose .heading-link::after) {
+    content: '';
+    position: absolute;
+    inset: -8px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    :global(.prose .heading-link) {
+      opacity: 0;
+    }
+    :global(.prose .heading-row:hover .heading-link),
+    :global(.prose .heading-row:focus-within .heading-link),
+    :global(.prose .heading-link[data-copied]) {
+      opacity: 1;
+    }
+  }
+  @media (hover: none), (pointer: coarse) {
+    :global(.prose .heading-link) {
+      opacity: 0.65;
+    }
+    :global(.prose .heading-link[data-copied]) {
+      opacity: 1;
+    }
+  }
+
+  :global(.prose .heading-link:hover) {
+    color: var(--fg);
+    background: var(--bg-subtle);
+  }
+  :global(.prose .heading-link:focus-visible) {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+  }
+  :global(.prose .heading-link[data-copied]) {
+    color: #0066cc;
+    background: var(--blue-soft);
+  }
+  :global(:root[data-theme='dark'] .prose .heading-link[data-copied]) {
+    color: var(--blue);
+    background: var(--blue-soft);
+  }
+
+  :global(.prose .phl-icons) {
+    display: inline-grid;
+    width: 15px;
+    height: 15px;
+  }
+  :global(.prose .phl-icon) {
+    grid-area: 1 / 1;
+    display: block;
+    width: 15px;
+    height: 15px;
+    transition: opacity 0.18s var(--ease), transform 0.18s var(--ease);
+  }
+  :global(.prose .phl-icon-check) {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  :global(.prose .heading-link[data-copied] .phl-icon-link) {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  :global(.prose .heading-link[data-copied] .phl-icon-check) {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.prose .heading-link),
+    :global(.prose .phl-icon) {
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  @media print {
+    :global(.prose .heading-link) {
+      display: none !important;
+    }
+  }
+</style>
