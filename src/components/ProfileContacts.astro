@@ -1,12 +1,6 @@
 ---
 import { SITE } from '../site.config';
 
-interface Props {
-  compact?: boolean;
-}
-
-const { compact = false } = Astro.props;
-
 const links = [
   { label: 'GitHub', href: SITE.links.github },
   { label: 'Instagram', href: SITE.links.instagram },
@@ -17,7 +11,7 @@ const email = SITE.links.email;
 ---
 
 {(links.length > 0 || email) && (
-  <div class:list={['profile-contacts', { compact }]}>
+  <div class="profile-contacts">
     {links.length > 0 && (
       <ul class="profile-links">
         {links.map(({ label, href }) => (
@@ -130,24 +124,5 @@ const email = SITE.links.email;
     overflow-wrap: anywhere;
     user-select: text;
     cursor: text;
-  }
-
-  /* 홈 히어로용: 같은 모양, 조금 더 촘촘하게 */
-  .compact .profile-links {
-    gap: 6px 8px;
-    margin-top: 18px;
-    font-size: 13px;
-  }
-  .compact .profile-links a {
-    min-height: 30px;
-    padding: 4px 11px 4px 12px;
-  }
-  .compact .profile-email {
-    gap: 8px;
-    margin-top: 12px;
-    padding-top: 10px;
-  }
-  .compact .profile-email-address {
-    font-size: 14px;
   }
 </style>
