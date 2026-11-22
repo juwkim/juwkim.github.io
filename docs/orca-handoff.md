@@ -49,6 +49,7 @@
 | 글 주소 목록 | `scripts/post-slugs.json` |
 | About 연락처 | `src/components/ProfileContacts.astro` |
 | 사진 뷰어 | `src/components/PostImageViewer.astro` |
+| 코드 블록 복사 | `src/components/PostCodeBlocks.astro` |
 | 댓글 | `src/components/Comments.astro` |
 | 배포·의존성 점검 | `.github/workflows/deploy.yml`, `.github/dependabot.yml` |
 | 프로필 사진 / 첨부 자료 | `src/assets/avatar.jpg` / `public/files/maicon-2026/` |
@@ -68,12 +69,13 @@
   - 일의 포부는 기술로 사람의 시간을 돌려주고 더 중요한 일에 시간을 쓸 수 있게 돕는다는 문장으로 정리했습니다. 이력 항목은 현재 구성으로 충분합니다.
 - **solved.ac 9,174문제**: 2026-11-21에 공식 수치를 확인했습니다. 저장소에 옮겨 둔 풀이 기록 수는 계정 전체 수치가 아닙니다.
 - **홈**: 연락처 묶음을 추가했다가 제거했습니다. 기존 About 바로가기는 유지합니다.
-- **사진 뷰어**
-  - native `<dialog>`를 사용하며, 화면 맞춤과 확대를 지원합니다.
+- **사진 뷰어·코드 블록**
+  - 사진 뷰어는 native `<dialog>`를 사용하며, 화면 맞춤과 확대를 지원합니다.
   - 필름 미리보기와 이전·다음 사진 미리 불러오기를 제공합니다.
   - 버튼, 좌우 방향키, Esc로 조작합니다.
   - reduced motion과 모바일 동작을 확인했습니다.
   - 링크가 걸린 이미지는 원래 링크 목적지로 이동합니다. 세로 사진에 별도 높이 제한은 두지 않습니다.
+  - 본문 코드 블록(`PostCodeBlocks.astro`)에는 언어 표시 헤더와 복사 버튼을 제공하며, JS가 없으면 기존 `.prose pre` 스타일 그대로 보입니다(2026-11-22).
 - **giscus**
   - 공개 저장소의 Discussions General 카테고리에 연결했습니다.
   - pathname 매핑, 테마 동기화, lazy 로딩을 적용했습니다.
