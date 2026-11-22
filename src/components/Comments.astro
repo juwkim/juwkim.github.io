@@ -1,5 +1,6 @@
 ---
 // giscus 댓글. SITE.comments.categoryId가 채워졌을 때만 출력됩니다.
+// 댓글 테마는 public/giscus/light.css, dark.css (블로그 디자인 토큰에 맞춘 사용자 테마)
 import { SITE } from '../site.config';
 
 const c = SITE.comments;
@@ -15,6 +16,7 @@ const enabled = c.categoryId !== '';
       data-repo-id={c.repoId}
       data-category={c.category}
       data-category-id={c.categoryId}
+      data-theme-base={SITE.url}
     >
       <div class="giscus" />
     </section>
@@ -25,10 +27,13 @@ const enabled = c.categoryId !== '';
   const box = document.querySelector<HTMLElement>('.comments[data-repo]');
   if (box) {
     const root = document.documentElement;
-    // 사이트 테마(수동 선택 또는 시스템 설정)를 그대로 따름
-    const theme = () =>
-      root.dataset.theme === 'dark' ? 'dark' : root.dataset.theme === 'light' ? 'light' : 'preferred_color_scheme';
     const d = box.dataset;
+    // 사이트 테마(수동 선택 또는 시스템 설정)를 그대로 따름.
+    // 테마 CSS 주소는 location.origin이 아니라 SITE.url 기준 (https://giscus.app 안에서 http://localhost 주소는 차단됨)
+    const media = matchMedia('(prefers-color-scheme: dark)');
+    const isDark = () => root.dataset.theme === 'dark' || (!root.dataset.theme && media.matches);
+    const theme = () => `${d.themeBase}/giscus/${isDark() ? 'dark' : 'light'}.css?v=1`;
+
     const attrs: Record<string, string> = {
       repo: d.repo!,
       'repo-id': d.repoId!,
@@ -48,13 +53,30 @@ const enabled = c.categoryId !== '';
     s.async = true;
     s.crossOrigin = 'anonymous';
     for (const [k, v] of Object.entries(attrs)) s.setAttribute(`data-${k}`, v);
+
+    const syncTheme = () => {
+      const next = theme();
+      s.dataset.theme = next;
+      const frame = box.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+      frame?.contentWindow?.postMessage({ giscus: { setConfig: { theme: next } } }, 'https://giscus.app');
+    };
+
+    // iframe 로드 전·중 테마 전환이나 로그인 후 재로드를 놓치지 않도록 캡처 단계에서 감지
+    box.addEventListener(
+      'load',
+      (e) => {
+        if ((e.target as HTMLElement | null)?.matches('iframe.giscus-frame')) syncTheme();
+      },
+      true
+    );
     box.append(s);
 
     // 다크 모드 전환 시 댓글 테마도 함께 변경
-    new MutationObserver(() => {
-      const frame = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
-      frame?.contentWindow?.postMessage({ giscus: { setConfig: { theme: theme() } } }, 'https://giscus.app');
-    }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+    new MutationObserver(syncTheme).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+    // 시스템 설정을 따르는 중(data-theme 없음)에 OS 테마가 바뀌는 경우
+    media.addEventListener('change', () => {
+      if (!root.dataset.theme) syncTheme();
+    });
   }
 </script>
 
@@ -63,5 +85,6 @@ const enabled = c.categoryId !== '';
     margin: 56px 0 0;
     padding-top: 32px;
     border-top: 1px solid var(--line);
+    min-height: 240px; /* 불러오는 동안 아래 내용이 밀리지 않게 */
   }
 </style>
