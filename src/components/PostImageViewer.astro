@@ -15,6 +15,16 @@ const { for: target } = Astro.props;
     <img class="piv-img" alt="" decoding="async" />
     <figcaption class="piv-caption" hidden></figcaption>
   </figure>
+  <nav class="piv-navigation" aria-label="갤러리 탐색" hidden>
+    <div class="piv-strip" role="group" aria-label="필름 스트립">
+      <button type="button" class="piv-thumb-prev" aria-label="이전 이미지 미리보기, 눌러서 보기"><img alt="" decoding="async"></button>
+      <div class="piv-thumb-current" aria-hidden="true"><img alt="" decoding="async"></div>
+      <button type="button" class="piv-thumb-next" aria-label="다음 이미지 미리보기, 눌러서 보기"><img alt="" decoding="async"></button>
+      <p class="piv-count" role="status" aria-live="polite" aria-atomic="true"></p>
+    </div>
+    <button type="button" class="piv-prev" aria-label="이전 이미지"><span aria-hidden="true">‹</span></button>
+    <button type="button" class="piv-next" aria-label="다음 이미지"><span aria-hidden="true">›</span></button>
+  </nav>
   <button type="button" class="piv-zoom" aria-label="확대해서 보기" aria-pressed="false">
     확대
   </button>
@@ -24,6 +34,8 @@ const { for: target } = Astro.props;
 </dialog>
 
 <script>
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
   const setup = (dialog: HTMLDialogElement) => {
     if (dialog.dataset.ready) return;
     const article = document.getElementById(dialog.dataset.pivFor ?? '');
@@ -50,22 +62,106 @@ const { for: target } = Astro.props;
       dialog.scrollTop = 0;
       dialog.scrollLeft = on ? (dialog.scrollWidth - dialog.clientWidth) / 2 : 0;
     };
-    let opener: HTMLElement | null = null;
 
-    const open = (img: HTMLImageElement, btn: HTMLElement) => {
-      opener = btn;
-      const alt = img.alt.trim();
+    const nav = dialog.querySelector<HTMLElement>('.piv-navigation')!;
+    const prevBtn = nav.querySelector<HTMLButtonElement>('.piv-prev')!;
+    const nextBtn = nav.querySelector<HTMLButtonElement>('.piv-next')!;
+    const thumbPrev = nav.querySelector<HTMLButtonElement>('.piv-thumb-prev')!;
+    const thumbNext = nav.querySelector<HTMLButtonElement>('.piv-thumb-next')!;
+    const thumbCur = nav.querySelector<HTMLImageElement>('.piv-thumb-current img')!;
+    const count = nav.querySelector<HTMLElement>('.piv-count')!;
+
+    const items: { img: HTMLImageElement; btn: HTMLButtonElement }[] = [];
+    let index = 0; // 화면에 보이는 사진
+    let opener: HTMLButtonElement | undefined;
+    let animation: Animation | undefined;
+    let pending = 0; // 이동 목표(아직 로딩 중일 수 있음)
+    let token = 0; // 마지막 요청만 반영
+
+    const srcOf = (i: number) => items[i].img.currentSrc || items[i].img.src;
+    const labelOf = (i: number) => items[i].img.alt.trim() || `${i + 1}번째 이미지`;
+    const textOf = (img: HTMLImageElement) => {
       const fig = img.closest('figure');
       const figcap = fig && article.contains(fig) ? fig.querySelector(':scope > figcaption') : null;
-      const text = figcap?.textContent?.trim() || alt;
-      view.src = img.currentSrc || img.src;
+      return figcap?.textContent?.trim() || img.alt.trim();
+    };
+
+    // 인접 프레임만 불러옴(전체 미리 불러오기 없음)
+    const setThumb = (b: HTMLButtonElement, i: number, prefix: string) => {
+      const ok = i >= 0 && i < items.length;
+      const im = b.querySelector('img')!;
+      b.disabled = !ok;
+      if (ok) {
+        im.src = srcOf(i);
+        b.setAttribute('aria-label', prefix + labelOf(i));
+      } else {
+        im.removeAttribute('src');
+      }
+    };
+
+    const syncNav = (i: number) => {
+      const active = document.activeElement;
+      prevBtn.disabled = i <= 0;
+      nextBtn.disabled = i >= items.length - 1;
+      setThumb(thumbPrev, i - 1, '이전 이미지 미리보기: ');
+      setThumb(thumbNext, i + 1, '다음 이미지 미리보기: ');
+      thumbCur.src = srcOf(i);
+      // 끝에 닿아 비활성/숨김된 컨트롤의 포커스를 반대쪽 버튼으로
+      if (active instanceof HTMLButtonElement && nav.contains(active) && (active.disabled || active.hidden)) {
+        (prevBtn.disabled ? nextBtn : prevBtn).focus();
+      }
+    };
+
+    const apply = (i: number, dir: number) => {
+      animation?.cancel();
+      index = i;
+      const img = items[i].img;
+      const alt = img.alt.trim();
+      const text = textOf(img);
+      setZoom(false);
+      view.src = srcOf(i);
       view.alt = alt;
       caption.textContent = text;
       caption.hidden = !text;
       // 캡션이 alt와 같으면 스크린리더에 두 번 읽히지 않게
       if (text && text === alt) caption.setAttribute('aria-hidden', 'true');
       else caption.removeAttribute('aria-hidden');
-      setZoom(false);
+      count.textContent = `${i + 1} / ${items.length}`;
+      dialog.removeAttribute('data-loading');
+      if (dir && !reduceMotion.matches && typeof view.animate === 'function') {
+        animation = view.animate(
+          [{ opacity: 0.68, transform: `translateX(${dir * 24}px)` }, { opacity: 1, transform: 'none' }],
+          { duration: 210, easing: 'cubic-bezier(.2,.7,.3,1)' }
+        );
+      }
+    };
+
+    const go = (i: number) => {
+      if (i < 0 || i >= items.length || i === pending) return;
+      const dir = Math.sign(i - index);
+      pending = i;
+      const t = ++token;
+      dialog.setAttribute('data-loading', '');
+      // 대상 사진을 받는 동안 현재 사진 유지
+      const loader = new Image();
+      loader.src = srcOf(i);
+      loader.decode().then(() => {
+        if (t !== token || !dialog.open) return;
+        apply(i, dir);
+        syncNav(i);
+      }, () => {
+        if (t !== token || !dialog.open) return;
+        pending = index;
+        dialog.removeAttribute('data-loading');
+      });
+    };
+
+    const open = (i: number) => {
+      token++;
+      opener = items[i].btn;
+      pending = i;
+      apply(i, 0);
+      syncNav(i);
       dialog.showModal();
       closeBtn.focus();
     };
@@ -82,8 +178,25 @@ const { for: target } = Astro.props;
       btn.setAttribute('aria-label', img.alt.trim() ? '크게 보기: ' + img.alt.trim() : '이미지 크게 보기');
       target.replaceWith(btn);
       btn.append(target);
-      btn.addEventListener('click', () => open(img, btn));
+      const i = items.push({ img, btn }) - 1;
+      btn.addEventListener('click', () => open(i));
     }
+    const multi = items.length > 1;
+    dialog.toggleAttribute('data-gallery', multi);
+    nav.hidden = !multi;
+
+    prevBtn.addEventListener('click', () => go(pending - 1));
+    nextBtn.addEventListener('click', () => go(pending + 1));
+    thumbPrev.addEventListener('click', () => go(pending - 1));
+    thumbNext.addEventListener('click', () => go(pending + 1));
+    dialog.addEventListener('keydown', (e) => {
+      if (!multi || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      if (dialog.hasAttribute('data-zoomed') && !nav.contains(document.activeElement)) return;
+      if (e.key === 'ArrowLeft') go(pending - 1);
+      else if (e.key === 'ArrowRight') go(pending + 1);
+      else return;
+      e.preventDefault();
+    });
 
     closeBtn.addEventListener('click', () => dialog.close());
     zoomBtn.addEventListener('click', () => setZoom(!dialog.hasAttribute('data-zoomed')));
@@ -96,10 +209,15 @@ const { for: target } = Astro.props;
     });
     // Escape는 native cancel → close 이벤트로 처리됨
     dialog.addEventListener('close', () => {
+      // A queued close event can arrive after another thumbnail reopens the dialog.
+      if (dialog.open) return;
+      token++;
+      dialog.removeAttribute('data-loading');
       setZoom(false);
       view.removeAttribute('src');
+      animation?.cancel();
       opener?.focus();
-      opener = null;
+      opener = undefined;
     });
   };
 
@@ -239,5 +357,186 @@ const { for: target } = Astro.props;
     width: var(--piv-zoom-w);
     max-width: none;
     max-height: none;
+  }
+
+  /* 필름 스트립 갤러리 내비게이션 */
+  .piv-navigation[hidden],
+  dialog.piv:not([data-gallery]) .piv-navigation {
+    display: none;
+  }
+  .piv-navigation {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  dialog.piv[data-gallery] {
+    padding: 60px 72px calc(110px + env(safe-area-inset-bottom));
+  }
+  dialog.piv[data-gallery]:not([data-zoomed]) .piv-img {
+    max-height: calc(100dvh - 234px - env(safe-area-inset-bottom));
+  }
+
+  .piv-prev, .piv-next {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font: inherit;
+    font-size: 30px;
+    line-height: 1;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+  .piv-prev {
+    left: 12px;
+  }
+  .piv-next {
+    right: 12px;
+  }
+  .piv-prev span, .piv-next span {
+    display: block;
+    margin-top: -3px;
+  }
+  .piv-prev:hover:not(:disabled), .piv-next:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.26);
+  }
+  .piv-prev:disabled, .piv-next:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  .piv-strip {
+    position: fixed;
+    left: 50%;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: calc(100vw - 24px);
+    box-sizing: border-box;
+    padding: 14px 16px;
+    background: #0c0c0d;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+  }
+  /* 은은한 필름 천공 */
+  .piv-strip::before, .piv-strip::after {
+    content: '';
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    height: 4px;
+    background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.14) 0 6px, transparent 6px 14px);
+    border-radius: 1px;
+  }
+  .piv-strip::before {
+    top: 4px;
+  }
+  .piv-strip::after {
+    bottom: 4px;
+  }
+
+  .piv-thumb-prev, .piv-thumb-next, .piv-thumb-current {
+    flex: none;
+    box-sizing: border-box;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 3px;
+    background: #1a1a1c;
+  }
+  .piv-thumb-prev, .piv-thumb-next {
+    width: 72px;
+    height: 48px;
+    cursor: pointer;
+    opacity: 0.55;
+    pointer-events: auto;
+    transition: opacity 0.15s;
+  }
+  .piv-thumb-prev:hover, .piv-thumb-next:hover {
+    opacity: 0.9;
+  }
+  .piv-thumb-prev:disabled, .piv-thumb-next:disabled {
+    visibility: hidden;
+  }
+  .piv-thumb-current {
+    width: 84px;
+    height: 56px;
+    border-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
+  }
+  .piv-strip img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .piv-count {
+    margin: 0 0 0 4px;
+    min-width: 3.5em;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+  }
+
+  .piv-prev:focus-visible, .piv-next:focus-visible,
+  .piv-thumb-prev:focus-visible, .piv-thumb-next:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+    opacity: 1;
+  }
+
+  @media (max-width: 640px) {
+    dialog.piv[data-gallery] {
+      padding: 60px 16px calc(142px + env(safe-area-inset-bottom));
+    }
+    dialog.piv[data-gallery]:not([data-zoomed]) .piv-img {
+      max-height: calc(100dvh - 266px - env(safe-area-inset-bottom));
+    }
+    .piv-strip {
+      bottom: calc(8px + env(safe-area-inset-bottom));
+      padding: 12px;
+      gap: 8px;
+    }
+    .piv-thumb-prev, .piv-thumb-next {
+      width: 56px;
+      height: 38px;
+    }
+    .piv-thumb-current {
+      width: 64px;
+      height: 44px;
+    }
+    .piv-prev, .piv-next {
+      top: auto;
+      transform: none;
+      width: 44px;
+      height: 44px;
+      font-size: 28px;
+      bottom: calc(88px + env(safe-area-inset-bottom));
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .piv-thumb-prev, .piv-thumb-next {
+      transition: none;
+    }
+  }
+
+  dialog.piv[data-loading] .piv-prev:not(:disabled),
+  dialog.piv[data-loading] .piv-next:not(:disabled) {
+    cursor: progress;
   }
 </style>
