@@ -19,8 +19,8 @@ export const SITE = {
   },
   // 검색엔진 소유 확인 코드 (구글 서치 콘솔, 네이버 서치어드바이저의 HTML 태그 방식)
   verification: {
-    google: '',
-    naver: '',
+    google: 'c2PuWQ46H6zZ8qQOVFDRJ_uWskV6w64Jmyz5z2DJKOU',
+    naver: '2089745ad341aef578581908c44918027c1341ee',
   },
 };
 
