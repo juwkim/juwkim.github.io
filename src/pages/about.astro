@@ -18,7 +18,7 @@ const links = [
       <div class="avatar">
         <Image src={avatar} alt={`${profile.name} 프로필 사진`} width={192} height={192} quality={85} loading="eager" />
       </div>
-      <div>
+      <div class="profile-body">
         <h1>{profile.name}</h1>
         <p>{profile.tagline.map((line, i) => <>{i > 0 && <br />}{line}</>)}</p>
         {links.length > 0 && (
@@ -33,14 +33,19 @@ const links = [
             ))}
           </ul>
         )}
-        {SITE.links.email && <div class="profile-email">{SITE.links.email}</div>}
+        {SITE.links.email && (
+          <div class="profile-email">
+            <span class="profile-email-label">Email</span>
+            <span class="profile-email-address">{SITE.links.email}</span>
+          </div>
+        )}
       </div>
     </header>
 
     <section class="aspire" aria-labelledby="aspire">
       <div class="section-head">
-        <h2 id="aspire">그리는 내일</h2>
-        <span class="note">멀리 보는 방향</span>
+        <h2 id="aspire">평생의 나침반</h2>
+        <span class="note">20~30년, 그리고 평생</span>
       </div>
       <div class="aspire-grid">
         {
@@ -58,8 +63,8 @@ const links = [
     <div class="cols">
     <section class="a-dreams" aria-labelledby="dreams">
       <div class="section-head">
-        <h2 id="dreams">아직 남은 꿈</h2>
-        <span class="note">지금, 나아가는 중</span>
+        <h2 id="dreams">가꿔 갈 꿈</h2>
+        <span class="note">앞으로 5~10년</span>
       </div>
       <ol class="dreams">
         {
@@ -79,7 +84,7 @@ const links = [
     <section class="a-now" aria-labelledby="now">
       <div class="section-head">
         <h2 id="now">요즘의 나</h2>
-        <span class="note">{now.updated} 업데이트</span>
+        <span class="note">지금부터 1년 안 · {now.updated} 업데이트</span>
       </div>
       <dl class="now">
         {
@@ -173,16 +178,59 @@ const links = [
     border-radius: 999px;
     border-color: color-mix(in srgb, var(--blue) 45%, transparent);
   }
+  .profile-body {
+    min-width: 0;
+  }
+  /* 이메일: 링크가 아닌 평문 연락처 줄. 라벨은 선택에서 빠지고 주소만 그대로 드래그해 복사 */
   .profile-email {
-    margin: 10px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: fit-content;
+    max-width: 100%;
+    margin: 14px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .profile-email-label {
+    flex: none;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--bg-subtle);
     color: var(--fg-2);
-    font-size: 13.5px;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    user-select: none;
+  }
+  .profile-email-address {
+    min-width: 0;
+    color: var(--fg);
+    font-size: 14.5px;
+    font-weight: 500;
     line-height: 1.4;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.005em;
     overflow-wrap: anywhere;
     user-select: text;
+    cursor: text;
   }
-  /* 그리는 내일: 작은 목표들 위에 놓인 큰 방향 */
+  /* About 섹션 제목: 시간의 층위가 한눈에 보이도록 조금 더 또렷하게 */
+  .page .section-head {
+    flex-wrap: wrap;
+    gap: 4px 16px;
+  }
+  .page .section-head h2 {
+    font-size: clamp(20px, 2.4vw, 24px);
+    font-weight: 700;
+    color: var(--fg);
+    letter-spacing: -0.02em;
+  }
+  .page .section-head .note {
+    color: var(--fg-2);
+    font-variant-numeric: tabular-nums;
+  }
+  /* 평생의 나침반: 5~10년의 꿈 위에 놓인, 평생 품을 일과 삶의 방향 */
   .aspire {
     margin-bottom: 56px;
   }
@@ -206,15 +254,25 @@ const links = [
     border: 1px solid var(--line);
   }
   .label {
-    display: inline-block;
-    font-size: 12px;
-    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 34px;
+    padding: 4px 14px;
+    margin-bottom: 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    border-color: color-mix(in srgb, var(--blue) 26%, transparent);
+    background: var(--bg);
     color: var(--blue);
-    letter-spacing: 0.02em;
-    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0;
   }
   .atitle {
-    margin: 0 0 8px;
+    margin: 0 0 10px;
     font-size: 21px;
     font-weight: 700;
     letter-spacing: -0.03em;
@@ -223,22 +281,30 @@ const links = [
   }
   .abody {
     margin: 0;
-    font-size: 15px;
-    line-height: 1.65;
+    font-size: 15.5px;
+    line-height: 1.7;
     color: var(--fg-2);
     word-break: keep-all;
   }
-  /* 넓은 화면: 왼쪽(아직 남은 꿈 → 지나온 발걸음) | 오른쪽(요즘의 나, 스크롤해도 따라옴) */
+  /* 읽는 순서 = 시간 순서: 평생 → 5~10년 → 지금(1년 안) → 지나온 길.
+     넓은 화면: 위(가꿔 갈 꿈, 2열) → 아래 왼쪽(요즘의 나, 스크롤해도 따라옴) | 오른쪽(지나온 발걸음) */
   .cols {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
   }
   @media (min-width: 960px) {
     .cols {
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-      grid-template-areas: "dreams now" "steps now";
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+      grid-template-areas: "dreams dreams" "now steps";
       column-gap: 72px;
       align-items: start;
+    }
+    .dreams {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 72px;
+    }
+    .dreams li:nth-child(odd):nth-last-child(2) {
+      border-bottom: 0;
     }
     .a-dreams {
       grid-area: dreams;
@@ -302,8 +368,9 @@ const links = [
     word-break: keep-all;
   }
 
-  /* 아직 남은 꿈 */
+  /* 가꿔 갈 꿈 (5~10년) */
   .dreams {
+    display: grid;
     list-style: none;
     margin: 8px 0 56px;
     padding: 0;
@@ -357,8 +424,10 @@ const links = [
   }
   .dd {
     font-size: 14px;
-    color: var(--fg-3);
-    margin-top: 3px;
+    line-height: 1.6;
+    color: var(--fg-2);
+    margin-top: 4px;
+    word-break: keep-all;
   }
 
   /* 요즘의 나 */
@@ -374,8 +443,9 @@ const links = [
     padding: 16px 18px;
   }
   .now dt {
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 600;
+    letter-spacing: -0.01em;
     color: var(--blue);
     margin-bottom: 6px;
   }
@@ -458,6 +528,12 @@ const links = [
     }
     .now {
       grid-template-columns: 1fr;
+    }
+    .aspire-item {
+      padding: 22px 22px 20px;
+    }
+    .atitle {
+      font-size: 19px;
     }
     .steps::before {
       left: 69.5px;

@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
 import CategoryNav from '../../../components/CategoryNav.astro';
+import PostImageViewer from '../../../components/PostImageViewer.astro';
 import '../../../styles/prose.css';
 import katexCss from 'katex/dist/katex.min.css?url';
 import {
@@ -73,9 +74,10 @@ const hasMath = /\$\$|\$[^\s$][^$\n]*\$/.test((post.body ?? '').replace(/```[\s\
       </div>
     </header>
 
-    <article class="prose" data-pagefind-body>
+    <article id="post-body" class="prose" data-pagefind-body>
       <Content />
     </article>
+    <PostImageViewer for="post-body" />
 
     {
       tags.length > 0 && (

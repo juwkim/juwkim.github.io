@@ -1,0 +1,243 @@
+---
+// 글 본문 사진 클릭 시 크게 보기 (native <dialog>)
+// JS가 없으면 아무것도 바뀌지 않고 본문 이미지는 그대로 보입니다.
+// Base 레이아웃은 ClientRouter 없이 브라우저 기본 페이지 이동(@view-transition)을 쓰므로
+// 이 스크립트는 페이지마다 한 번 실행됩니다. 중복 실행은 data-ready로 막습니다.
+interface Props {
+  /** 확대 대상 이미지를 담은 본문 요소의 id */
+  for: string;
+}
+const { for: target } = Astro.props;
+---
+
+<dialog class="piv" data-piv-for={target} aria-label="이미지 크게 보기">
+  <figure class="piv-figure">
+    <img class="piv-img" alt="" decoding="async" />
+    <figcaption class="piv-caption" hidden></figcaption>
+  </figure>
+  <button type="button" class="piv-zoom" aria-label="확대해서 보기" aria-pressed="false">
+    확대
+  </button>
+  <button type="button" class="piv-close" aria-label="닫기" autofocus>
+    <span aria-hidden="true">×</span>
+  </button>
+</dialog>
+
+<script>
+  const setup = (dialog: HTMLDialogElement) => {
+    if (dialog.dataset.ready) return;
+    const article = document.getElementById(dialog.dataset.pivFor ?? '');
+    if (!article || typeof dialog.showModal !== 'function') return;
+    dialog.dataset.ready = '1';
+
+    const view = dialog.querySelector<HTMLImageElement>('.piv-img')!;
+    const caption = dialog.querySelector<HTMLElement>('.piv-caption')!;
+    const closeBtn = dialog.querySelector<HTMLButtonElement>('.piv-close')!;
+    const zoomBtn = dialog.querySelector<HTMLButtonElement>('.piv-zoom')!;
+    // 확대: 원본 폭(화면에 맞춰 줄어든 경우) 또는 맞춘 폭의 1.5배, 최대 뷰포트 폭의 1.5배
+    const setZoom = (on: boolean) => {
+      if (on) {
+        const fit = view.clientWidth;
+        const nat = view.naturalWidth;
+        if (!fit || !nat) return;
+        const w = Math.min(nat > fit + 1 ? nat : fit * 1.5, innerWidth * 1.5);
+        dialog.style.setProperty('--piv-zoom-w', Math.round(w) + 'px');
+      } else {
+        dialog.style.removeProperty('--piv-zoom-w');
+      }
+      dialog.toggleAttribute('data-zoomed', on);
+      zoomBtn.setAttribute('aria-pressed', String(on));
+      dialog.scrollTop = 0;
+      dialog.scrollLeft = on ? (dialog.scrollWidth - dialog.clientWidth) / 2 : 0;
+    };
+    let opener: HTMLElement | null = null;
+
+    const open = (img: HTMLImageElement, btn: HTMLElement) => {
+      opener = btn;
+      const alt = img.alt.trim();
+      const fig = img.closest('figure');
+      const figcap = fig && article.contains(fig) ? fig.querySelector(':scope > figcaption') : null;
+      const text = figcap?.textContent?.trim() || alt;
+      view.src = img.currentSrc || img.src;
+      view.alt = alt;
+      caption.textContent = text;
+      caption.hidden = !text;
+      // 캡션이 alt와 같으면 스크린리더에 두 번 읽히지 않게
+      if (text && text === alt) caption.setAttribute('aria-hidden', 'true');
+      else caption.removeAttribute('aria-hidden');
+      setZoom(false);
+      dialog.showModal();
+      closeBtn.focus();
+    };
+
+    for (const img of article.querySelectorAll('img')) {
+      // 링크/버튼 안 이미지는 기존 동작(링크 이동)을 그대로 둠
+      if (img.closest('a, button')) continue;
+      const parent = img.parentElement;
+      const target = parent instanceof HTMLPictureElement ? parent : img;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'piv-trigger';
+      btn.setAttribute('aria-haspopup', 'dialog');
+      btn.setAttribute('aria-label', img.alt.trim() ? '크게 보기: ' + img.alt.trim() : '이미지 크게 보기');
+      target.replaceWith(btn);
+      btn.append(target);
+      btn.addEventListener('click', () => open(img, btn));
+    }
+
+    closeBtn.addEventListener('click', () => dialog.close());
+    zoomBtn.addEventListener('click', () => setZoom(!dialog.hasAttribute('data-zoomed')));
+    // 이미지 바깥(배경) 클릭 시 닫기
+    dialog.addEventListener('click', (e) => {
+      // 확대 상태의 스크롤바 클릭은 닫기로 치지 않음
+      if (e.target !== dialog) return;
+      if (e.clientX >= dialog.clientWidth || e.clientY >= dialog.clientHeight) return;
+      dialog.close();
+    });
+    // Escape는 native cancel → close 이벤트로 처리됨
+    dialog.addEventListener('close', () => {
+      setZoom(false);
+      view.removeAttribute('src');
+      opener?.focus();
+      opener = null;
+    });
+  };
+
+  document.querySelectorAll<HTMLDialogElement>('dialog[data-piv-for]').forEach(setup);
+</script>
+
+<style is:global>
+  /* 본문 이미지를 감싼 버튼: 기존 .prose img 배치(가운데, 1.8em 여백)를 그대로 옮겨옴 */
+  .piv-trigger {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin: 1.8em auto;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: zoom-in;
+  }
+  .prose .piv-trigger img {
+    margin: 0;
+    cursor: zoom-in;
+  }
+  .piv-trigger picture {
+    display: block;
+  }
+  .piv-trigger:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 3px;
+  }
+
+  html:has(dialog.piv[open]) {
+    overflow: hidden;
+  }
+  dialog.piv {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 60px 16px 16px;
+    box-sizing: border-box;
+    border: 0;
+    background: transparent;
+    color: #fff;
+  }
+  dialog.piv[open] {
+    display: grid;
+    place-items: center;
+  }
+  dialog.piv::backdrop {
+    background: rgba(0, 0, 0, 0.86);
+  }
+  .piv-figure {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    max-width: 100%;
+    max-height: 100%;
+    min-height: 0;
+    pointer-events: none;
+  }
+  /* 원본 크기까지만 표시(확대 없음), 화면보다 크면 비율 유지하며 축소 */
+  .piv-img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: calc(100dvh - 140px);
+    object-fit: contain;
+    border-radius: 8px;
+    pointer-events: auto;
+    cursor: default;
+  }
+  .piv-caption {
+    max-width: 720px;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.85);
+    word-break: keep-all;
+    pointer-events: auto;
+  }
+  .piv-zoom,
+  .piv-close {
+    position: fixed;
+    top: 12px;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font: inherit;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .piv-close {
+    right: 12px;
+    font-size: 26px;
+  }
+  .piv-zoom {
+    right: 60px;
+    width: auto;
+    min-width: 52px;
+    padding: 0 12px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .piv-zoom[aria-pressed='true'],
+  .piv-zoom:hover,
+  .piv-close:hover {
+    background: rgba(255, 255, 255, 0.26);
+  }
+  .piv-zoom:focus-visible,
+  .piv-close:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+
+  dialog.piv[data-zoomed] {
+    place-items: start;
+    overflow: auto;
+  }
+  dialog.piv[data-zoomed] .piv-figure {
+    margin: auto;
+    max-width: none;
+    max-height: none;
+  }
+  dialog.piv[data-zoomed] .piv-img {
+    width: var(--piv-zoom-w);
+    max-width: none;
+    max-height: none;
+  }
+</style>

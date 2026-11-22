@@ -8,7 +8,7 @@ export const profile = {
   // 프로필 사진: src/assets/avatar.jpg (GitHub 프로필 사진). 바꾸려면 이 파일만 교체
 };
 
-/** 그리는 내일 — 작은 목표들보다 위에 있는, 더 멀리 보는 포부 */
+/** 평생의 나침반 — 20~30년, 그리고 평생에 걸쳐 품을 일과 삶의 방향 (일 · 삶) */
 export const aspirations = [
   {
     label: '일',
@@ -22,7 +22,7 @@ export const aspirations = [
   },
 ];
 
-/** 아직 남은 꿈 — 이루면 done: true (빈 원 → 채운 원) */
+/** 가꿔 갈 꿈 — 앞으로 5~10년의 방향 4가지 (건강, 관계, 영어, 성찰). 이루면 done: true (빈 원 → 채운 원) */
 export const dreams = [
   { title: '건강한 몸을 오래 돌보기', why: '하루쯤 쉬어 가더라도, 몸을 아끼는 방향은 놓지 않도록', done: false },
   { title: '좋은 사람들과 함께하기', why: '서로에게 편안한 사람으로 오래 곁에 있을 수 있도록', done: false },
@@ -30,7 +30,7 @@ export const dreams = [
   { title: '지금의 고민 속에서 나에게 더 맞는 방향 찾아가기', why: '정답보다 방향을 먼저 묻는 습관', done: false },
 ];
 
-/** 요즘의 나 — 한 달에 한 번쯤 업데이트 */
+/** 요즘의 나 — 지금부터 1년 안의 공부·습관·관심사 4칸. 한 달에 한 번쯤 업데이트 */
 export const now = {
   updated: '2026년 11월',
   items: [
