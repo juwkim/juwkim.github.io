@@ -28,7 +28,7 @@ export const SITE = {
     repo: 'juwkim/juwkim.github.io',
     repoId: 'R_kgDOKxOQ9g',
     category: 'General',
-    categoryId: '',
+    categoryId: 'DIC_kwDOKxOQ9s4DLsKL',
   },
 };
 
