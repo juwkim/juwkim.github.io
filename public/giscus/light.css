@@ -175,86 +175,29 @@ main .gsc-loading-image {
   box-shadow: var(--gsc-shadow);
 }
 
-#__next main .gsc-comment-box-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 6px 8px;
-  margin: 0;
-  padding: 8px 12px 0;
-  border-top: 0;
-  border-bottom: 1px solid var(--color-border-default);
-  border-radius: 0;
-  background-color: var(--color-canvas-subtle);
-}
-#__next main .gsc-comment-box-tabs > div:first-child {
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  margin: 0 0 -1px 0;
-  min-width: 0;
-}
-#__next main .gsc-comment-box-tabs > div:first-child > button {
-  margin: 0;
-  padding: 8px 14px;
-  font-size: 13.5px;
-  font-weight: 500;
-  line-height: 1.4;
-  border: 1px solid transparent;
-  border-bottom: 0;
-  border-radius: 8px 8px 0 0;
-  cursor: pointer;
-  transition: color 0.2s var(--gsc-ease), background-color 0.2s var(--gsc-ease),
-    border-color 0.2s var(--gsc-ease);
-}
-#__next main .gsc-comment-box-tabs > div:first-child > button.border-transparent {
-  color: var(--color-fg-muted);
-  background-color: transparent;
-  border-color: transparent;
-}
-#__next main .gsc-comment-box-tabs > div:first-child > button.border-transparent:hover {
-  color: var(--color-fg-default);
-}
-#__next main .gsc-comment-box-tabs > div:first-child > button.color-bg-canvas {
-  color: var(--color-fg-default);
-  font-weight: 600;
-  background-color: var(--color-canvas-overlay);
-  border-color: var(--gsc-control-border);
-  box-shadow: inset 0 2px 0 var(--color-accent-emphasis);
-}
-#__next main .gsc-comment-box-tabs > div:first-child > button:focus-visible {
-  outline: 2px solid var(--color-accent-fg);
-  outline-offset: -2px;
-}
-
-#__next main .gsc-comment-box-md-toolbar {
-  margin: 0 0 6px;
-  min-width: 0;
-  max-width: 100%;
-}
-#__next main .gsc-toolbar-item {
-  border-radius: 6px;
-  padding: 5px;
-  color: var(--color-fg-muted);
+/* 평문 댓글 위주라 작성/미리보기 탭, Aa 고정폭 토글, 마크다운 안내 링크 바를 숨김 */
+#__next main .gsc-comment-box-tabs,
+#__next main .gsc-comment-box-textarea-extras {
+  display: none;
 }
 
 #__next main .gsc-comment-box-main {
   margin: 12px;
 }
 
-/* textarea + 하단 마크다운 안내 바(.gsc-comment-box-textarea-extras)를 하나의 둥근 입력 박스로 묶음 */
 #__next main .gsc-comment-box-write {
   border-radius: 10px;
   transition: box-shadow 0.2s var(--gsc-ease);
 }
 #__next main .gsc-comment-box-write:focus-within {
   outline: none;
+  border-color: transparent;
   box-shadow: 0 0 0 3px var(--color-accent-subtle);
 }
 
 #__next main .gsc-comment-box-textarea,
 #__next main textarea.gsc-comment-box-textarea.form-control {
+  display: block;
   min-height: 112px;
   padding: 12px 14px;
   resize: vertical;
@@ -264,9 +207,7 @@ main .gsc-loading-image {
   color: var(--color-fg-default);
   background-color: var(--color-canvas-inset);
   border: 1px solid var(--gsc-control-border);
-  border-bottom-style: dashed;
-  border-bottom-color: var(--color-border-default);
-  border-radius: 10px 10px 0 0;
+  border-radius: 10px;
   box-shadow: none;
   transition: border-color 0.2s var(--gsc-ease), background-color 0.2s var(--gsc-ease);
 }
@@ -274,38 +215,11 @@ main .gsc-loading-image {
 #__next main textarea.gsc-comment-box-textarea.form-control:focus {
   outline: none;
   border-color: var(--color-accent-fg);
-  border-bottom-color: var(--color-border-default);
   box-shadow: none;
 }
 #__next main .gsc-comment-box-textarea::placeholder {
   color: var(--color-fg-subtle);
   opacity: 1;
-}
-
-#__next main .gsc-comment-box-textarea-extras,
-#__next main div.gsc-comment-box-textarea-extras.form-control {
-  padding: 6px 12px;
-  background-color: var(--color-canvas-inset);
-  border: 1px solid var(--gsc-control-border);
-  border-top: 0;
-  border-radius: 0 0 10px 10px;
-  color: var(--color-fg-subtle);
-  font-size: 12.5px;
-  line-height: 1.4;
-  transition: border-color 0.2s var(--gsc-ease);
-}
-#__next main .gsc-comment-box-write:focus-within .gsc-comment-box-textarea-extras {
-  border-color: var(--color-accent-fg);
-}
-
-#__next main .gsc-comment-box-preview {
-  min-height: 112px;
-  padding: 12px 14px;
-  font-size: 14.5px;
-  line-height: 1.65;
-  color: var(--color-fg-default);
-  border-radius: 10px;
-  border-color: var(--color-border-default);
 }
 
 #__next main .gsc-comment-box-bottom {
@@ -315,16 +229,6 @@ main .gsc-loading-image {
   justify-content: space-between;
   gap: 10px 12px;
   padding: 0 12px 12px;
-}
-#__next main .gsc-comment-box-markdown-hint,
-#__next main .gsc-comment-box-markdown-hint a {
-  font-size: 12.5px;
-  color: var(--color-fg-subtle);
-  text-decoration: none;
-}
-#__next main .gsc-comment-box-markdown-hint:hover,
-#__next main .gsc-comment-box-markdown-hint a:hover {
-  color: var(--color-accent-fg);
 }
 #__next main .gsc-comment-box-buttons {
   display: flex;
@@ -522,12 +426,6 @@ main .gsc-loading-image {
 
 /* ---------- 좁은 화면 (모바일 390px 기준 iframe 폭 ~342px) ---------- */
 @media (max-width: 540px) {
-  #__next main .gsc-comment-box-tabs {
-    padding: 6px 8px 0;
-  }
-  #__next main .gsc-comment-box-tabs > div:first-child > button {
-    padding: 7px 12px;
-  }
   #__next main .gsc-comment-box-main {
     margin: 10px;
   }
@@ -541,13 +439,6 @@ main .gsc-loading-image {
   #__next main .gsc-comment-content {
     padding-left: 14px;
     padding-right: 14px;
-  }
-}
-
-@media (max-width: 360px) {
-  #__next main .gsc-comment-box-tabs > div:first-child > button {
-    padding: 6px 10px;
-    font-size: 13px;
   }
 }
 

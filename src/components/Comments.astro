@@ -32,7 +32,7 @@ const enabled = c.categoryId !== '';
     // 테마 CSS 주소는 location.origin이 아니라 SITE.url 기준 (https://giscus.app 안에서 http://localhost 주소는 차단됨)
     const media = matchMedia('(prefers-color-scheme: dark)');
     const isDark = () => root.dataset.theme === 'dark' || (!root.dataset.theme && media.matches);
-    const theme = () => `${d.themeBase}/giscus/${isDark() ? 'dark' : 'light'}.css?v=1`;
+    const theme = () => `${d.themeBase}/giscus/${isDark() ? 'dark' : 'light'}.css?v=2`;
 
     const attrs: Record<string, string> = {
       repo: d.repo!,
@@ -85,6 +85,6 @@ const enabled = c.categoryId !== '';
     margin: 56px 0 0;
     padding-top: 32px;
     border-top: 1px solid var(--line);
-    min-height: 240px; /* 불러오는 동안 아래 내용이 밀리지 않게 */
+    min-height: 196px; /* 불러오는 동안 아래 내용이 밀리지 않게 */
   }
 </style>
