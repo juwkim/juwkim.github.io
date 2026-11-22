@@ -6,6 +6,9 @@ on:
     branches: [master]
   pull_request: # PR에서는 빌드 검사만 (배포 안 함)
     branches: [master]
+  schedule:
+    # 매일 오전 9:00 KST (UTC 00:00) 자동 재빌드 — 미래 날짜 글 예약 발행용
+    - cron: '0 0 * * *'
   workflow_dispatch: # Actions 탭에서 수동 실행도 가능
 
 permissions:

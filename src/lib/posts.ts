@@ -6,8 +6,12 @@ export type Sub = Category['subs'][number];
 
 /** 공개된 글 전체, 최신순 */
 export async function getPosts(): Promise<Post[]> {
-  // draft 글: 로컬 미리보기(npm run dev)에서는 보이고, 실제 사이트에서는 숨김
-  const posts = await getCollection('posts', ({ data }) => import.meta.env.DEV || !data.draft);
+  // draft 글 및 미래 날짜(예약 발행) 글: 로컬 미리보기(npm run dev)에서는 보이고, 실제 빌드에서는 숨김
+  const now = Date.now();
+  const posts = await getCollection(
+    'posts',
+    ({ data }) => import.meta.env.DEV || (!data.draft && data.date.getTime() <= now),
+  );
   return posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 }
 
