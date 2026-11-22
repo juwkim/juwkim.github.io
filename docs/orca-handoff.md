@@ -77,14 +77,18 @@
 - **giscus**
   - 공개 저장소의 Discussions General 카테고리에 연결했습니다.
   - pathname 매핑, 테마 동기화, lazy 로딩을 적용했습니다.
-  - 실제 마크업과 위젯 엔드포인트는 확인했습니다.
-  - 실제 댓글 작성과 iframe 표시는 현재 Cloud 브라우저에서 **미확인**입니다.
+  - 실제 Chrome 브라우저에서 `iframe.giscus-frame` 렌더링, 한국어 UI, 다크/라이트 테마 동기화를 확인했습니다(2026-11-22).
+  - 실제 GitHub 로그인 후 테스트 댓글 작성·Discussions 자동 생성·giscus API 연동을 확인했고, 테스트용 Discussion #3은 삭제했습니다(2026-11-22).
 - **SEO**
   - Google과 Naver 소유 확인 HTML 태그를 배포했으며, 계속 유지합니다.
-  - 사용자가 Google에는 사이트맵만, Naver에는 사이트맵과 RSS를 제출했습니다.
-  - 실제 색인 반영 여부는 **미확인**입니다.
-- **Dependabot**: npm과 GitHub Actions를 분기마다 점검해 PR을 만듭니다. 자동 merge는 하지 않습니다.
-- **진행하지 않는 일**: Cloud Drive 연결과 rclone 설정은 하지 않습니다.
+  - 사용자가 Google에는 사이트맵(`sitemap-index.xml`)을, Naver에는 사이트맵과 RSS(`rss.xml`)를 제출했습니다.
+  - 2026-11-22 콘솔 확인 결과:
+    - **Google Search Console**: 소유 확인 완료, `robots.txt` 유효, 직접 조치·보안 문제 없음. 루트(`https://juwkim.github.io/`) URL 검사에서는 색인 생성 확인(2026-11-22 12:30 크롤링)되었으나, 전체 `색인 생성 → 페이지` 리포트는 집계 대기 중이고 `/sitemap-index.xml`은 `가져올 수 없음`("일시적인 처리 오류", 실제 `sitemap-index.xml`·`sitemap-0.xml` HTTP 200 정상) 상태로 재확인이 필요합니다.
+    - **네이버 서치어드바이저**: 소유 확인 완료, 사이트맵(`2026-11-22 11:08:53`)·RSS(`2026-11-22 11:09:14`) 등록 완료. 사이트 진단·수집 현황·노출/클릭 리포트는 신규 등록 초기라 아직 집계 전입니다.
+- **Dependabot**
+  - npm과 GitHub Actions를 분기마다 점검해 PR을 만듭니다. 자동 merge는 하지 않습니다.
+  - 첫 PR #2(`typescript` `6.0.3 → 7.0.2`)는 `@astrojs/check@0.9.12`의 peer 의존성 충돌(`ERESOLVE`)로 빌드가 실패해 `@dependabot ignore this major version`으로 보류·종료했습니다(2026-11-22).
+- **Google Drive**: Cloud Drive 연결과 rclone 전용 `client_id` 설정은 진행하지 않습니다. 로컬 Windows 환경에서는 데스크톱용 Google 드라이브(`G:\내 드라이브`)를 설치해 일반 파일을 읽기 전용 원칙으로 참조할 수 있습니다(2026-11-22 확인, `.gdoc`/`.gsheet`는 웹 바로가기 파일).
 - **Discipline**: 원본 위치와 제목은 확인했습니다. 링크는 공개하지 않습니다.
 - **'Who is'**: 해당 내용은 About에 이미 반영했습니다. 별도 글로 공개하지 않습니다.
 
@@ -103,9 +107,8 @@
 
 - **핵심**: 2026-12-18 이후 정보처리기사 실제 결과를 사용자에게 확인합니다. 결과에 따라 About의 "응시" 표기와 백로그를 갱신합니다.
 - **운영 확인**
-  - 구글·네이버 콘솔에서 실제 검색 색인 반영 확인
-  - 실제 브라우저에서 giscus 댓글 확인
-  - Dependabot PR 검토
+  - 구글·네이버 콘솔에서 검색 색인 집계 및 Google Search Console `/sitemap-index.xml` 처리 상태 재확인
+  - 이후 새로 생성되는 Dependabot PR 검토 (PR #2 `typescript 7.0.2`는 무시 처리 완료)
 
 ## 8. 위임과 보안
 
