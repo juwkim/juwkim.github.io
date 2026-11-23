@@ -47,6 +47,22 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
       })();
     </script>
+    <!-- 방문자 통계 (GA4): 측정 ID가 있고 프로덕션 빌드일 때만 -->
+    {
+      import.meta.env.PROD && SITE.analytics.gaId && (
+        <>
+          <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${SITE.analytics.gaId}`} />
+          <script is:inline define:vars={{ gaId: SITE.analytics.gaId }}>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', gaId);
+          </script>
+        </>
+      )
+    }
     <slot name="head" />
   </head>
   <body>

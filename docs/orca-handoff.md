@@ -43,6 +43,7 @@
 |---|---|
 | 사이트 설정(카테고리, 공개 링크, 소유 확인, Firebase 댓글) | `src/site.config.ts` |
 | 홈과 About 화면 | `src/pages/index.astro`, `src/pages/about.astro` |
+| 프로젝트 소개 화면·데이터 | `src/pages/projects.astro`, `src/data/projects.ts` |
 | About의 문구·목표·이력 | `src/data/about.ts` |
 | 글 원고와 이미지 | `src/content/posts/` |
 | 글 상세 라우트 | `src/pages/[category]/[sub]/[slug].astro` |
@@ -69,7 +70,8 @@
   - 요즘의 나에는 주변 사람들의 불편을 관찰하고 도울 방법을 고민하는 항목을 둡니다.
   - 일의 포부는 기술로 사람의 시간을 돌려주고 더 중요한 일에 시간을 쓸 수 있게 돕는다는 문장으로 정리했습니다. 이력 항목은 현재 구성으로 충분합니다.
 - **solved.ac 9,174문제**: 2026-11-21에 공식 수치를 확인했습니다. 저장소에 옮겨 둔 풀이 기록 수는 계정 전체 수치가 아닙니다.
-- **홈·사이드바**: `The Heuristic Learner` 문구와 랜딩형 대형 히어로·하단 카테고리 섹션을 제거하고, `PostIndex.astro`와 같은 좌측 카테고리 사이드바(`CategoryNav` `highlightAll={false}`) + 간결한 블로그 인트로 + 2열 최근 글 카드(`PostCard`, 14px 톤) 구조로 개편했습니다(2026-11-23). 좌측 사이드바는 데스크톱(`1080px` 이상)에서 `position: fixed` + `overscroll-behavior: contain`으로 고정해 마우스 위치에 따라 카테고리·본문이 독립 스크롤되도록 했으며, `Footer.astro`가 우측 본문 폭에 맞춰 정렬됩니다. 기존 About 바로가기는 유지합니다.
+- **홈·사이드바·Projects·와이드 레이아웃**: `--page: 1440px`, `--width: 780px`, `--sidebar: 220px`, 우측 목차 `200px`로 전체 폭을 넓히고, 좌측 고정 사이드바(`CategoryNav.astro`) 상단에 동그란 프로필 사진·소개·링크가 들어간 미니 프로필을 추가했습니다(2026-11-23). 홈(`src/pages/index.astro`)은 `1360px` 이상에서 3단 구성(좌 프로필·카테고리 | 중앙 인트로·최근 글 6개 | 우 `What I Made` 레일)으로 동작하며, 상단 메뉴 `Projects` 탭과 전용 [`src/pages/projects.astro`](../src/pages/projects.astro) (`src/data/projects.ts`)를 추가했습니다.
+- **방문자 통계(GA4)**: `src/site.config.ts`(`analytics.gaId`)와 `src/layouts/Base.astro`에 프로덕션 전용 `gtag.js` 연동 틀을 준비했으며, 사용자 GA4 측정 ID 전달 시 반영 예정입니다(화면 공개 방문자 카운터는 두지 않음, 2026-11-23).
 - **사진 뷰어·코드 블록**
   - 사진 뷰어는 native `<dialog>`를 사용하며, 화면 맞춤과 확대를 지원합니다.
   - 필름 미리보기와 이전·다음 사진 미리 불러오기를 제공합니다.

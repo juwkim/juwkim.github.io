@@ -239,8 +239,8 @@ const hasMath = /\$\$|\$[^\s$][^$\n]*\$/.test((post.body ?? '').replace(/```[\s\
       max-width: var(--page);
       padding: 0 32px;
       display: grid;
-      grid-template-columns: 200px minmax(0, var(--width));
-      column-gap: 64px;
+      grid-template-columns: var(--sidebar) minmax(0, var(--width));
+      column-gap: 48px;
     }
     .side {
       display: block;
@@ -248,7 +248,7 @@ const hasMath = /\$\$|\$[^\s$][^$\n]*\$/.test((post.body ?? '').replace(/```[\s\
   }
   @media (min-width: 1280px) {
     .post-layout {
-      grid-template-columns: 200px minmax(0, var(--width)) 160px;
+      grid-template-columns: var(--sidebar) minmax(0, var(--width)) 200px;
       column-gap: 48px;
     }
     .toc-mobile-wrap {

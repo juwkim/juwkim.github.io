@@ -4,6 +4,7 @@ import { SITE, CATEGORIES } from '../site.config';
 const path = Astro.url.pathname;
 const items = [
   { href: '/posts/', label: '글', active: path.startsWith('/posts') || CATEGORIES.some((c) => path.startsWith(`/${c.slug}/`)) },
+  { href: '/projects/', label: 'Projects', active: path.startsWith('/projects') },
   { href: '/about/', label: 'About', active: path.startsWith('/about') },
 ];
 ---

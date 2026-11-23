@@ -25,14 +25,10 @@ const year = new Date().getFullYear();
   a:hover {
     color: var(--fg);
   }
+  /* 사이드바가 있는 페이지는 모두 같은 왼쪽 간격(사이드바 + 48px)으로 본문 열에 맞춤 */
   @media (min-width: 1080px) {
     :global(body:has(.sidebar)) footer .inner {
-      margin-left: 264px;
-    }
-  }
-  @media (min-width: 1280px) {
-    :global(body:has(.post-layout)) footer .inner {
-      margin-left: 248px;
+      margin-left: calc(var(--sidebar) + 48px);
     }
   }
 </style>

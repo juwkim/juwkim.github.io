@@ -18,7 +18,7 @@ interface Props {
 const { title, crumb, allPosts, posts, current } = Astro.props;
 ---
 
-<Base title={title} description={`${title} — ${posts.length}개의 기록`}>
+<Base title={title} description={`${title}: ${posts.length}개의 기록`}>
   <div class="layout">
     <aside>
       <CategoryNav mode="sidebar" posts={allPosts} current={current} />
@@ -62,9 +62,9 @@ const { title, crumb, allPosts, posts, current } = Astro.props;
     .layout {
       max-width: var(--page);
       display: grid;
-      grid-template-columns: 200px minmax(0, 1fr);
-      gap: 64px;
-      padding-top: 72px;
+      grid-template-columns: var(--sidebar) minmax(0, 1fr);
+      gap: 48px;
+      padding-top: 64px;
     }
     aside {
       display: block;

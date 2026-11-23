@@ -21,6 +21,10 @@ export const SITE = {
     google: 'c2PuWQ46H6zZ8qQOVFDRJ_uWskV6w64Jmyz5z2DJKOU',
     naver: '2089745ad341aef578581908c44918027c1341ee',
   },
+  // 방문자 통계 (Google Analytics 4). 측정 ID(G-XXXXXXXXXX)를 넣으면 프로덕션 빌드에서만 동작합니다.
+  analytics: {
+    gaId: '',
+  },
   // 댓글 (Firebase Auth + Cloud Firestore Lite). 보안 규칙은 저장소 루트의 firestore.rules 참고.
   comments: {
     adminEmail: 'juwkim35721@gmail.com',

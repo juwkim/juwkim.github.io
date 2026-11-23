@@ -99,7 +99,9 @@
 
 ### 막힌 일
 
-- 현재 없음 *(막힌 작업이 생기면 원인과 해제 조건을 여기에 기록합니다.)*
+1. **Google Analytics 4(GA4) 측정 ID 연결**
+   - 원인: `src/site.config.ts`(`analytics.gaId`)와 `src/layouts/Base.astro` 프로덕션 전용 `gtag.js` 연동 코드는 구현 완료되었으나, 실제 GA4 웹 스트림 측정 ID(`G-XXXXXXXXXX`)가 아직 입력되지 않음.
+   - 해제 조건: 사용자가 Google Analytics에서 웹 스트림 생성 후 측정 ID를 공유하면 `src/site.config.ts`에 반영해 배포 완료.
 
 ### 나중에 확인할 일 (특정 날짜·조건 이후)
 
@@ -113,12 +115,14 @@
 
 ### 더 논의할 결정 (추천안 포함)
 
-1. **다음 글·UI 다듬기 주제 정하기** *(지금 바로 논의 가능)*
-   - 배경: 홈 화면을 좌측 카테고리 사이드바 중심의 블로그형 레이아웃으로 개편한 뒤 남는 다음 개선 후보입니다.
-   - 선택지: A) 글 목록(`/posts/`)·About(`/about/`) 레이아웃 및 비주얼 디테일 다듬기 / B) 특정 기존 글 내용 보강·다듬기.
-   - 추천안: A안(글 목록·About 레이아웃 및 비주얼 디테일 다듬기). 홈에 이어 글 목록과 About까지 같은 톤으로 정리하면 전체 화면 완성도가 고르게 맞춰집니다.
+1. **다음 블로그 고도화 주제 정하기** *(지금 논의 가능, GA4 측정 ID 연결과 병행 가능)*
+   - 배경: 와이드 레이아웃(1440px), 좌측 미니 프로필, 홈 3단 `What I Made` 레일, 전용 `/projects/` 페이지까지 뼈대를 완성한 상태입니다.
+   - 선택지: A) `What I Made` 첫 체험 데모 제작(예: Drive2Model Cross-Labeler 웹 체험 데모) / B) About·글 목록 세부 비주얼 다듬기 / C) 특정 기존 글 내용 보강·다듬기.
+   - 추천안: A안(`What I Made` 첫 체험 데모 제작). 홈 우측 레일과 `/projects/` 페이지에 "체험 데모 준비 중" 자리가 마련되어 있으므로, Drive2Model Cross-Labeler 같은 대표작 1개를 실제 체험 가능한 웹 데모로 채우면 빌더 블로그로서의 인상이 크게 살아납니다.
 
 ### 해결된 논의
+- A안 와이드 레이아웃·좌측 미니 프로필·`What I Made`·`/projects/` 페이지·GA4 연동 틀 구현 완료 → `--page: 1440px`, `--width: 780px`, `--sidebar: 220px`, 우측 목차 `200px`, 좌측 미니 프로필, 홈 3단(최근 글 6개 + 우측 `What I Made` 레일), 상단 메뉴 `Projects` 탭 및 `/projects/` 페이지, `Base.astro` 프로덕션 전용 GA4 스크립트 틀 반영 (2026-11-23)
+- 방문자 분석 도구 선정 → 1안(Google Analytics 4, 운영자 대시보드 전용, 화면 공개 카운터 없음) 확정 (2026-11-23)
 - 좌측 카테고리 사이드바 고정 및 독립 스크롤 적용 → `CategoryNav.astro`를 `position: fixed` + `overscroll-behavior: contain`으로 변경하고 `Footer.astro` 우측 정렬을 맞춰, 본문 스크롤 시 사이드바 흔들림 제거 및 마우스 위치별 독립 스크롤 구현 (2026-11-23)
 - 분기별 major / 0.x minor Dependabot PR 점검 자동 예약 → Orca 예약 자동화(매주 월요일 오전 10시 KST, 열린 Dependabot PR이 있을 때만 실행하는 precheck 포함)로 등록하고 백로그 `나중에 확인할 일`에서 제거 (2026-11-23)
 - 홈 화면 레이아웃 개편 → `The Heuristic Learner` 문구와 랜딩형 대형 히어로·하단 카테고리 섹션을 제거하고, 좌측 카테고리 사이드바(`CategoryNav`) + 간결한 블로그 인트로 + 2열 최근 글 카드(`PostCard`)로 개편 완료 (2026-11-23)
