@@ -51,7 +51,7 @@
 | 사진 뷰어 | `src/components/PostImageViewer.astro` |
 | 코드 블록 복사 | `src/components/PostCodeBlocks.astro` |
 | 소제목 링크 복사 | `src/components/PostHeadingLinks.astro` |
-| 댓글 UI·클라이언트·보안 규칙 | `src/components/Comments.astro`, `src/lib/firebase-comments.ts`, `firestore.rules` |
+| 댓글 UI·클라이언트·보안 규칙 | `src/components/Comments.astro`, `src/lib/firebase-comments.ts`, `firestore.rules`, `firebase.json` |
 | 배포·의존성 점검·자동 머지 | `.github/workflows/deploy.yml`, `.github/dependabot.yml`, `.github/workflows/dependabot-auto-merge.yml` |
 | 프로필 사진 / 첨부 자료 | `src/assets/avatar.jpg` / `public/files/maicon-2026/` |
 
@@ -83,7 +83,7 @@
   - 기존 giscus(`public/giscus/`)에서 Firebase Spark 무료 플랜 프로젝트(`home-server-c5ca5`) 기반 자체 댓글 UI(`Comments.astro`, `src/lib/firebase-comments.ts`, `firestore.rules`)로 전환 완료했습니다(2026-11-23).
   - 지원 기능: Google 로그인, GitHub 로그인(팝업 우선 + 차단 시 리다이렉트 폴백), 입력 중 작성 취소(40자 이상 초기화 확인), 작성 후 본인 댓글 수정/삭제, 1단계 답글(답글 달린 부모 삭제 시 소프트 삭제 유지), 관리자(`juwkim35721@gmail.com`) 글쓴이 배지 및 전체 댓글 삭제.
   - 보안·성능: `posts/{postKey}/comments/{commentId}` 하위 컬렉션 구조로 복합 색인 불필요, `IntersectionObserver`(400px 전) 지연 로딩, 사용자 입력은 `textContent` 전용 렌더링(XSS 방지).
-  - 남은 확인: 사용자가 Firebase 콘솔(`Firestore Database > 규칙`)에 `firestore.rules`를 게시한 뒤 라이브 페이지에서 로그인·작성·수정·삭제 실동작 확인 필요.
+  - 규칙 배포: Firebase CLI로 `home-server-c5ca5`의 `(default)` Firestore DB 생성 및 `firestore.rules` 컴파일·게시 완료(2026-11-23).
 - **SEO**
   - Google과 Naver 소유 확인 HTML 태그를 배포했으며, 계속 유지합니다.
   - 사용자가 Google에는 사이트맵(`sitemap-index.xml`)을, Naver에는 사이트맵과 RSS(`rss.xml`)를 제출했습니다.
@@ -111,7 +111,6 @@
 
 ## 7. 남은 일
 
-- **대기 중 (막힌 일)**: 사용자가 Firebase 콘솔(`Firestore Database > 규칙`)에 `firestore.rules`를 게시한 뒤 라이브 페이지에서 댓글 실동작 확인
 - **핵심**: 2026-12-18 이후 정보처리기사 실제 결과를 사용자에게 확인합니다. 결과에 따라 About의 "응시" 표기와 백로그를 갱신합니다.
 - **운영 확인**
   - 구글·네이버 콘솔에서 검색 색인 집계 및 Google Search Console `/sitemap-index.xml` 처리 상태 재확인

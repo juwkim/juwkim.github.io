@@ -99,9 +99,7 @@
 
 ### 막힌 일
 
-1. **Firebase 콘솔에 `firestore.rules` 게시**
-   - 원인: Firebase 댓글 코드(`Comments.astro`, `src/lib/firebase-comments.ts`, `firestore.rules`)는 구현·배포까지 완료되었으나, Firestore Database가 기본 프로덕션 모드(`allow read, write: if false`)로 생성되어 있어 콘솔에서 보안 규칙을 게시하기 전까지 읽기/쓰기가 거부됨.
-   - 해제 조건: 사용자가 Firebase 콘솔(`Firestore Database > 규칙`)에 저장소 루트의 `firestore.rules` 내용을 붙여넣고 `게시`를 누른 뒤, 블로그 글 페이지에서 Google·GitHub 로그인과 댓글 작성/답글/수정/삭제 동작을 확인하면 완료.
+- 현재 없음 *(막힌 작업이 생기면 원인과 해제 조건을 여기에 기록합니다.)*
 
 ### 나중에 확인할 일 (특정 날짜·조건 이후)
 
@@ -125,6 +123,7 @@
    - 추천안: A안(홈·글 목록·About 레이아웃 및 비주얼 디테일 다듬기). 전체 페이지의 시각적 완성도를 먼저 고르게 맞춘 뒤 개별 글 내용 보강으로 이어가는 편이 흐름상 깔끔합니다.
 
 ### 해결된 논의
+- Firestore `(default)` DB 생성 및 `firestore.rules` 배포 → Firebase CLI(`firebase-tools`)로 `home-server-c5ca5` 프로젝트에 보안 규칙 컴파일·게시 완료 (2026-11-23)
 - 댓글 시스템 Firebase Spark 전환 구현 완료 → `src/site.config.ts`, `src/lib/firebase-comments.ts`, `src/components/Comments.astro`, `firestore.rules` 반영 및 기존 `public/giscus/` 제거. Google·GitHub 로그인, 입력 취소, 본인 수정/삭제, 1단계 답글, 관리자 전체 삭제 포함 (2026-11-23)
 - 댓글 시스템 전환 방향 → A안(Firebase Spark 무료 플랜: Google + GitHub 로그인 + Cloud Firestore + 자체 평문 댓글 UI)으로 확정 (2026-11-22)
 - 테스트용 GitHub Discussion #4(`"안녕"`) 삭제 완료 (2026-11-22)
