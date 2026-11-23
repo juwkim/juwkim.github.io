@@ -29,11 +29,6 @@ const allOn = highlightAll && !current.cat;
     </a>
     <a class="profile-name" href="/about/">{SITE.author}</a>
     <p class="profile-bio">배우고 만들고 기록합니다.</p>
-    <div class="sidebar-social">
-      <a href={SITE.links.github} target="_blank" rel="noopener">GitHub</a>
-      <a href={SITE.links.instagram} target="_blank" rel="noopener">Instagram</a>
-      <a href={SITE.links.solvedac} target="_blank" rel="noopener">solved.ac</a>
-    </div>
   </div>
   <div class="sidebar-cats">
   <a href="/posts/" class:list={['all', { on: allOn }]} aria-current={allOn ? 'page' : undefined}>
@@ -187,27 +182,6 @@ const allOn = highlightAll && !current.cat;
     line-height: 1.55;
     color: var(--fg-2);
     word-break: keep-all;
-  }
-  /* 소셜 링크: About(ProfileContacts)과 같은 순서 (GitHub, Instagram, solved.ac) */
-  .sidebar-social {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 12px;
-  }
-  .sidebar-social a {
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: var(--bg-subtle);
-    font-size: 12px;
-    line-height: 1.4;
-    color: var(--fg-2);
-    white-space: nowrap;
-    transition: background 0.2s var(--ease), color 0.2s var(--ease);
-  }
-  .sidebar-social a:hover {
-    color: var(--blue);
-    background: var(--blue-soft);
   }
 
   /* ---------- 카테고리 목록 ---------- */

@@ -70,7 +70,7 @@
   - 요즘의 나에는 주변 사람들의 불편을 관찰하고 도울 방법을 고민하는 항목을 둡니다.
   - 일의 포부는 기술로 사람의 시간을 돌려주고 더 중요한 일에 시간을 쓸 수 있게 돕는다는 문장으로 정리했습니다. 이력 항목은 현재 구성으로 충분합니다.
 - **solved.ac 9,174문제**: 2026-11-21에 공식 수치를 확인했습니다. 저장소에 옮겨 둔 풀이 기록 수는 계정 전체 수치가 아닙니다.
-- **홈·사이드바·Projects·풀 와이드 레이아웃**: 데스크톱에서 좌우 끝 여백(`--edge: 32px`) 기준으로 좌측 사이드바(`--sidebar: 240px`)와 홈 우측 `What I Made` 레일(`--rail: 320px`)을 모두 `position: fixed` + `overscroll-behavior: contain`으로 배치해 좌·중·우 3개 영역이 마우스 위치에 따라 각각 독립 스크롤되도록 구성했습니다(2026-11-23). 좌측 미니 프로필은 `104px` 대형 원형 사진, 이름(`김주원`, `@juwkim` 제거), 한 줄 소개, `GitHub` -> `Instagram` -> `solved.ac` 순서 링크로 구성했습니다(하단 `About` 중복 링크 제거). 상단 메뉴 `Projects` 탭과 전용 [`src/pages/projects.astro`](../src/pages/projects.astro) (`src/data/projects.ts`)를 제공합니다.
+- **홈·사이드바·Projects·풀 와이드 레이아웃**: 데스크톱에서 좌우 끝 여백(`--edge: 32px`) 기준으로 좌측 사이드바(`--sidebar: 240px`)와 홈 우측 `What I Made` 레일(`--rail: 320px`)을 모두 `position: fixed` + `overscroll-behavior: contain`으로 배치해 좌·중·우 3개 영역이 마우스 위치에 따라 각각 독립 스크롤되도록 구성했습니다(2026-11-23). 좌측 미니 프로필은 `104px` 대형 원형 사진, 이름(`김주원`), 한 줄 소개만 남기고 소셜 링크는 `About` 페이지에만 두어 중복을 제거했습니다. 상단 메뉴(`Nav.astro`)는 `Posts` · `Projects` · `About` 영문 탭으로 통일하고 화면 정중앙 알약형 독(dock)으로 배치해 시인성과 향후 탭 확장성을 높였습니다.
 - **방문자 통계(GA4)**: `src/site.config.ts`(`analytics.gaId: 'G-1VLJHDNKYG'`)와 `src/layouts/Base.astro`에 프로덕션 전용 `gtag.js` 연동을 완료했습니다(화면 공개 방문자 카운터는 두지 않음, 2026-11-23).
 - **사진 뷰어·코드 블록**
   - 사진 뷰어는 native `<dialog>`를 사용하며, 화면 맞춤과 확대를 지원합니다.
