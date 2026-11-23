@@ -25,4 +25,14 @@ const year = new Date().getFullYear();
   a:hover {
     color: var(--fg);
   }
+  @media (min-width: 1080px) {
+    :global(body:has(.sidebar)) footer .inner {
+      margin-left: 264px;
+    }
+  }
+  @media (min-width: 1280px) {
+    :global(body:has(.post-layout)) footer .inner {
+      margin-left: 248px;
+    }
+  }
 </style>

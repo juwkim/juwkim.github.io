@@ -105,15 +105,11 @@
 
 1. **`2026-11-25~29` (제출 후 며칠 뒤): 검색엔진 색인 및 사이트맵 재확인**
    - [ ] Google Search Console의 `/sitemap-index.xml` `"가져올 수 없음"`("일시적인 처리 오류") 해소 여부·`색인 생성 → 페이지` 집계와 네이버 서치어드바이저 `사이트 진단`·`수집 현황`·`콘텐츠 노출/클릭` 리포트 집계 재확인 *(확정 대응: 재확인 후에도 `/sitemap-index.xml` 오류가 유지되면 GSC에 `sitemap-0.xml`을 직접 추가 제출)*
-2. **`2026-12-18 이후`: About 정보처리기사 결과 반영**
+2. **`2026-12-18 이후`**: About 정보처리기사 결과 반영
    - [x] 요즘의 나 4칸: 사용자 답변으로 반영 (2026-11-21): 공부 OPIc, 고민 AI 시대의 나만의 강점, 습관 선크림·물 2L·꾸준히 몸 돌보기, 살피는 일 주변 사람들의 불편을 관찰하고 어떻게 도울지 고민하기
    - [x] 지나온 발걸음: 한 줄 설명과 현재 이력 항목 유지
    - [ ] 정보처리기사 합격 여부와 취득 시점 *(선행 조건: 2026-12-18 합격 발표 후 사용자 결과 확인 → `src/data/about.ts` `"응시"` 표기 및 백로그 갱신)*
    - [x] 발걸음에 넣을 순간 고르기: 현재 이력으로 충분하다고 확인
-3. **`분기별`: major / 0.x minor Dependabot PR 수동 검토**
-   - [x] minor/patch Dependabot PR은 `.github/workflows/dependabot-auto-merge.yml` 봇이 `Deploy` 통과 검증 후 자동 squash 머지·재배포하도록 자동화 완료 (2026-11-22)
-   - [x] `astro.config.mjs`의 Markdown 플러그인 설정을 `@astrojs/markdown-remark` `unified({...})` 방식으로 이전 완료 (2026-11-22)
-   - [ ] 자동 머지 대상에서 제외되는 `semver-major`, `0.x` minor, `0.0.x` 등 수동 검토 PR이 새로 열리면 빌드 결과와 변경점 확인 후 직접 판단 (첫 PR #2 `typescript 6.0.3 → 7.0.2`는 무시 처리·종료 완료)
 
 ### 더 논의할 결정 (추천안 포함)
 
@@ -123,6 +119,8 @@
    - 추천안: A안(글 목록·About 레이아웃 및 비주얼 디테일 다듬기). 홈에 이어 글 목록과 About까지 같은 톤으로 정리하면 전체 화면 완성도가 고르게 맞춰집니다.
 
 ### 해결된 논의
+- 좌측 카테고리 사이드바 고정 및 독립 스크롤 적용 → `CategoryNav.astro`를 `position: fixed` + `overscroll-behavior: contain`으로 변경하고 `Footer.astro` 우측 정렬을 맞춰, 본문 스크롤 시 사이드바 흔들림 제거 및 마우스 위치별 독립 스크롤 구현 (2026-11-23)
+- 분기별 major / 0.x minor Dependabot PR 점검 자동 예약 → Orca 예약 자동화(매주 월요일 오전 10시 KST, 열린 Dependabot PR이 있을 때만 실행하는 precheck 포함)로 등록하고 백로그 `나중에 확인할 일`에서 제거 (2026-11-23)
 - 홈 화면 레이아웃 개편 → `The Heuristic Learner` 문구와 랜딩형 대형 히어로·하단 카테고리 섹션을 제거하고, 좌측 카테고리 사이드바(`CategoryNav`) + 간결한 블로그 인트로 + 2열 최근 글 카드(`PostCard`)로 개편 완료 (2026-11-23)
 - 댓글 로그인 제공업체 추가 여부 → 카카오·네이버는 추가하지 않고 Google + GitHub 2개 유지 확정 (미니멀 UI 유지, Firebase Spark 무료·무서버 유지) (2026-11-23)
 - Firestore `(default)` DB 생성 및 `firestore.rules` 배포 → Firebase CLI(`firebase-tools`)로 `home-server-c5ca5` 프로젝트에 보안 규칙 컴파일·게시 완료 (2026-11-23)
