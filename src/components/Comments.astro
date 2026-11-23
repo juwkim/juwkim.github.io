@@ -1,90 +1,1490 @@
 ---
-// giscus 댓글. SITE.comments.categoryId가 채워졌을 때만 출력됩니다.
-// 댓글 테마는 public/giscus/light.css, dark.css (블로그 디자인 토큰에 맞춘 사용자 테마)
+// 댓글 (Firebase Auth + Cloud Firestore Lite). 보안 규칙은 저장소 루트의 firestore.rules 참고.
+// Firebase 모듈은 댓글 영역이 화면에 가까워질 때(400px 전) 불러옵니다.
+// 사용자 입력은 innerHTML 없이 createElement와 textContent로만 화면에 넣습니다.
 import { SITE } from '../site.config';
+import { postKeyOf } from '../lib/firebase-comments';
 
 const c = SITE.comments;
-const enabled = c.categoryId !== '';
+const enabled = Boolean(c.firebase.apiKey && c.firebase.projectId);
+const postKey = postKeyOf(Astro.url.pathname);
 ---
 
 {
   enabled && (
     <section
       class="comments"
+      id="comments"
       aria-label="댓글"
-      data-repo={c.repo}
-      data-repo-id={c.repoId}
-      data-category={c.category}
-      data-category-id={c.categoryId}
-      data-theme-base={SITE.url}
+      data-post-key={postKey}
+      data-admin-email={c.adminEmail}
+      data-firebase={JSON.stringify(c.firebase)}
     >
-      <div class="giscus" />
+      <div class="section-head">
+        <h2 class="cmt-title" tabindex="-1">댓글</h2>
+        <span class="note cmt-count" />
+      </div>
+      <div class="cmt-root" />
+      <div class="cmt-announcer visually-hidden" role="status" aria-live="polite" aria-atomic="true" />
+      <noscript>
+        <p class="cmt-noscript">댓글을 보려면 JavaScript를 켜 주세요.</p>
+      </noscript>
     </section>
   )
 }
 
 <script>
-  const box = document.querySelector<HTMLElement>('.comments[data-repo]');
-  if (box) {
-    const root = document.documentElement;
-    const d = box.dataset;
-    // 사이트 테마(수동 선택 또는 시스템 설정)를 그대로 따름.
-    // 테마 CSS 주소는 location.origin이 아니라 SITE.url 기준 (https://giscus.app 안에서 http://localhost 주소는 차단됨)
-    const media = matchMedia('(prefers-color-scheme: dark)');
-    const isDark = () => root.dataset.theme === 'dark' || (!root.dataset.theme && media.matches);
-    const theme = () => `${d.themeBase}/giscus/${isDark() ? 'dark' : 'light'}.css?v=2`;
+  import type {
+    CommentItem,
+    CommentProvider,
+    CommentUser,
+    CommentsClient,
+    FirebaseWebConfig,
+  } from '../lib/firebase-comments';
 
-    const attrs: Record<string, string> = {
-      repo: d.repo!,
-      'repo-id': d.repoId!,
-      category: d.category!,
-      'category-id': d.categoryId!,
-      mapping: 'pathname',
-      strict: '1',
-      'reactions-enabled': '0',
-      'emit-metadata': '0',
-      'input-position': 'bottom',
-      theme: theme(),
-      lang: 'ko',
-      loading: 'lazy',
+  // lib/firebase-comments.ts와 같은 값 (값을 import하면 Firebase가 페이지 스크립트에 함께 묶이므로 따로 둠)
+  const BODY_MAX = 2000;
+  const REDIRECT_FLAG = 'fb_auth_redirect';
+
+  const COUNT_FROM = 1600; // 이 글자 수부터 남은 분량 표시
+  const COUNT_WARN_FROM = 1900;
+  const CLEAR_CONFIRM_FROM = 40; // 이 글자 수부터 비우기 전에 확인
+  const MINUTE = 60_000;
+  const HOUR = 60 * MINUTE;
+  const DAY = 24 * HOUR;
+  const SHORTCUT = /Mac|iPhone|iPad|iPod/.test(navigator.userAgent) ? '⌘ Enter' : 'Ctrl + Enter';
+  const PROVIDER_LABEL: Record<CommentProvider, string> = { google: 'Google', github: 'GitHub' };
+  const FALLBACK_ERROR = '요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.';
+
+  // ---------- DOM 도우미 (텍스트는 항상 textContent) ----------
+
+  const h = <K extends keyof HTMLElementTagNameMap>(
+    tag: K,
+    className = '',
+    text?: string
+  ): HTMLElementTagNameMap[K] => {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  };
+
+  const btn = (label: string, className: string, onClick: () => void): HTMLButtonElement => {
+    const b = h('button', className, label);
+    b.type = 'button';
+    b.addEventListener('click', onClick);
+    return b;
+  };
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  interface IconPath {
+    d: string;
+    fill?: string;
+  }
+  const icon = (viewBox: string, paths: IconPath[], className: string): SVGSVGElement => {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('class', className);
+    svg.setAttribute('viewBox', viewBox);
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    for (const p of paths) {
+      const path = document.createElementNS(SVG_NS, 'path');
+      path.setAttribute('d', p.d);
+      path.setAttribute('fill', p.fill ?? 'currentColor');
+      svg.append(path);
+    }
+    return svg;
+  };
+
+  const GOOGLE_PATHS: IconPath[] = [
+    {
+      fill: '#EA4335',
+      d: 'M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z',
+    },
+    {
+      fill: '#4285F4',
+      d: 'M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z',
+    },
+    {
+      fill: '#FBBC05',
+      d: 'M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z',
+    },
+    {
+      fill: '#34A853',
+      d: 'M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z',
+    },
+  ];
+  const GITHUB_PATHS: IconPath[] = [
+    {
+      d: 'M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z',
+    },
+  ];
+  const providerIcon = (provider: CommentProvider, className: string): SVGSVGElement =>
+    provider === 'github' ? icon('0 0 16 16', GITHUB_PATHS, className) : icon('0 0 48 48', GOOGLE_PATHS, className);
+
+  const initialOf = (name: string): string => (Array.from(name.trim())[0] ?? '?').toUpperCase();
+
+  /** https 프로필 사진만 표시하고, 불러오지 못하면 이름 첫 글자로 바꿉니다. */
+  const avatar = (name: string, photo: string): HTMLSpanElement => {
+    const box = h('span', 'cmt-avatar');
+    box.setAttribute('aria-hidden', 'true');
+    const monogram = () => {
+      box.replaceChildren();
+      box.classList.add('is-mono');
+      box.textContent = initialOf(name);
     };
-    const s = document.createElement('script');
-    s.src = 'https://giscus.app/client.js';
-    s.async = true;
-    s.crossOrigin = 'anonymous';
-    for (const [k, v] of Object.entries(attrs)) s.setAttribute(`data-${k}`, v);
+    if (photo.startsWith('https://')) {
+      const img = h('img');
+      img.alt = '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.referrerPolicy = 'no-referrer';
+      img.onerror = monogram;
+      img.src = photo;
+      box.append(img);
+    } else {
+      monogram();
+    }
+    return box;
+  };
 
-    const syncTheme = () => {
-      const next = theme();
-      s.dataset.theme = next;
-      const frame = box.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
-      frame?.contentWindow?.postMessage({ giscus: { setConfig: { theme: next } } }, 'https://giscus.app');
+  const relativeTime = (ms: number): string => {
+    const diff = Math.max(0, Date.now() - ms);
+    if (diff < MINUTE) return '방금 전';
+    if (diff < HOUR) return `${Math.floor(diff / MINUTE)}분 전`;
+    if (diff < DAY) return `${Math.floor(diff / HOUR)}시간 전`;
+    const days = Math.floor(diff / DAY);
+    if (days <= 7) return `${days}일 전`;
+    const d = new Date(ms);
+    return `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()}.`;
+  };
+
+  const timeEl = (ms: number | null): HTMLTimeElement | null => {
+    if (ms === null) return null;
+    const d = new Date(ms);
+    const t = h('time', 'cmt-time', relativeTime(ms));
+    t.dateTime = d.toISOString();
+    t.title = d.toLocaleString('ko-KR');
+    t.dataset.ts = String(ms);
+    return t;
+  };
+
+  const messageOf = (e: unknown): string => (e instanceof Error && e.message ? e.message : FALLBACK_ERROR);
+
+  const parseConfig = (raw: string | undefined): FirebaseWebConfig | null => {
+    try {
+      const value: unknown = JSON.parse(raw ?? '');
+      return value && typeof value === 'object' ? (value as FirebaseWebConfig) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const readRedirectFlag = (): boolean => {
+    try {
+      return sessionStorage.getItem(REDIRECT_FLAG) === '1';
+    } catch {
+      return false;
+    }
+  };
+
+  // ---------- 댓글 영역 ----------
+
+  type ComposerKind = 'top' | 'reply' | 'edit';
+  interface ComposerOptions {
+    kind: ComposerKind;
+    label: string;
+    placeholder: string;
+    submitLabel: string;
+    /** 단축키 안내에 쓰는 동사 (등록, 저장) */
+    verb: string;
+    initial?: string;
+    onSubmit: (text: string) => Promise<void>;
+    /** 답글·수정 입력창의 취소(Esc) */
+    onCancel?: () => void;
+  }
+  interface Composer {
+    root: HTMLFormElement;
+    textarea: HTMLTextAreaElement;
+    focus: () => void;
+    clear: () => void;
+  }
+
+  interface Thread {
+    id: string;
+    /** 부모 문서가 없으면(다른 곳에서 먼저 지워진 경우) null */
+    root: CommentItem | null;
+    replies: CommentItem[];
+  }
+
+  async function mount(section: HTMLElement): Promise<void> {
+    const root = section.querySelector<HTMLElement>('.cmt-root');
+    const announcer = section.querySelector<HTMLElement>('.cmt-announcer');
+    const countEl = section.querySelector<HTMLElement>('.cmt-count');
+    const titleEl = section.querySelector<HTMLElement>('.cmt-title');
+    const postKey = section.dataset.postKey ?? '';
+    const adminEmail = section.dataset.adminEmail ?? '';
+    const config = parseConfig(section.dataset.firebase);
+    if (!root || !announcer || !postKey || !config) return;
+
+    let raf1 = 0;
+    let raf2 = 0;
+    const announce = (msg: string) => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      announcer.textContent = '';
+      raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => {
+          announcer.textContent = msg;
+        });
+      });
     };
 
-    // iframe 로드 전·중 테마 전환이나 로그인 후 재로드를 놓치지 않도록 캡처 단계에서 감지
-    box.addEventListener(
-      'load',
-      (e) => {
-        if ((e.target as HTMLElement | null)?.matches('iframe.giscus-frame')) syncTheme();
-      },
-      true
-    );
-    box.append(s);
+    const status = h('p', 'cmt-status');
+    const list = h('ol', 'cmt-list');
+    const empty = h('p', 'cmt-empty', '아직 댓글이 없습니다. 첫 댓글을 남겨 보세요.');
+    const composeArea = h('div', 'cmt-compose-area');
+    const loginError = h('p', 'cmt-error');
+    list.hidden = true;
+    empty.hidden = true;
+    loginError.hidden = true;
+    root.replaceChildren(status, list, empty, composeArea);
 
-    // 다크 모드 전환 시 댓글 테마도 함께 변경
-    new MutationObserver(syncTheme).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
-    // 시스템 설정을 따르는 중(data-theme 없음)에 OS 테마가 바뀌는 경우
-    media.addEventListener('change', () => {
-      if (!root.dataset.theme) syncTheme();
+    const setStatus = (text: string, retry?: () => void) => {
+      status.hidden = false;
+      status.replaceChildren(text);
+      if (retry) status.append(' ', btn('다시 시도', 'cmt-action', retry));
+    };
+
+    setStatus('댓글을 불러오는 중입니다…');
+    root.setAttribute('aria-busy', 'true');
+
+    const client: CommentsClient | null = await import('../lib/firebase-comments')
+      .then((mod) => mod.createCommentsClient(config, adminEmail))
+      .catch(() => null);
+    if (!client) {
+      root.removeAttribute('aria-busy');
+      setStatus('댓글 기능을 불러오지 못했습니다.', () => void mount(section));
+      return;
+    }
+
+    let comments: CommentItem[] = [];
+    let user: CommentUser | null = null;
+    let authKnown = false;
+    let loaded = false;
+    let topComposer: Composer | null = null;
+    let focusComposerOnLogin = false;
+
+    // ----- 권한과 조회 -----
+
+    const byId = (id: string) => comments.find((x) => x.id === id);
+    const repliesOf = (id: string) => comments.filter((x) => x.parentId === id);
+
+    const canReply = (c: CommentItem) => Boolean(user) && c.parentId === null && !c.deleted;
+    const canEdit = (c: CommentItem) => Boolean(user) && !c.deleted && c.uid === user?.uid;
+    const canDelete = (c: CommentItem): boolean => {
+      if (!user || (c.uid !== user.uid && !user.isAdmin)) return false;
+      // 삭제된 자리 표시는 답글이 모두 사라진 뒤에만 완전히 지울 수 있습니다.
+      return !c.deleted || (c.parentId === null && repliesOf(c.id).length === 0);
+    };
+
+    const isThreadVisible = (t: Thread): boolean => {
+      if (!t.root) return t.replies.length > 0;
+      // 답글 없는 삭제 자리 표시는 지울 수 있는 사람에게만 보입니다.
+      return !t.root.deleted || t.replies.length > 0 || canDelete(t.root);
+    };
+
+    const threadOf = (id: string): Thread => {
+      const found = byId(id);
+      return { id, root: found && found.parentId === null ? found : null, replies: repliesOf(id) };
+    };
+
+    const buildThreads = (): Thread[] => {
+      const map = new Map<string, Thread>();
+      const order: Thread[] = [];
+      const ensure = (id: string): Thread => {
+        let t = map.get(id);
+        if (!t) {
+          t = { id, root: null, replies: [] };
+          map.set(id, t);
+          order.push(t);
+        }
+        return t;
+      };
+      for (const c of comments) {
+        if (c.parentId === null) ensure(c.id).root = c;
+        else ensure(c.parentId).replies.push(c);
+      }
+      return order.filter(isThreadVisible);
+    };
+
+    const threadEl = (id: string) =>
+      list.querySelector<HTMLLIElement>(`:scope > li.cmt-thread[data-thread="${CSS.escape(id)}"]`);
+    const itemEl = (id: string) => list.querySelector<HTMLElement>(`.cmt-item[data-id="${CSS.escape(id)}"]`);
+    const actionButton = (id: string, action: string) =>
+      itemEl(id)?.querySelector<HTMLButtonElement>(`:scope > .cmt-actions > [data-action="${action}"]`) ?? null;
+    const focusAction = (id: string, action: string) => actionButton(id, action)?.focus();
+
+    const syncReplyExpanded = (threadId: string) => {
+      const open = Boolean(threadEl(threadId)?.querySelector(':scope > .cmt-reply-slot > .cmt-composer'));
+      actionButton(threadId, 'reply')?.setAttribute('aria-expanded', String(open));
+    };
+
+    const markNew = (id: string) => itemEl(id)?.classList.add('is-new');
+
+    const showInlineError = (after: HTMLElement, msg: string) => {
+      const next = after.nextElementSibling;
+      const p = next instanceof HTMLParagraphElement && next.classList.contains('cmt-error') ? next : h('p', 'cmt-error');
+      if (p !== next) after.after(p);
+      p.textContent = msg;
+      announce(msg);
+    };
+    const clearInlineError = (after: HTMLElement) => {
+      const next = after.nextElementSibling;
+      if (next instanceof HTMLParagraphElement && next.classList.contains('cmt-error')) next.remove();
+    };
+
+    // ----- 입력창 -----
+
+    const createComposer = (o: ComposerOptions): Composer => {
+      const form = h('form', 'cmt-composer');
+      form.dataset.kind = o.kind;
+      form.noValidate = true;
+
+      const ta = h('textarea', 'cmt-input');
+      ta.maxLength = BODY_MAX;
+      ta.rows = o.kind === 'top' ? 3 : 2;
+      ta.placeholder = o.placeholder;
+      ta.setAttribute('aria-label', o.label);
+      ta.value = o.initial ?? '';
+
+      const foot = h('div', 'cmt-composer-foot');
+      const hint = h('span', 'cmt-hint', `${SHORTCUT}로 ${o.verb}`);
+      const counter = h('span', 'cmt-counter');
+      const buttons = h('div', 'cmt-composer-buttons');
+      const cancel = btn('취소', 'cmt-btn is-ghost', () => onCancelClick());
+      const submit = h('button', 'cmt-btn is-primary', o.submitLabel);
+      submit.type = 'submit';
+
+      // 최상위 입력창 전용: 많이 쓴 내용은 비우기 전에 한 번 더 묻습니다.
+      const confirm = h('div', 'cmt-confirm');
+      const clearBtn = btn('비우기', 'cmt-btn is-danger', () => {
+        clear();
+        ta.focus();
+      });
+      const keepBtn = btn('계속 쓰기', 'cmt-btn', () => {
+        hideConfirm();
+        ta.focus();
+      });
+      confirm.append(h('span', 'cmt-confirm-text', '초기화할까요?'), clearBtn, keepBtn);
+      confirm.hidden = true;
+
+      const error = h('p', 'cmt-error');
+      error.hidden = true;
+
+      buttons.append(confirm, cancel, submit);
+      foot.append(hint, counter, buttons);
+      form.append(ta, foot, error);
+
+      let busy = false;
+      let submitAfterComposition = false;
+
+      const autosize = () => {
+        if (!ta.isConnected) return;
+        ta.style.height = 'auto';
+        ta.style.height = `${ta.scrollHeight + 2}px`;
+      };
+
+      const sync = () => {
+        const len = ta.value.length;
+        submit.disabled = busy || ta.value.trim() === '';
+        cancel.disabled = busy;
+        if (o.kind === 'top') cancel.hidden = len === 0 || !confirm.hidden;
+        counter.hidden = len < COUNT_FROM;
+        counter.textContent = counter.hidden ? '' : `${len.toLocaleString()} / ${BODY_MAX.toLocaleString()}`;
+        counter.classList.toggle('is-warn', len >= COUNT_WARN_FROM);
+        autosize();
+      };
+
+      const showConfirm = () => {
+        confirm.hidden = false;
+        cancel.hidden = true;
+        submit.hidden = true;
+        keepBtn.focus();
+      };
+      const hideConfirm = () => {
+        confirm.hidden = true;
+        submit.hidden = false;
+        sync();
+      };
+      const hideError = () => {
+        error.hidden = true;
+        error.textContent = '';
+      };
+      const clear = () => {
+        ta.value = '';
+        hideError();
+        hideConfirm();
+      };
+
+      const onCancelClick = () => {
+        if (o.kind !== 'top') {
+          o.onCancel?.();
+          return;
+        }
+        if (ta.value.length < CLEAR_CONFIRM_FROM) {
+          clear();
+          ta.focus();
+        } else {
+          showConfirm();
+        }
+      };
+
+      const doSubmit = async () => {
+        if (busy) return;
+        const text = ta.value.trim();
+        if (!text) {
+          ta.focus();
+          return;
+        }
+        busy = true;
+        ta.readOnly = true;
+        form.setAttribute('aria-busy', 'true');
+        hideError();
+        sync();
+        try {
+          await o.onSubmit(text);
+        } catch (e) {
+          const msg = messageOf(e);
+          error.textContent = msg;
+          error.hidden = false;
+          announce(msg);
+        } finally {
+          busy = false;
+          ta.readOnly = false;
+          form.removeAttribute('aria-busy');
+          sync();
+        }
+      };
+
+      ta.addEventListener('input', () => {
+        if (!confirm.hidden) hideConfirm();
+        else sync();
+      });
+      ta.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' || !(e.ctrlKey || e.metaKey)) return;
+        // 한글 조합 중이면 조합이 끝난 뒤 등록합니다(마지막 글자가 남는 문제 방지).
+        if (e.isComposing) {
+          submitAfterComposition = true;
+          return;
+        }
+        e.preventDefault();
+        void doSubmit();
+      });
+      ta.addEventListener('compositionend', () => {
+        if (!submitAfterComposition) return;
+        submitAfterComposition = false;
+        setTimeout(() => void doSubmit(), 0);
+      });
+      ta.addEventListener('blur', () => {
+        submitAfterComposition = false;
+      });
+      form.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape' || e.isComposing) return;
+        if (!confirm.hidden) {
+          e.preventDefault();
+          hideConfirm();
+          ta.focus();
+        } else if (o.kind !== 'top' && o.onCancel) {
+          e.preventDefault();
+          e.stopPropagation();
+          o.onCancel();
+        }
+      });
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        void doSubmit();
+      });
+
+      sync();
+      return {
+        root: form,
+        textarea: ta,
+        focus: () => {
+          ta.focus();
+          const end = ta.value.length;
+          ta.setSelectionRange(end, end);
+          autosize();
+        },
+        clear,
+      };
+    };
+
+    // ----- 댓글 항목 -----
+
+    const renderItem = (c: CommentItem, isReply: boolean): HTMLElement => {
+      const item = h('article', isReply ? 'cmt-item is-reply' : 'cmt-item');
+      item.dataset.id = c.id;
+
+      if (c.deleted) {
+        item.classList.add('is-deleted');
+        item.append(h('p', 'cmt-deleted-text', '삭제된 댓글입니다.'));
+        const actions = renderActions(c, item, null);
+        if (actions) item.append(actions);
+        return item;
+      }
+
+      const head = h('div', 'cmt-head');
+      const meta = h('div', 'cmt-meta');
+      meta.append(h('span', 'cmt-name', c.authorName || '사용자'));
+      if (c.isOwner) meta.append(h('span', 'cmt-badge', '글쓴이'));
+      const time = timeEl(c.createdAt);
+      if (time) meta.append(time);
+      if (c.updatedAt !== null) meta.append(h('span', 'cmt-edited', '(수정됨)'));
+      head.append(avatar(c.authorName, c.authorPhoto), meta);
+
+      const body = h('p', 'cmt-body', c.body);
+      item.append(head, body);
+      const actions = renderActions(c, item, body);
+      if (actions) item.append(actions);
+      return item;
+    };
+
+    const renderActions = (c: CommentItem, item: HTMLElement, body: HTMLElement | null): HTMLDivElement | null => {
+      const bar = h('div', 'cmt-actions');
+      const buttons: HTMLButtonElement[] = [];
+
+      if (canReply(c)) {
+        const b = btn('답글', 'cmt-action', () => toggleReply(c.id));
+        b.dataset.action = 'reply';
+        b.setAttribute('aria-expanded', 'false');
+        buttons.push(b);
+      }
+      if (body && canEdit(c)) {
+        const b = btn('수정', 'cmt-action', () => startEdit(c, item, body, bar));
+        b.dataset.action = 'edit';
+        buttons.push(b);
+      }
+      if (canDelete(c)) {
+        const b = btn('삭제', 'cmt-action', () => askDelete(c, bar, buttons));
+        b.dataset.action = 'delete';
+        buttons.push(b);
+      }
+      if (!buttons.length) return null;
+      bar.append(...buttons);
+      return bar;
+    };
+
+    const renderThread = (t: Thread): HTMLLIElement => {
+      const li = h('li', 'cmt-thread');
+      li.dataset.thread = t.id;
+      if (t.root) {
+        li.append(renderItem(t.root, false));
+      } else {
+        const ghost = h('article', 'cmt-item is-deleted');
+        ghost.append(h('p', 'cmt-deleted-text', '삭제된 댓글입니다.'));
+        li.append(ghost);
+      }
+      if (t.replies.length) {
+        const ol = h('ol', 'cmt-replies');
+        ol.setAttribute('aria-label', `답글 ${t.replies.length}개`);
+        for (const r of t.replies) {
+          const rli = h('li');
+          rli.append(renderItem(r, true));
+          ol.append(rli);
+        }
+        li.append(ol);
+      }
+      li.append(h('div', 'cmt-reply-slot'));
+      return li;
+    };
+
+    const updateSummary = () => {
+      const n = comments.filter((x) => !x.deleted).length;
+      if (countEl) countEl.textContent = n ? `${n.toLocaleString()}개` : '';
+      list.hidden = list.childElementCount === 0;
+      empty.hidden = !loaded || !list.hidden;
+    };
+
+    const renderList = () => {
+      list.replaceChildren(...buildThreads().map(renderThread));
+      updateSummary();
+    };
+
+    /** 한 묶음(최상위 댓글 + 답글)만 다시 그립니다. 열려 있던 답글 입력창은 옮겨 둡니다. */
+    const syncThread = (threadId: string) => {
+      const t = threadOf(threadId);
+      const current = threadEl(threadId);
+      if (!isThreadVisible(t)) {
+        current?.remove();
+      } else {
+        const next = renderThread(t);
+        const oldComposer = current?.querySelector(':scope > .cmt-reply-slot > .cmt-composer');
+        if (oldComposer && t.root && canReply(t.root)) next.querySelector(':scope > .cmt-reply-slot')?.append(oldComposer);
+        if (current) current.replaceWith(next);
+        else list.append(next);
+        syncReplyExpanded(threadId);
+      }
+      updateSummary();
+    };
+
+    const focusThread = (threadId: string) => {
+      const target = threadEl(threadId)?.querySelector<HTMLElement>(':scope > .cmt-item') ?? titleEl;
+      if (!target) return;
+      target.tabIndex = -1;
+      target.focus({ preventScroll: true });
+    };
+
+    // ----- 답글 -----
+
+    const toggleReply = (threadId: string) => {
+      const slot = threadEl(threadId)?.querySelector<HTMLElement>(':scope > .cmt-reply-slot');
+      if (!slot) return;
+      const opened = slot.querySelector<HTMLFormElement>(':scope > .cmt-composer');
+      if (opened) {
+        opened.remove();
+        syncReplyExpanded(threadId);
+        return;
+      }
+
+      const close = () => {
+        composer.root.remove();
+        syncReplyExpanded(threadId);
+        focusAction(threadId, 'reply');
+      };
+      const composer: Composer = createComposer({
+        kind: 'reply',
+        label: '답글 입력',
+        placeholder: '답글을 남겨 보세요',
+        submitLabel: '답글 달기',
+        verb: '등록',
+        onSubmit: async (text) => {
+          const created = await client.createComment(postKey, text, threadId);
+          comments = [...comments, created];
+          composer.root.remove();
+          syncThread(threadId);
+          markNew(created.id);
+          announce('답글을 남겼습니다');
+          focusAction(threadId, 'reply');
+        },
+        onCancel: close,
+      });
+      slot.append(composer.root);
+      syncReplyExpanded(threadId);
+      composer.focus();
+    };
+
+    // ----- 수정 -----
+
+    const startEdit = (c: CommentItem, item: HTMLElement, body: HTMLElement, bar: HTMLElement) => {
+      if (item.querySelector(':scope > .cmt-composer')) return;
+      clearInlineError(bar);
+
+      const close = () => {
+        composer.root.remove();
+        body.hidden = false;
+        bar.hidden = false;
+        focusAction(c.id, 'edit');
+      };
+      const composer: Composer = createComposer({
+        kind: 'edit',
+        label: '댓글 수정',
+        placeholder: '내용을 입력해 주세요',
+        submitLabel: '저장',
+        verb: '저장',
+        initial: c.body,
+        onSubmit: async (text) => {
+          if (text === c.body) {
+            close();
+            return;
+          }
+          const result = await client.editComment(postKey, c.id, text);
+          comments = comments.map((x) => (x.id === c.id ? { ...x, body: result.body, updatedAt: result.updatedAt } : x));
+          const updated = byId(c.id);
+          if (updated && item.isConnected) {
+            item.replaceWith(renderItem(updated, updated.parentId !== null));
+            syncReplyExpanded(updated.parentId ?? updated.id);
+          } else {
+            syncThread(c.parentId ?? c.id);
+          }
+          announce('댓글을 수정했습니다');
+          focusAction(c.id, 'edit');
+        },
+        onCancel: close,
+      });
+
+      body.hidden = true;
+      bar.hidden = true;
+      body.after(composer.root);
+      composer.focus();
+    };
+
+    // ----- 삭제 -----
+
+    const removeComment = async (c: CommentItem) => {
+      const threadId = c.parentId ?? c.id;
+      const hasReplies = c.parentId === null && !c.deleted && repliesOf(c.id).length > 0;
+
+      // 삭제된 부모의 마지막 답글을 지우면 부모 자리 표시도 정리합니다(지울 권한이 있을 때만).
+      let cleanupParentId: string | null = null;
+      if (c.parentId !== null && user) {
+        const parent = byId(c.parentId);
+        const isLastReply = repliesOf(c.parentId).every((r) => r.id === c.id);
+        if (parent?.deleted && isLastReply && (parent.uid === user.uid || user.isAdmin)) cleanupParentId = parent.id;
+      }
+
+      const result = await client.deleteComment(postKey, c.id, { hasReplies, cleanupParentId });
+      if (result.mode === 'soft') {
+        comments = comments.map((x) =>
+          x.id === c.id ? { ...x, deleted: true, body: '', authorName: '', authorPhoto: '' } : x
+        );
+      } else {
+        comments = comments.filter((x) => x.id !== c.id && !(result.parentRemoved && x.id === cleanupParentId));
+      }
+      syncThread(threadId);
+      announce(c.parentId === null ? '댓글을 삭제했습니다' : '답글을 삭제했습니다');
+      focusThread(threadId);
+    };
+
+    const askDelete = (c: CommentItem, bar: HTMLElement, buttons: HTMLButtonElement[]) => {
+      clearInlineError(bar);
+      const yes: HTMLButtonElement = btn('삭제', 'cmt-action is-danger-fill', () => void run());
+      const no: HTMLButtonElement = btn('취소', 'cmt-action', () => restore(true));
+
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key !== 'Escape') return;
+        e.preventDefault();
+        restore(true);
+      };
+      const restore = (focus: boolean) => {
+        bar.removeEventListener('keydown', onKey);
+        bar.removeAttribute('aria-busy');
+        bar.replaceChildren(...buttons);
+        if (focus) buttons.find((b) => b.dataset.action === 'delete')?.focus();
+      };
+      const run = async () => {
+        yes.disabled = true;
+        no.disabled = true;
+        bar.setAttribute('aria-busy', 'true');
+        try {
+          await removeComment(c);
+        } catch (e) {
+          restore(true);
+          showInlineError(bar, messageOf(e));
+        }
+      };
+
+      bar.replaceChildren(h('span', 'cmt-confirm-text', '삭제할까요?'), yes, no);
+      bar.addEventListener('keydown', onKey);
+      no.focus();
+    };
+
+    // ----- 로그인 영역과 최상위 입력창 -----
+
+    const showLoginError = (msg: string) => {
+      loginError.textContent = msg;
+      loginError.hidden = false;
+      announce(msg);
+    };
+
+    const doSignIn = async (provider: CommentProvider, buttons: HTMLButtonElement[]) => {
+      for (const b of buttons) b.disabled = true;
+      loginError.hidden = true;
+      focusComposerOnLogin = true;
+      try {
+        const signedIn = await client.signIn(provider);
+        if (signedIn) {
+          announce('로그인했습니다');
+          if (focusComposerOnLogin && topComposer) {
+            focusComposerOnLogin = false;
+            topComposer.focus();
+          }
+        } else {
+          focusComposerOnLogin = false;
+        }
+      } catch (e) {
+        focusComposerOnLogin = false;
+        showLoginError(messageOf(e));
+      } finally {
+        for (const b of buttons) b.disabled = false;
+      }
+    };
+
+    const doSignOut = async (trigger: HTMLButtonElement) => {
+      trigger.disabled = true;
+      try {
+        await client.signOut();
+        announce('로그아웃했습니다');
+        composeArea.querySelector<HTMLButtonElement>('.cmt-login-btn')?.focus();
+      } catch (e) {
+        trigger.disabled = false;
+        announce(messageOf(e));
+      }
+    };
+
+    const renderLogin = (): HTMLElement => {
+      const box = h('div', 'cmt-login');
+      const row = h('div', 'cmt-login-buttons');
+      const buttons: HTMLButtonElement[] = (['google', 'github'] as const).map((provider) => {
+        const b = btn('', 'cmt-login-btn', () => void doSignIn(provider, buttons));
+        b.dataset.provider = provider;
+        b.append(providerIcon(provider, 'cmt-login-icon'), h('span', '', `${PROVIDER_LABEL[provider]}로 로그인`));
+        return b;
+      });
+      row.append(...buttons);
+      box.append(
+        h('p', 'cmt-login-hint', 'Google 또는 GitHub 계정으로 로그인하면 댓글을 남길 수 있어요.'),
+        row,
+        h('p', 'cmt-login-note', '댓글에는 계정 이름과 프로필 사진이 함께 표시됩니다.'),
+        loginError
+      );
+      return box;
+    };
+
+    const renderComposeArea = () => {
+      const draft = topComposer?.textarea.value ?? '';
+      topComposer = null;
+      if (!authKnown) {
+        composeArea.replaceChildren();
+        return;
+      }
+      if (!user) {
+        composeArea.replaceChildren(renderLogin());
+        return;
+      }
+
+      const profile = h('div', 'cmt-profile');
+      const via = h('span', 'cmt-profile-via');
+      via.title = `${PROVIDER_LABEL[user.provider]} 계정`;
+      via.append(providerIcon(user.provider, 'cmt-provider-icon'), h('span', 'visually-hidden', `${PROVIDER_LABEL[user.provider]} 계정`));
+      const logout: HTMLButtonElement = btn('로그아웃', 'cmt-action cmt-logout', () => void doSignOut(logout));
+      profile.append(avatar(user.name, user.photo), h('span', 'cmt-profile-name', user.name), via);
+      if (user.isAdmin) profile.append(h('span', 'cmt-badge', '글쓴이'));
+      profile.append(logout);
+
+      const composer: Composer = createComposer({
+        kind: 'top',
+        label: '댓글 입력',
+        placeholder: '댓글을 남겨 보세요',
+        submitLabel: '댓글 달기',
+        verb: '등록',
+        initial: draft,
+        onSubmit: async (text) => {
+          const created = await client.createComment(postKey, text, null);
+          comments = [...comments, created];
+          syncThread(created.id);
+          markNew(created.id);
+          composer.clear();
+          announce('댓글을 남겼습니다');
+        },
+      });
+      topComposer = composer;
+      composeArea.replaceChildren(profile, composer.root);
+    };
+
+    // ----- 시작 -----
+
+    const load = async () => {
+      setStatus('댓글을 불러오는 중입니다…');
+      root.setAttribute('aria-busy', 'true');
+      try {
+        comments = await client.loadComments(postKey);
+        loaded = true;
+        status.hidden = true;
+        renderList();
+      } catch (e) {
+        setStatus(messageOf(e), () => void load());
+      } finally {
+        root.removeAttribute('aria-busy');
+      }
+    };
+
+    client.onUserChange((next) => {
+      const prev = user;
+      const sameUser = authKnown && prev?.uid === next?.uid;
+      authKnown = true;
+      user = next;
+      if (next) loginError.hidden = true;
+      renderComposeArea();
+      if (loaded && !sameUser) renderList();
+      if (next && focusComposerOnLogin && topComposer) {
+        focusComposerOnLogin = false;
+        topComposer.focus();
+      }
     });
+
+    client
+      .redirectResult()
+      .then((signedIn) => {
+        if (signedIn) announce('로그인했습니다');
+      })
+      .catch((e: unknown) => showLoginError(messageOf(e)));
+
+    await load();
+
+    // 상대 시간(방금 전, N분 전)을 1분마다 갱신
+    window.setInterval(() => {
+      if (document.hidden) return;
+      for (const t of section.querySelectorAll<HTMLTimeElement>('time.cmt-time[data-ts]')) {
+        t.textContent = relativeTime(Number(t.dataset.ts));
+      }
+    }, MINUTE);
+  }
+
+  // ---------- 지연 로딩 ----------
+
+  const section = document.querySelector<HTMLElement>('section.comments[data-firebase]');
+  if (section && !section.dataset.ready) {
+    section.dataset.ready = '1';
+    let started = false;
+    let observer: IntersectionObserver | null = null;
+
+    const onHash = () => {
+      if (location.hash === '#comments') start();
+    };
+    const start = () => {
+      if (started) return;
+      started = true;
+      observer?.disconnect();
+      window.removeEventListener('hashchange', onHash);
+      void mount(section);
+    };
+
+    const eager =
+      location.hash === '#comments' || readRedirectFlag() || typeof IntersectionObserver !== 'function';
+    if (eager) {
+      start();
+    } else {
+      observer = new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) start();
+      }, { rootMargin: '400px' });
+      observer.observe(section);
+      window.addEventListener('hashchange', onHash);
+    }
   }
 </script>
 
 <style>
   .comments {
+    --cmt-danger: #d70015;
+    --cmt-hover: rgba(0, 0, 0, 0.05);
+    --cmt-primary: #0071e3;
     margin: 56px 0 0;
     padding-top: 32px;
     border-top: 1px solid var(--line);
     min-height: 196px; /* 불러오는 동안 아래 내용이 밀리지 않게 */
+    font-family: var(--font);
+  }
+  :global(:root[data-theme='dark']) .comments {
+    --cmt-danger: #ff453a;
+    --cmt-hover: rgba(255, 255, 255, 0.08);
+  }
+
+  .comments .section-head {
+    margin-bottom: 16px;
+  }
+  .cmt-title:focus:not(:focus-visible) {
+    outline: none;
+  }
+  .cmt-noscript {
+    margin: 24px 0 0;
+    font-size: 14px;
+    color: var(--fg-3);
+    text-align: center;
+  }
+
+  /* display를 지정한 요소에서도 hidden 속성이 이기도록 */
+  .comments :global([hidden]) {
+    display: none !important;
+  }
+
+  /* ---------- 상태 문구 ---------- */
+  .comments :global(.cmt-status),
+  .comments :global(.cmt-empty) {
+    margin: 0;
+    padding: 28px 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--fg-3);
+    text-align: center;
+  }
+  .comments :global(.cmt-error) {
+    margin: 8px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--cmt-danger);
+  }
+
+  /* ---------- 목록과 카드 ---------- */
+  .comments :global(.cmt-list),
+  .comments :global(.cmt-replies) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .comments :global(.cmt-list) {
+    display: grid;
+    gap: 12px;
+  }
+  .comments :global(.cmt-thread) {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .comments :global(.cmt-replies) {
+    border-top: 1px solid var(--line);
+    background: var(--bg-subtle);
+    padding: 4px 0;
+  }
+  .comments :global(.cmt-reply-slot:not(:empty)) {
+    padding: 12px 18px 16px 56px;
+    border-top: 1px solid var(--line);
+    background: var(--bg-subtle);
+  }
+  .comments :global(.cmt-replies + .cmt-reply-slot:not(:empty)) {
+    border-top: 0;
+    padding-top: 4px;
+  }
+
+  .comments :global(.cmt-item) {
+    padding: 16px 18px 12px;
+  }
+  .comments :global(.cmt-item.is-reply) {
+    padding: 12px 18px 8px 56px;
+  }
+  .comments :global(.cmt-item.is-new) {
+    animation: cmt-fade-in 0.32s var(--ease) both;
+  }
+  @keyframes cmt-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+
+  .comments :global(.cmt-head) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .comments :global(.cmt-avatar) {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--bg-subtle);
+    box-shadow: inset 0 0 0 1px var(--line);
+    color: var(--fg-2);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .comments :global(.cmt-item.is-reply .cmt-avatar),
+  .comments :global(.cmt-profile .cmt-avatar) {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+  .comments :global(.cmt-avatar img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .comments :global(.cmt-meta) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 2px;
+    min-width: 0;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .comments :global(.cmt-name) {
+    font-weight: 600;
+    color: var(--fg);
+    overflow-wrap: anywhere;
+  }
+  .comments :global(.cmt-badge) {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--blue-soft);
+    color: var(--blue);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.6;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+  .comments :global(.cmt-time),
+  .comments :global(.cmt-edited) {
+    font-size: 12px;
+    color: var(--fg-3);
+    white-space: nowrap;
+  }
+
+  .comments :global(.cmt-body) {
+    margin: 6px 0 0 38px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--fg);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+  }
+  .comments :global(.cmt-item.is-reply .cmt-body) {
+    margin-left: 34px;
+    font-size: 14px;
+  }
+  .comments :global(.cmt-deleted-text) {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--fg-3);
+  }
+
+  /* ---------- 답글·수정·삭제 버튼 ---------- */
+  .comments :global(.cmt-actions) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    min-height: 30px;
+    margin: 4px 0 0 30px;
+  }
+  .comments :global(.cmt-item.is-reply .cmt-actions) {
+    margin-left: 26px;
+  }
+  .comments :global(.cmt-item.is-deleted .cmt-actions) {
+    margin-left: -8px;
+  }
+  .comments :global(.cmt-action) {
+    padding: 4px 8px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--fg-3);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0;
+    cursor: pointer;
+    transition: color 0.18s var(--ease), background 0.18s var(--ease);
+  }
+  .comments :global(.cmt-action:hover:not(:disabled)) {
+    color: var(--fg);
+    background: var(--cmt-hover);
+  }
+  .comments :global(.cmt-action[aria-expanded='true']) {
+    color: var(--blue);
+    background: var(--blue-soft);
+  }
+  .comments :global(.cmt-action.is-danger-fill) {
+    color: #fff;
+    background: var(--cmt-danger);
+  }
+  .comments :global(.cmt-action.is-danger-fill:hover:not(:disabled)) {
+    color: #fff;
+    background: var(--cmt-danger);
+    filter: brightness(1.08);
+  }
+  .comments :global(.cmt-action:disabled) {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .comments :global(.cmt-confirm-text) {
+    padding: 0 6px 0 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--fg-2);
+  }
+
+  /* ---------- 로그인 ---------- */
+  .comments :global(.cmt-compose-area) {
+    margin-top: 20px;
+  }
+  .comments :global(.cmt-login) {
+    padding: 24px 20px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--bg-subtle);
+    text-align: center;
+  }
+  .comments :global(.cmt-login-hint) {
+    margin: 0 0 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--fg-2);
+  }
+  .comments :global(.cmt-login-note) {
+    margin: 14px 0 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--fg-3);
+  }
+  .comments :global(.cmt-login-buttons) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  .comments :global(.cmt-login-btn) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 18px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    transition: background 0.18s var(--ease), border-color 0.18s var(--ease), box-shadow 0.18s var(--ease);
+  }
+  .comments :global(.cmt-login-btn:hover:not(:disabled)) {
+    box-shadow: var(--shadow);
+  }
+  .comments :global(.cmt-login-btn:disabled) {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .comments :global(.cmt-login-icon) {
+    flex: none;
+    width: 18px;
+    height: 18px;
+  }
+
+  .comments :global(.cmt-profile) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: var(--fg-2);
+  }
+  .comments :global(.cmt-profile-name) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+    color: var(--fg);
+  }
+  .comments :global(.cmt-profile-via) {
+    display: inline-flex;
+    color: var(--fg-3);
+  }
+  .comments :global(.cmt-provider-icon) {
+    width: 14px;
+    height: 14px;
+  }
+  .comments :global(.cmt-logout) {
+    margin-left: auto;
+  }
+
+  /* ---------- 입력창 ---------- */
+  .comments :global(.cmt-composer) {
+    display: grid;
+    gap: 8px;
+  }
+  .comments :global(.cmt-item > .cmt-composer) {
+    margin: 8px 0 4px 38px;
+  }
+  .comments :global(.cmt-item.is-reply > .cmt-composer) {
+    margin-left: 34px;
+  }
+  .comments :global(.cmt-input) {
+    display: block;
+    width: 100%;
+    min-height: 96px;
+    max-height: 420px;
+    padding: 12px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+    resize: none;
+    overflow-y: auto;
+    transition: border-color 0.18s var(--ease), box-shadow 0.18s var(--ease);
+  }
+  .comments :global(.cmt-composer:not([data-kind='top']) .cmt-input) {
+    min-height: 72px;
+    font-size: 14px;
+  }
+  .comments :global(.cmt-input::placeholder) {
+    color: var(--fg-3);
+  }
+  .comments :global(.cmt-input:focus),
+  .comments :global(.cmt-input:focus-visible) {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px var(--blue-soft);
+  }
+  .comments :global(.cmt-input:read-only) {
+    color: var(--fg-2);
+  }
+
+  .comments :global(.cmt-composer-foot) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+  }
+  .comments :global(.cmt-hint),
+  .comments :global(.cmt-counter) {
+    font-size: 12px;
+    color: var(--fg-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .comments :global(.cmt-counter.is-warn) {
+    color: var(--cmt-danger);
+  }
+  .comments :global(.cmt-composer-buttons),
+  .comments :global(.cmt-confirm) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .comments :global(.cmt-composer-buttons) {
+    margin-left: auto;
+  }
+  .comments :global(.cmt-confirm .cmt-confirm-text) {
+    padding: 0 4px 0 0;
+    font-size: 13px;
+  }
+
+  .comments :global(.cmt-btn) {
+    height: 32px;
+    padding: 0 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.18s var(--ease), opacity 0.18s var(--ease), filter 0.18s var(--ease);
+  }
+  .comments :global(.cmt-btn:hover:not(:disabled)) {
+    background: var(--cmt-hover);
+  }
+  .comments :global(.cmt-btn.is-ghost) {
+    border-color: transparent;
+    background: transparent;
+    color: var(--fg-2);
+  }
+  .comments :global(.cmt-btn.is-primary) {
+    border-color: transparent;
+    background: var(--cmt-primary);
+    color: #fff;
+    font-weight: 600;
+  }
+  .comments :global(.cmt-btn.is-danger) {
+    border-color: transparent;
+    background: var(--cmt-danger);
+    color: #fff;
+  }
+  .comments :global(.cmt-btn.is-primary:hover:not(:disabled)),
+  .comments :global(.cmt-btn.is-danger:hover:not(:disabled)) {
+    filter: brightness(1.08);
+  }
+  .comments :global(.cmt-btn.is-primary:hover:not(:disabled)) {
+    background: var(--cmt-primary);
+  }
+  .comments :global(.cmt-btn.is-danger:hover:not(:disabled)) {
+    background: var(--cmt-danger);
+  }
+  .comments :global(.cmt-btn:disabled) {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .comments :global(.cmt-action:focus-visible),
+  .comments :global(.cmt-btn:focus-visible),
+  .comments :global(.cmt-login-btn:focus-visible) {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+    border-radius: 999px;
+  }
+
+  @media (hover: none) {
+    .comments :global(.cmt-hint) {
+      display: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .comments :global(.cmt-item) {
+      padding: 14px 14px 10px;
+    }
+    .comments :global(.cmt-item.is-reply) {
+      padding: 12px 14px 8px 28px;
+    }
+    .comments :global(.cmt-reply-slot:not(:empty)) {
+      padding: 12px 14px 14px 28px;
+    }
+    .comments :global(.cmt-body),
+    .comments :global(.cmt-item.is-reply .cmt-body),
+    .comments :global(.cmt-item > .cmt-composer),
+    .comments :global(.cmt-item.is-reply > .cmt-composer) {
+      margin-left: 0;
+    }
+    .comments :global(.cmt-actions),
+    .comments :global(.cmt-item.is-reply .cmt-actions) {
+      margin-left: -8px;
+    }
+    .comments :global(.cmt-login) {
+      padding: 20px 16px;
+    }
+    .comments :global(.cmt-login-btn) {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 0 12px;
+    }
+    .comments :global(.cmt-composer-buttons) {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .comments :global(.cmt-item.is-new) {
+      animation: none;
+    }
+    .comments :global(.cmt-action),
+    .comments :global(.cmt-btn),
+    .comments :global(.cmt-login-btn),
+    .comments :global(.cmt-input) {
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  @media print {
+    .comments {
+      display: none;
+    }
   }
 </style>

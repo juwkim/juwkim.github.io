@@ -99,33 +99,34 @@
 
 ### 막힌 일
 
-1. **댓글 시스템 Firebase Spark 전환 (A안 확정)**
-   - 원인: 외부 콘솔 설정(Firebase 프로젝트 생성, Google 로그인 활성화, GitHub OAuth App 연결, 승인 도메인 `juwkim.github.io` 등록, Cloud Firestore `asia-northeast3` DB 생성) 필요.
-   - 해제 조건: 사용자가 콘솔 설정 완료 후 공개 `firebaseConfig`(및 작성 취소/본인 삭제·답글 범위 확인)를 공유하면 자체 댓글 UI·보안 규칙·전환 배포를 진행.
+1. **Firebase 콘솔에 `firestore.rules` 게시**
+   - 원인: Firebase 댓글 코드(`Comments.astro`, `src/lib/firebase-comments.ts`, `firestore.rules`)는 구현·배포까지 완료되었으나, Firestore Database가 기본 프로덕션 모드(`allow read, write: if false`)로 생성되어 있어 콘솔에서 보안 규칙을 게시하기 전까지 읽기/쓰기가 거부됨.
+   - 해제 조건: 사용자가 Firebase 콘솔(`Firestore Database > 규칙`)에 저장소 루트의 `firestore.rules` 내용을 붙여넣고 `게시`를 누른 뒤, 블로그 글 페이지에서 Google·GitHub 로그인과 댓글 작성/답글/수정/삭제 동작을 확인하면 완료.
 
 ### 나중에 확인할 일 (특정 날짜·조건 이후)
 
-1. **`2026-11-25~29` (제출 후 며칠 뒤) — 검색엔진 색인 및 사이트맵 재확인**
+1. **`2026-11-25~29` (제출 후 며칠 뒤): 검색엔진 색인 및 사이트맵 재확인**
    - [ ] Google Search Console의 `/sitemap-index.xml` `"가져올 수 없음"`("일시적인 처리 오류") 해소 여부·`색인 생성 → 페이지` 집계와 네이버 서치어드바이저 `사이트 진단`·`수집 현황`·`콘텐츠 노출/클릭` 리포트 집계 재확인 *(확정 대응: 재확인 후에도 `/sitemap-index.xml` 오류가 유지되면 GSC에 `sitemap-0.xml`을 직접 추가 제출)*
-2. **`2026-12-18 이후` — About 정보처리기사 결과 반영**
-   - [x] **요즘의 나** 4칸 — 사용자 답변으로 반영 (2026-11-21): 공부 OPIc, 고민 AI 시대의 나만의 강점, 습관 선크림·물 2L·꾸준히 몸 돌보기, 살피는 일 주변 사람들의 불편을 관찰하고 어떻게 도울지 고민하기
-   - [x] **지나온 발걸음** — 한 줄 설명과 현재 이력 항목 유지
+2. **`2026-12-18 이후`: About 정보처리기사 결과 반영**
+   - [x] 요즘의 나 4칸: 사용자 답변으로 반영 (2026-11-21): 공부 OPIc, 고민 AI 시대의 나만의 강점, 습관 선크림·물 2L·꾸준히 몸 돌보기, 살피는 일 주변 사람들의 불편을 관찰하고 어떻게 도울지 고민하기
+   - [x] 지나온 발걸음: 한 줄 설명과 현재 이력 항목 유지
    - [ ] 정보처리기사 합격 여부와 취득 시점 *(선행 조건: 2026-12-18 합격 발표 후 사용자 결과 확인 → `src/data/about.ts` `"응시"` 표기 및 백로그 갱신)*
-   - [x] 발걸음에 넣을 순간 고르기 — 현재 이력으로 충분하다고 확인
-3. **`분기별` — major / 0.x minor Dependabot PR 수동 검토**
+   - [x] 발걸음에 넣을 순간 고르기: 현재 이력으로 충분하다고 확인
+3. **`분기별`: major / 0.x minor Dependabot PR 수동 검토**
    - [x] minor/patch Dependabot PR은 `.github/workflows/dependabot-auto-merge.yml` 봇이 `Deploy` 통과 검증 후 자동 squash 머지·재배포하도록 자동화 완료 (2026-11-22)
    - [x] `astro.config.mjs`의 Markdown 플러그인 설정을 `@astrojs/markdown-remark` `unified({...})` 방식으로 이전 완료 (2026-11-22)
    - [ ] 자동 머지 대상에서 제외되는 `semver-major`, `0.x` minor, `0.0.x` 등 수동 검토 PR이 새로 열리면 빌드 결과와 변경점 확인 후 직접 판단 (첫 PR #2 `typescript 6.0.3 → 7.0.2`는 무시 처리·종료 완료)
 
 ### 더 논의할 결정 (추천안 포함)
 
-1. **Firebase 댓글 전환 이후 다음 글·UI 다듬기 주제 정하기** *(선행 조건: 위 막힌 일인 Firebase 댓글 시스템 전환 완료 후 논의)*
-   - 배경: 모바일·태블릿 접이식 목차와 소제목 링크 복사 UI(기존 B안)까지 반영한 뒤 남는 다음 개선 후보입니다.
+1. **다음 글·UI 다듬기 주제 정하기** *(지금 논의 가능, 또는 `firestore.rules` 게시·실동작 확인 직후 진행)*
+   - 배경: 댓글 시스템 Firebase 전환과 모바일·태블릿 목차, 소제목 링크 복사까지 반영한 뒤 남는 다음 개선 후보입니다.
    - 선택지: A) 홈·글 목록·About 레이아웃 및 비주얼 디테일 다듬기 / B) 특정 기존 글 내용 보강·다듬기.
-   - **추천안**: **A안(홈·글 목록·About 레이아웃 및 비주얼 디테일 다듬기)**. 전체 페이지의 시각적 완성도를 한 번 더 끌어올린 뒤 개별 글 내용 보강을 이어가는 편이 흐름상 깔끔합니다.
+   - 추천안: A안(홈·글 목록·About 레이아웃 및 비주얼 디테일 다듬기). 전체 페이지의 시각적 완성도를 먼저 고르게 맞춘 뒤 개별 글 내용 보강으로 이어가는 편이 흐름상 깔끔합니다.
 
 ### 해결된 논의
-- 댓글 시스템 전환 방향 → **A안(Firebase Spark 무료 플랜: Google + GitHub 로그인 + Cloud Firestore + 자체 평문 댓글 UI)**으로 방향 확정, 콘솔 설정 대기 (2026-11-22)
+- 댓글 시스템 Firebase Spark 전환 구현 완료 → `src/site.config.ts`, `src/lib/firebase-comments.ts`, `src/components/Comments.astro`, `firestore.rules` 반영 및 기존 `public/giscus/` 제거. Google·GitHub 로그인, 입력 취소, 본인 수정/삭제, 1단계 답글, 관리자 전체 삭제 포함 (2026-11-23)
+- 댓글 시스템 전환 방향 → A안(Firebase Spark 무료 플랜: Google + GitHub 로그인 + Cloud Firestore + 자체 평문 댓글 UI)으로 확정 (2026-11-22)
 - 테스트용 GitHub Discussion #4(`"안녕"`) 삭제 완료 (2026-11-22)
 - 다음 기존 글·UI 개선 우선순위 → **B안(모바일·태블릿 접이식 목차 + 소제목 링크 복사 UI)** 확정 및 반영 완료 (2026-11-22)
 - Dependabot minor/patch 자동 머지·재배포 봇 → `.github/workflows/dependabot-auto-merge.yml`로 safe minor/patch만 자동 squash 머지 후 `deploy.yml` 재실행하도록 구축 완료, major/`0.x` minor는 수동 검토 유지 (2026-11-22)

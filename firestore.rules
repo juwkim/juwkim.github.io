@@ -1,0 +1,86 @@
+rules_version = '2';
+
+// 블로그 댓글 보안 규칙 (Firebase Spark, Cloud Firestore)
+// 구조: posts/{postKey}/comments/{commentId}
+// 글마다 하위 컬렉션을 두어 orderBy('createdAt', 'asc') 단일 필드 정렬만 쓰므로 복합 색인이 필요 없습니다.
+// 배포: Firebase 콘솔 > Firestore Database > 규칙 탭에 붙여 넣거나 `firebase deploy --only firestore:rules`
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 관리자(블로그 주인): 인증된 이메일로 판별합니다.
+    // UID까지 고정하고 싶다면 Firebase 콘솔 > Authentication > 사용자에서 UID를 확인한 뒤 아래 조건을 추가합니다.
+    //   && request.auth.uid == '여기에_관리자_UID'
+    function isAdmin() {
+      return request.auth != null &&
+        request.auth.token.email_verified == true &&
+        request.auth.token.email == 'juwkim35721@gmail.com';
+    }
+
+    function validPostKey(postKey) {
+      return postKey.matches('^[a-zA-Z0-9_-]{1,180}$');
+    }
+
+    function validBody(body) {
+      return body is string && body.trim().size() >= 1 && body.size() <= 2000;
+    }
+
+    function commentPath(postKey, commentId) {
+      return /databases/$(database)/documents/posts/$(postKey)/comments/$(commentId);
+    }
+
+    match /posts/{postKey}/comments/{commentId} {
+      allow read: if validPostKey(postKey);
+
+      allow create: if request.auth != null &&
+        validPostKey(postKey) &&
+        request.resource.data.keys().hasOnly(['parentId', 'uid', 'authorName', 'authorPhoto', 'provider', 'isOwner', 'body', 'deleted', 'createdAt', 'updatedAt']) &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.authorName is string &&
+        request.resource.data.authorName.trim().size() >= 1 &&
+        request.resource.data.authorName.size() <= 60 &&
+        request.resource.data.authorPhoto is string &&
+        request.resource.data.authorPhoto.size() <= 500 &&
+        (request.resource.data.authorPhoto == '' || request.resource.data.authorPhoto.matches('^https://.*')) &&
+        request.resource.data.provider in ['google', 'github'] &&
+        request.resource.data.isOwner is bool &&
+        request.resource.data.isOwner == isAdmin() &&
+        validBody(request.resource.data.body) &&
+        request.resource.data.deleted == false &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.updatedAt == null &&
+        // 답글은 한 단계까지만: 부모는 삭제되지 않은 최상위 댓글이어야 합니다.
+        (request.resource.data.parentId == null ||
+          (request.resource.data.parentId is string &&
+            exists(commentPath(postKey, request.resource.data.parentId)) &&
+            get(commentPath(postKey, request.resource.data.parentId)).data.parentId == null &&
+            get(commentPath(postKey, request.resource.data.parentId)).data.deleted == false));
+
+      allow update: if
+        // 작성자 본인의 본문 수정
+        (request.auth != null &&
+          resource.data.uid == request.auth.uid &&
+          resource.data.deleted == false &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['body', 'updatedAt']) &&
+          validBody(request.resource.data.body) &&
+          request.resource.data.updatedAt == request.time) ||
+        // 답글이 달린 최상위 댓글의 소프트 삭제 (작성자 또는 관리자)
+        (request.auth != null &&
+          (resource.data.uid == request.auth.uid || isAdmin()) &&
+          resource.data.parentId == null &&
+          resource.data.deleted == false &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deleted', 'body', 'authorName', 'authorPhoto', 'updatedAt']) &&
+          request.resource.data.deleted == true &&
+          request.resource.data.body == '' &&
+          request.resource.data.authorName == '' &&
+          request.resource.data.authorPhoto == '' &&
+          request.resource.data.updatedAt == request.time);
+
+      allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin());
+    }
+
+    // 그 밖의 모든 경로는 거부
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

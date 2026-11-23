@@ -41,7 +41,7 @@
 
 | 대상 | 경로 |
 |---|---|
-| 사이트 설정(카테고리, 공개 링크, 소유 확인, giscus) | `src/site.config.ts` |
+| 사이트 설정(카테고리, 공개 링크, 소유 확인, Firebase 댓글) | `src/site.config.ts` |
 | 홈과 About 화면 | `src/pages/index.astro`, `src/pages/about.astro` |
 | About의 문구·목표·이력 | `src/data/about.ts` |
 | 글 원고와 이미지 | `src/content/posts/` |
@@ -51,7 +51,7 @@
 | 사진 뷰어 | `src/components/PostImageViewer.astro` |
 | 코드 블록 복사 | `src/components/PostCodeBlocks.astro` |
 | 소제목 링크 복사 | `src/components/PostHeadingLinks.astro` |
-| 댓글 | `src/components/Comments.astro` |
+| 댓글 UI·클라이언트·보안 규칙 | `src/components/Comments.astro`, `src/lib/firebase-comments.ts`, `firestore.rules` |
 | 배포·의존성 점검·자동 머지 | `.github/workflows/deploy.yml`, `.github/dependabot.yml`, `.github/workflows/dependabot-auto-merge.yml` |
 | 프로필 사진 / 첨부 자료 | `src/assets/avatar.jpg` / `public/files/maicon-2026/` |
 
@@ -79,10 +79,11 @@
   - 본문 코드 블록(`PostCodeBlocks.astro`)에는 언어 표시 헤더와 복사 버튼을 제공하며, JS가 없으면 기존 `.prose pre` 스타일 그대로 보입니다(2026-11-22).
   - **모바일·태블릿 목차 + 소제목 링크 복사**(B안, 2026-11-22): `1280px` 미만 화면 본문 상단에 접이식 목차(`<details class="toc-mobile">`, 항목 선택 시 자동 접힘)를 두고, `PostHeadingLinks.astro`로 `h2[id]`·`h3[id]` 오른쪽에 소제목 링크 복사 버튼을 제공합니다.
   - **Markdown 수식 설정 이전**(2026-11-22): `astro.config.mjs`에서 deprecated 경고가 나던 최상위 `remarkPlugins`/`rehypePlugins`를 `@astrojs/markdown-remark` `unified({...})` 방식으로 이전했습니다.
-- **댓글 / giscus → Firebase Spark 전환 예정**
-  - 현재 라이브 댓글은 공개 저장소 Discussions `General` 카테고리의 giscus(자체 라이트/다크 CSS `?v=2`)로 동작 중입니다.
-  - 2026-11-22 테스트 댓글 Discussion #3·#4 삭제 완료.
-  - **방향 확정**: Google 로그인 + GitHub 로그인 + 작성 취소/본인 댓글 삭제 요구사항을 위해 **Firebase Spark 무료 플랜 (Auth + Cloud Firestore + 자체 평문 댓글 UI, A안)** 으로 전환하기로 확정했으며, 사용자 측 Firebase 콘솔 설정 공유를 기다리는 중입니다.
+- **댓글 (Firebase Auth + Cloud Firestore Lite)**
+  - 기존 giscus(`public/giscus/`)에서 Firebase Spark 무료 플랜 프로젝트(`home-server-c5ca5`) 기반 자체 댓글 UI(`Comments.astro`, `src/lib/firebase-comments.ts`, `firestore.rules`)로 전환 완료했습니다(2026-11-23).
+  - 지원 기능: Google 로그인, GitHub 로그인(팝업 우선 + 차단 시 리다이렉트 폴백), 입력 중 작성 취소(40자 이상 초기화 확인), 작성 후 본인 댓글 수정/삭제, 1단계 답글(답글 달린 부모 삭제 시 소프트 삭제 유지), 관리자(`juwkim35721@gmail.com`) 글쓴이 배지 및 전체 댓글 삭제.
+  - 보안·성능: `posts/{postKey}/comments/{commentId}` 하위 컬렉션 구조로 복합 색인 불필요, `IntersectionObserver`(400px 전) 지연 로딩, 사용자 입력은 `textContent` 전용 렌더링(XSS 방지).
+  - 남은 확인: 사용자가 Firebase 콘솔(`Firestore Database > 규칙`)에 `firestore.rules`를 게시한 뒤 라이브 페이지에서 로그인·작성·수정·삭제 실동작 확인 필요.
 - **SEO**
   - Google과 Naver 소유 확인 HTML 태그를 배포했으며, 계속 유지합니다.
   - 사용자가 Google에는 사이트맵(`sitemap-index.xml`)을, Naver에는 사이트맵과 RSS(`rss.xml`)를 제출했습니다.
@@ -110,7 +111,7 @@
 
 ## 7. 남은 일
 
-- **대기 중 (막힌 일)**: 사용자 Firebase 콘솔 설정 완료 후 공개 `firebaseConfig` 공유 시 Firebase Auth(Google + GitHub) + Firestore 자체 댓글 UI 구현
+- **대기 중 (막힌 일)**: 사용자가 Firebase 콘솔(`Firestore Database > 규칙`)에 `firestore.rules`를 게시한 뒤 라이브 페이지에서 댓글 실동작 확인
 - **핵심**: 2026-12-18 이후 정보처리기사 실제 결과를 사용자에게 확인합니다. 결과에 따라 About의 "응시" 표기와 백로그를 갱신합니다.
 - **운영 확인**
   - 구글·네이버 콘솔에서 검색 색인 집계 및 Google Search Console `/sitemap-index.xml` 처리 상태 재확인

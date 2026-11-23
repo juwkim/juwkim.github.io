@@ -22,13 +22,17 @@ export const SITE = {
     google: 'c2PuWQ46H6zZ8qQOVFDRJ_uWskV6w64Jmyz5z2DJKOU',
     naver: '2089745ad341aef578581908c44918027c1341ee',
   },
-  // 댓글(giscus). 저장소에서 Discussions를 켜고 giscus 앱을 설치한 뒤 https://giscus.app 에서 확인한 categoryId를 넣으면 댓글이 표시됩니다.
-  // categoryId가 비어 있으면 댓글 영역은 출력되지 않습니다.
+  // 댓글 (Firebase Auth + Cloud Firestore Lite). 보안 규칙은 저장소 루트의 firestore.rules 참고.
   comments: {
-    repo: 'juwkim/juwkim.github.io',
-    repoId: 'R_kgDOKxOQ9g',
-    category: 'General',
-    categoryId: 'DIC_kwDOKxOQ9s4DLsKL',
+    adminEmail: 'juwkim35721@gmail.com',
+    firebase: {
+      apiKey: 'AIzaSyD-qFlBzzpLviH4cR3g63jg8r_sKNOOpng',
+      authDomain: 'home-server-c5ca5.firebaseapp.com',
+      projectId: 'home-server-c5ca5',
+      storageBucket: 'home-server-c5ca5.firebasestorage.app',
+      messagingSenderId: '878049240772',
+      appId: '1:878049240772:web:91069a140c446261d14b91',
+    },
   },
 };
 
