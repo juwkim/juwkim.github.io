@@ -1,75 +1,120 @@
 ---
 // Projects: 직접 만든 도구와 프로젝트 모음. 내용은 src/data/projects.ts에서 관리합니다.
+// 넓은 화면에서는 홈·글 목록과 마찬가지로 왼쪽에 프로필·카테고리 사이드바를 둡니다.
 import Base from '../layouts/Base.astro';
+import CategoryNav from '../components/CategoryNav.astro';
 import { PROJECTS } from '../data/projects';
+import { getPosts } from '../lib/posts';
+
+const posts = await getPosts();
 ---
 
 <Base title="Projects" description="직접 만든 도구와 프로젝트, 빌더로서 쌓아 온 결과물을 모아 둔 공간입니다.">
-  <div class="page">
-    <header class="head">
-      <p class="eyebrow">Projects</p>
-      <h1>What I Made</h1>
-      <p class="sub">
-        직접 만든 도구와 프로젝트를 모아 두는 곳입니다. 만든 이유와 과정은 글로 남기고, 웹에서 바로 써 볼 수 있는 데모도 하나씩
-        이곳에 올릴 예정입니다.
-      </p>
-    </header>
-
-    <div class="grid">
-      {
-        PROJECTS.map((p) => (
-          <article class="project" id={p.slug} aria-labelledby={`${p.slug}-title`}>
-            <div class="top">
-              <span class="cat">
-                {p.category} <span aria-hidden="true">·</span> {p.period}
-              </span>
-              <span class="pill">{p.statusLabel}</span>
-            </div>
-            <h2 id={`${p.slug}-title`}>{p.title}</h2>
-            <p class="desc">{p.description}</p>
-            <ul class="highlights" aria-label="주요 내용">
-              {p.highlights.map((h) => (
-                <li>{h}</li>
-              ))}
-            </ul>
-            <ul class="tags" aria-label="태그">
-              {p.tags.map((t) => (
-                <li>{t}</li>
-              ))}
-            </ul>
-            <div class="links">
-              {p.links.map((l) =>
-                l.external ? (
-                  <a href={l.href} target="_blank" rel="noopener">
-                    {l.label} <span aria-hidden="true">↗</span>
-                  </a>
-                ) : (
-                  <a href={l.href}>
-                    {l.label} <span aria-hidden="true">›</span>
-                  </a>
-                ),
-              )}
-            </div>
-          </article>
-        ))
-      }
-    </div>
-
-    <aside class="demo-note" aria-labelledby="demo-note-title">
-      <p class="demo-label" id="demo-note-title">Interactive Demos · 준비 중</p>
-      <p>
-        Drive2Model Cross-Labeler를 시작으로, 브라우저에서 바로 체험할 수 있는 웹 데모를 준비되는 대로 이 페이지 아래에 하나씩 올려 둘
-        예정입니다.
-      </p>
+  <div class="layout">
+    <aside class="side">
+      <CategoryNav mode="sidebar" posts={posts} highlightAll={false} />
     </aside>
+    <div class="main">
+      <header class="head">
+        <p class="eyebrow">Projects</p>
+        <h1>What I Made</h1>
+        <p class="sub">
+          직접 만든 도구와 프로젝트를 모아 두는 곳입니다. 만든 이유와 과정은 글로 남기고, 웹에서 바로 써 볼 수 있는 데모도 하나씩
+          이곳에 올릴 예정입니다.
+        </p>
+      </header>
+
+      <CategoryNav mode="chips" posts={posts} highlightAll={false} />
+
+      <div class="grid">
+        {
+          PROJECTS.map((p) => (
+            <article class="project" id={p.slug} aria-labelledby={`${p.slug}-title`}>
+              <div class="top">
+                <span class="cat">
+                  {p.category} <span aria-hidden="true">·</span> {p.period}
+                </span>
+                <span class="pill">{p.statusLabel}</span>
+              </div>
+              <h2 id={`${p.slug}-title`}>{p.title}</h2>
+              <p class="desc">{p.description}</p>
+              <ul class="highlights" aria-label="주요 내용">
+                {p.highlights.map((h) => (
+                  <li>{h}</li>
+                ))}
+              </ul>
+              <ul class="tags" aria-label="태그">
+                {p.tags.map((t) => (
+                  <li>{t}</li>
+                ))}
+              </ul>
+              <div class="links">
+                {p.links.map((l) =>
+                  l.external ? (
+                    <a href={l.href} target="_blank" rel="noopener">
+                      {l.label} <span aria-hidden="true">↗</span>
+                    </a>
+                  ) : (
+                    <a href={l.href}>
+                      {l.label} <span aria-hidden="true">›</span>
+                    </a>
+                  ),
+                )}
+              </div>
+            </article>
+          ))
+        }
+      </div>
+
+      <aside class="demo-note" aria-labelledby="demo-note-title">
+        <p class="demo-label" id="demo-note-title">Interactive Demos · 준비 중</p>
+        <p>
+          Drive2Model Cross-Labeler를 시작으로, 브라우저에서 바로 체험할 수 있는 웹 데모를 준비되는 대로 이 페이지 아래에 하나씩 올려 둘
+          예정입니다.
+        </p>
+      </aside>
+    </div>
   </div>
 </Base>
 
 <style>
+  .layout {
+    padding: 0 var(--edge);
+  }
+  @media (max-width: 640px) {
+    .layout {
+      padding: 0 24px;
+    }
+  }
+  .side {
+    display: none;
+  }
+  .main {
+    min-width: 0;
+  }
+
   /* ---------- 머리말 ---------- */
   .head {
-    padding: 72px 0 36px;
+    padding: 56px 0 24px;
     max-width: 680px;
+  }
+  @media (min-width: 1080px) {
+    .layout {
+      display: grid;
+      grid-template-columns: var(--sidebar) minmax(0, 1fr);
+      gap: 56px;
+      padding-top: 56px;
+    }
+    .side {
+      display: block;
+    }
+    .main {
+      max-width: 1080px;
+      width: 100%;
+    }
+    .head {
+      padding: 0 0 28px;
+    }
   }
   .eyebrow {
     margin: 0 0 10px;

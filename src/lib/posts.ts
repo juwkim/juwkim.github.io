@@ -31,16 +31,18 @@ export function postUrl(post: Post): string {
   return `${subUrl(cat, sub)}${postSlug(post)}/`;
 }
 
-/** 사이드바용: 카테고리별·세부 카테고리별 글 수 */
+/** 사이드바용: 카테고리별·세부 카테고리별 글 수 (글 수가 많은 순으로 정렬) */
 export function countTree(posts: Post[]) {
   return CATEGORIES.map((cat) => ({
     cat,
     count: posts.filter((p) => p.data.category === cat.name).length,
-    subs: cat.subs.map((sub) => ({
-      sub,
-      count: posts.filter((p) => p.data.category === cat.name && p.data.subcategory === sub.name).length,
-    })),
-  }));
+    subs: cat.subs
+      .map((sub) => ({
+        sub,
+        count: posts.filter((p) => p.data.category === cat.name && p.data.subcategory === sub.name).length,
+      }))
+      .sort((a, b) => b.count - a.count),
+  })).sort((a, b) => b.count - a.count);
 }
 
 const KST = 'Asia/Seoul';

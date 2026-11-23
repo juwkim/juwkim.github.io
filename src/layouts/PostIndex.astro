@@ -18,7 +18,7 @@ interface Props {
 const { title, crumb, allPosts, posts, current } = Astro.props;
 ---
 
-<Base title={title} description={`${title}: ${posts.length}개의 기록`}>
+<Base title={title} description={`${title}: ${posts.length}편의 기록`}>
   <div class="layout">
     <aside>
       <CategoryNav mode="sidebar" posts={allPosts} current={current} />
@@ -27,7 +27,7 @@ const { title, crumb, allPosts, posts, current } = Astro.props;
       <header class="head">
         {crumb && <a class="crumb" href={crumb.href}>{crumb.label} ›</a>}
         <h1>{title}</h1>
-        <p>{posts.length}개의 기록</p>
+        <p>{posts.length}편의 기록</p>
       </header>
       <CategoryNav mode="chips" posts={allPosts} current={current} />
       <div class="list">

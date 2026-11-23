@@ -21,12 +21,9 @@ const recent = posts.slice(0, 6);
     </aside>
     <div class="main">
       <header class="intro">
-        <h1>{SITE.hero.title.join(' ')}</h1>
-        <p>{SITE.hero.body}</p>
+        <h1>{SITE.hero.body}</h1>
         <div class="meta">
           <span>총 {posts.length}편의 기록</span>
-          <span class="dot" aria-hidden="true">·</span>
-          <a href="/about/">About ›</a>
         </div>
       </header>
 
@@ -35,7 +32,7 @@ const recent = posts.slice(0, 6);
       <section class="recent" aria-labelledby="recent">
         <div class="section-head">
           <h2 id="recent">최근 글</h2>
-          <a href="/posts/">전체 {posts.length}개 보기 ›</a>
+          <a href="/posts/">전체 보기 ›</a>
         </div>
         <div class="grid">
           {recent.map((post) => <PostCard post={post} />)}
@@ -105,43 +102,21 @@ const recent = posts.slice(0, 6);
 
   /* ---------- 소개 ---------- */
   .intro {
-    padding: 52px 0 22px;
-    max-width: 620px;
+    padding: 48px 0 20px;
+    max-width: 640px;
   }
   h1 {
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: -0.025em;
-    line-height: 1.35;
+    font-size: 18px;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1.5;
     word-break: keep-all;
-    margin: 0 0 10px;
-  }
-  .intro p {
-    font-size: 15px;
-    line-height: 1.65;
-    color: var(--fg-2);
-    margin: 0;
-    word-break: keep-all;
+    margin: 0 0 8px;
   }
   .meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 8px;
-    margin-top: 14px;
     font-size: 13.5px;
     color: var(--fg-3);
     font-variant-numeric: tabular-nums;
-  }
-  .dot {
-    opacity: 0.7;
-  }
-  .meta a {
-    color: var(--blue);
-  }
-  .meta a:hover {
-    text-decoration: underline;
-    text-underline-offset: 3px;
   }
 
   /* ---------- 최근 글 ---------- */
@@ -290,10 +265,10 @@ const recent = posts.slice(0, 6);
       grid-row: 2;
     }
     .intro {
-      padding: 0 0 28px;
+      padding: 0 0 24px;
     }
     h1 {
-      font-size: 26px;
+      font-size: 20px;
     }
     .recent {
       margin-top: 0;
