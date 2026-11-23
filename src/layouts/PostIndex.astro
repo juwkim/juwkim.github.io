@@ -39,9 +39,9 @@ const { title, crumb, allPosts, posts, current } = Astro.props;
 
 <style>
   .layout {
-    max-width: var(--page);
-    margin: 0 auto;
-    padding: 0 32px;
+    max-width: none;
+    margin: 0;
+    padding: 0 var(--edge);
   }
   @media (max-width: 640px) {
     .layout {
@@ -60,14 +60,18 @@ const { title, crumb, allPosts, posts, current } = Astro.props;
   }
   @media (min-width: 1080px) {
     .layout {
-      max-width: var(--page);
       display: grid;
       grid-template-columns: var(--sidebar) minmax(0, 1fr);
-      gap: 48px;
-      padding-top: 64px;
+      gap: 56px;
+      padding-top: 56px;
     }
     aside {
       display: block;
+    }
+    .main {
+      max-width: 1080px;
+      width: 100%;
+      min-width: 0;
     }
     .head {
       padding: 0 0 20px;

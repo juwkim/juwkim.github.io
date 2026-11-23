@@ -25,10 +25,22 @@ const year = new Date().getFullYear();
   a:hover {
     color: var(--fg);
   }
-  /* 사이드바가 있는 페이지는 모두 같은 왼쪽 간격(사이드바 + 48px)으로 본문 열에 맞춤 */
+  /* 사이드바가 있는 페이지: 화면 전체 폭을 쓰고, 왼쪽 고정 사이드바(사이드바 + 56px)를 피해 정렬 */
   @media (min-width: 1080px) {
+    :global(body:has(.sidebar)) footer.page {
+      max-width: none;
+      margin-left: 0;
+      margin-right: 0;
+      padding: 0 var(--edge);
+    }
     :global(body:has(.sidebar)) footer .inner {
-      margin-left: calc(var(--sidebar) + 48px);
+      margin-left: calc(var(--sidebar) + 56px);
+    }
+  }
+  /* 홈: 오른쪽 화면 끝에 What I Made 레일도 고정되므로 오른쪽도 비워 둠 */
+  @media (min-width: 1360px) {
+    :global(body:has(.made-rail)) footer .inner {
+      margin-right: calc(var(--rail) + 56px);
     }
   }
 </style>

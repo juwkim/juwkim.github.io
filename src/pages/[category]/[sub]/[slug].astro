@@ -21,7 +21,7 @@ import {
   type Post,
 } from '../../../lib/posts';
 
-// /<카테고리>/<세부>/<글>/ — 이전/다음 글은 같은 세부 카테고리 안에서 이어짐 (시리즈 순서대로 읽기 좋게)
+// /<카테고리>/<세부>/<글>/: 이전/다음 글은 같은 세부 카테고리 안에서 이어짐 (시리즈 순서대로 읽기 좋게)
 export async function getStaticPaths() {
   const posts = await getPosts(); // 최신순
   return posts.map((post) => {
@@ -236,19 +236,26 @@ const hasMath = /\$\$|\$[^\s$][^$\n]*\$/.test((post.body ?? '').replace(/```[\s\
   }
   @media (min-width: 1080px) {
     .post-layout {
-      max-width: var(--page);
-      padding: 0 32px;
+      max-width: none;
+      margin: 0;
+      padding: 0 var(--edge);
       display: grid;
-      grid-template-columns: var(--sidebar) minmax(0, var(--width));
-      column-gap: 48px;
+      grid-template-columns: var(--sidebar) minmax(0, 1fr);
+      column-gap: 56px;
     }
     .side {
       display: block;
     }
+    /* 본문은 가운데 열 안에서 읽기 좋은 폭(--width)으로 가운데 정렬 */
+    .col {
+      max-width: var(--width);
+      width: 100%;
+      margin: 0 auto;
+    }
   }
   @media (min-width: 1280px) {
     .post-layout {
-      grid-template-columns: var(--sidebar) minmax(0, var(--width)) 200px;
+      grid-template-columns: var(--sidebar) minmax(0, 1fr) 220px;
       column-gap: 48px;
     }
     .toc-mobile-wrap {
@@ -261,6 +268,7 @@ const hasMath = /\$\$|\$[^\s$][^$\n]*\$/.test((post.body ?? '').replace(/```[\s\
       align-self: start;
       max-height: calc(100dvh - 128px);
       overflow-y: auto;
+      overscroll-behavior: contain;
       margin-top: 240px;
       scrollbar-width: none;
     }

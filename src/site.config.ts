@@ -23,7 +23,7 @@ export const SITE = {
   },
   // 방문자 통계 (Google Analytics 4). 측정 ID(G-XXXXXXXXXX)를 넣으면 프로덕션 빌드에서만 동작합니다.
   analytics: {
-    gaId: '',
+    gaId: 'G-1VLJHDNKYG',
   },
   // 댓글 (Firebase Auth + Cloud Firestore Lite). 보안 규칙은 저장소 루트의 firestore.rules 참고.
   comments: {

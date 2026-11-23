@@ -99,9 +99,7 @@
 
 ### 막힌 일
 
-1. **Google Analytics 4(GA4) 측정 ID 연결**
-   - 원인: `src/site.config.ts`(`analytics.gaId`)와 `src/layouts/Base.astro` 프로덕션 전용 `gtag.js` 연동 코드는 구현 완료되었으나, 실제 GA4 웹 스트림 측정 ID(`G-XXXXXXXXXX`)가 아직 입력되지 않음.
-   - 해제 조건: 사용자가 Google Analytics에서 웹 스트림 생성 후 측정 ID를 공유하면 `src/site.config.ts`에 반영해 배포 완료.
+- 현재 없음 *(막힌 작업이 생기면 원인과 해제 조건을 여기에 기록합니다.)*
 
 ### 나중에 확인할 일 (특정 날짜·조건 이후)
 
@@ -121,6 +119,7 @@
    - 추천안: A안(`What I Made` 첫 체험 데모 제작). 홈 우측 레일과 `/projects/` 페이지에 "체험 데모 준비 중" 자리가 마련되어 있으므로, Drive2Model Cross-Labeler 같은 대표작 1개를 실제 체험 가능한 웹 데모로 채우면 빌더 블로그로서의 인상이 크게 살아납니다.
 
 ### 해결된 논의
+- 풀 와이드 레이아웃·104px 원형 프로필·`What I Made` 독립 스크롤·GA4 측정 ID(`G-1VLJHDNKYG`) 반영 완료 → 데스크톱 좌우 끝(`--edge: 32px`) 기준 배치, 좌측 `240px` 고정 사이드바 + 우측 `320px` 고정 `What I Made` 레일 3열 독립 스크롤(`overscroll-behavior: contain`), `104px` 원형 프로필(`@juwkim`·하단 `About` 제거, `GitHub`·`Instagram`·`solved.ac` 순), `analytics.gaId: 'G-1VLJHDNKYG'` 적용 (2026-11-23)
 - A안 와이드 레이아웃·좌측 미니 프로필·`What I Made`·`/projects/` 페이지·GA4 연동 틀 구현 완료 → `--page: 1440px`, `--width: 780px`, `--sidebar: 220px`, 우측 목차 `200px`, 좌측 미니 프로필, 홈 3단(최근 글 6개 + 우측 `What I Made` 레일), 상단 메뉴 `Projects` 탭 및 `/projects/` 페이지, `Base.astro` 프로덕션 전용 GA4 스크립트 틀 반영 (2026-11-23)
 - 방문자 분석 도구 선정 → 1안(Google Analytics 4, 운영자 대시보드 전용, 화면 공개 카운터 없음) 확정 (2026-11-23)
 - 좌측 카테고리 사이드바 고정 및 독립 스크롤 적용 → `CategoryNav.astro`를 `position: fixed` + `overscroll-behavior: contain`으로 변경하고 `Footer.astro` 우측 정렬을 맞춰, 본문 스크롤 시 사이드바 흔들림 제거 및 마우스 위치별 독립 스크롤 구현 (2026-11-23)

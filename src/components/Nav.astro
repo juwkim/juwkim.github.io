@@ -58,8 +58,8 @@ const items = [
     height: 52px;
     display: flex;
     align-items: center;
-    /* 메뉴 내용을 아래 페이지 폭(--page)에 맞춰 정렬 */
-    padding: 0 max(32px, calc((100% - var(--page)) / 2 + 32px));
+    /* 왼쪽 사이드바, 오른쪽 레일과 같은 화면 끝 간격(--edge)에 맞춰 정렬 */
+    padding: 0 var(--edge);
     background: var(--nav-bg);
     backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);

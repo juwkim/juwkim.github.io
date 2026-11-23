@@ -1,5 +1,5 @@
 /* ==========================================================
-   디자인 토큰 — 색, 간격, 폰트는 모두 여기서 관리합니다.
+   디자인 토큰: 색, 간격, 폰트는 모두 여기서 관리합니다.
    확정 시안: docs/design/mockup-v6.html
    ========================================================== */
 :root {
@@ -17,8 +17,10 @@
   --nav-bg: rgba(255, 255, 255, 0.72);
 
   --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
-  --width: 780px;
-  --sidebar: 220px;
+  --width: 840px; /* 글 본문 읽기 폭 */
+  --sidebar: 240px; /* 왼쪽 프로필·카테고리 사이드바 폭 */
+  --rail: 320px; /* 홈 오른쪽 What I Made 레일 폭 (1360px 이상) */
+  --edge: 32px; /* 넓은 화면에서 화면 좌우 끝과의 간격 */
   --font: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
 
@@ -155,9 +157,9 @@ dd {
   text-wrap: pretty;
 }
 
-/* 넓은 화면용 컨테이너 (홈·목록·About). 글 본문은 읽기 좋은 폭(--width)을 유지 */
+/* 사이드바 없는 단독 페이지용 컨테이너 (About, Projects, 검색). 글 본문은 읽기 좋은 폭(--width)을 유지 */
 :root {
-  --page: 1440px;
+  --page: 1360px;
 }
 .page {
   max-width: var(--page);

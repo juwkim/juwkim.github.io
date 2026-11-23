@@ -87,9 +87,9 @@ const recent = posts.slice(0, 6);
 
 <style>
   .layout {
-    max-width: var(--page);
-    margin: 0 auto;
-    padding: 0 32px;
+    max-width: none;
+    margin: 0;
+    padding: 0 var(--edge);
   }
   @media (max-width: 640px) {
     .layout {
@@ -274,7 +274,7 @@ const recent = posts.slice(0, 6);
       display: grid;
       grid-template-columns: var(--sidebar) minmax(0, 1fr);
       column-gap: 48px;
-      padding-top: 64px;
+      padding-top: 56px;
     }
     .side {
       display: block;
@@ -300,29 +300,48 @@ const recent = posts.slice(0, 6);
     }
   }
 
-  /* ---------- 1360px 이상: 오른쪽에 What I Made 레일 ---------- */
+  /* ---------- 1360px 이상: 오른쪽 화면 끝에 고정된 What I Made 레일 ----------
+     레일은 position: fixed라 그리드 흐름에서 빠지지만, 세 번째 열(--rail)이 같은 자리를 비워 두어
+     가운데 .main과 겹치지 않음. 레일은 사이드바처럼 독립 스크롤 */
   @media (min-width: 1360px) {
     .layout {
-      grid-template-columns: var(--sidebar) minmax(0, 1fr) 300px;
+      grid-template-columns: var(--sidebar) minmax(0, 1fr) var(--rail);
+      column-gap: 56px;
     }
     .side {
       grid-row: 1;
     }
+    .main {
+      max-width: 1040px;
+      width: 100%;
+      margin: 0 auto;
+    }
     .made-rail {
-      grid-column: 3;
-      grid-row: 1;
-      align-self: start;
+      position: fixed;
+      top: 52px;
+      bottom: 0;
+      right: var(--edge);
+      width: var(--rail);
       margin-top: 0;
+      padding: 28px 4px 40px 12px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+    }
+    .made-rail::-webkit-scrollbar {
+      display: none;
     }
     .made-list {
       grid-template-columns: 1fr;
     }
   }
-  /* 화면 높이가 넉넉할 때만 레일을 고정 (낮은 화면에서 아래쪽이 잘리지 않게) */
-  @media (min-width: 1360px) and (min-height: 720px) {
+  /* 인쇄할 때는 레일을 고정하지 않고 본문 아래로 자연스럽게 흐르게 */
+  @media print {
     .made-rail {
-      position: sticky;
-      top: 84px;
+      position: static;
+      width: auto;
+      padding: 0;
+      overflow: visible;
     }
   }
 
