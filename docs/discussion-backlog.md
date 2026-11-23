@@ -117,12 +117,14 @@
 
 ### 더 논의할 결정 (추천안 포함)
 
-1. **다음 글·UI 다듬기 주제 정하기** *(지금 논의 가능, 또는 `firestore.rules` 게시·실동작 확인 직후 진행)*
-   - 배경: 댓글 시스템 Firebase 전환과 모바일·태블릿 목차, 소제목 링크 복사까지 반영한 뒤 남는 다음 개선 후보입니다.
-   - 선택지: A) 홈·글 목록·About 레이아웃 및 비주얼 디테일 다듬기 / B) 특정 기존 글 내용 보강·다듬기.
-   - 추천안: A안(홈·글 목록·About 레이아웃 및 비주얼 디테일 다듬기). 전체 페이지의 시각적 완성도를 먼저 고르게 맞춘 뒤 개별 글 내용 보강으로 이어가는 편이 흐름상 깔끔합니다.
+1. **다음 글·UI 다듬기 주제 정하기** *(지금 바로 논의 가능)*
+   - 배경: 홈 화면을 좌측 카테고리 사이드바 중심의 블로그형 레이아웃으로 개편한 뒤 남는 다음 개선 후보입니다.
+   - 선택지: A) 글 목록(`/posts/`)·About(`/about/`) 레이아웃 및 비주얼 디테일 다듬기 / B) 특정 기존 글 내용 보강·다듬기.
+   - 추천안: A안(글 목록·About 레이아웃 및 비주얼 디테일 다듬기). 홈에 이어 글 목록과 About까지 같은 톤으로 정리하면 전체 화면 완성도가 고르게 맞춰집니다.
 
 ### 해결된 논의
+- 홈 화면 레이아웃 개편 → `The Heuristic Learner` 문구와 랜딩형 대형 히어로·하단 카테고리 섹션을 제거하고, 좌측 카테고리 사이드바(`CategoryNav`) + 간결한 블로그 인트로 + 2열 최근 글 카드(`PostCard`)로 개편 완료 (2026-11-23)
+- 댓글 로그인 제공업체 추가 여부 → 카카오·네이버는 추가하지 않고 Google + GitHub 2개 유지 확정 (미니멀 UI 유지, Firebase Spark 무료·무서버 유지) (2026-11-23)
 - Firestore `(default)` DB 생성 및 `firestore.rules` 배포 → Firebase CLI(`firebase-tools`)로 `home-server-c5ca5` 프로젝트에 보안 규칙 컴파일·게시 완료 (2026-11-23)
 - 댓글 시스템 Firebase Spark 전환 구현 완료 → `src/site.config.ts`, `src/lib/firebase-comments.ts`, `src/components/Comments.astro`, `firestore.rules` 반영 및 기존 `public/giscus/` 제거. Google·GitHub 로그인, 입력 취소, 본인 수정/삭제, 1단계 답글, 관리자 전체 삭제 포함 (2026-11-23)
 - 댓글 시스템 전환 방향 → A안(Firebase Spark 무료 플랜: Google + GitHub 로그인 + Cloud Firestore + 자체 평문 댓글 UI)으로 확정 (2026-11-22)

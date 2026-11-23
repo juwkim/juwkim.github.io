@@ -21,19 +21,19 @@ const { title, category, subcategory, description, date } = post.data;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: 22px 22px 20px;
-    border-radius: 18px;
-    background: var(--bg-subtle);
-    border: 1px solid transparent;
-    transition: background 0.25s var(--ease), border-color 0.25s var(--ease), transform 0.25s var(--ease),
-      box-shadow 0.25s var(--ease);
-    min-height: 196px;
+    padding: 20px 20px 18px;
+    border-radius: 14px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    min-height: 164px;
   }
   .card:hover {
-    background: var(--bg);
-    border-color: var(--line);
+    border-color: var(--line-strong);
     box-shadow: var(--shadow);
-    transform: translateY(-2px);
+  }
+  .card:hover .t {
+    color: var(--blue);
   }
   .cat {
     font-size: 12.5px;
@@ -47,6 +47,7 @@ const { title, category, subcategory, description, date } = post.data;
     letter-spacing: -0.02em;
     word-break: keep-all;
     text-wrap: pretty;
+    transition: color 0.2s var(--ease);
   }
   .desc {
     font-size: 14px;

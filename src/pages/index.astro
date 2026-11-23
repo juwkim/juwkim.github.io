@@ -1,191 +1,136 @@
 ---
+// 홈: 글 목록 페이지(PostIndex)와 같은 2단 구성. 왼쪽 카테고리, 오른쪽 짧은 소개와 최근 글.
 import Base from '../layouts/Base.astro';
+import CategoryNav from '../components/CategoryNav.astro';
 import PostCard from '../components/PostCard.astro';
 import { SITE } from '../site.config';
-import { getPosts, countTree, categoryUrl, subUrl } from '../lib/posts';
+import { getPosts } from '../lib/posts';
 
 const posts = await getPosts();
 const recent = posts.slice(0, 6);
-const tree = countTree(posts);
 ---
 
 <Base>
-  <div class="page">
-    <header class="hero">
-      <div class="eyebrow">{SITE.blogName}</div>
-      <h1>{SITE.hero.title[0]}<br />{SITE.hero.title[1]}</h1>
-      <p>{SITE.hero.body}</p>
-      <div class="links">
-        <a href="/about/">About ›</a>
-      </div>
-    </header>
+  <div class="layout">
+    <aside>
+      <CategoryNav mode="sidebar" posts={posts} highlightAll={false} />
+    </aside>
+    <div class="main">
+      <header class="intro">
+        <h1>{SITE.hero.title.join(' ')}</h1>
+        <p>{SITE.hero.body}</p>
+        <div class="meta">
+          <span>총 {posts.length}편의 기록</span>
+          <span class="dot" aria-hidden="true">·</span>
+          <a href="/about/">About ›</a>
+        </div>
+      </header>
 
-    <section aria-labelledby="recent">
-      <div class="section-head">
-        <h2 id="recent">최근 글</h2>
-        <a href="/posts/">전체 {posts.length}개 보기 ›</a>
-      </div>
-      <div class="grid">
-        {recent.map((post) => <PostCard post={post} />)}
-      </div>
-    </section>
+      <CategoryNav mode="chips" posts={posts} highlightAll={false} />
 
-    <section aria-labelledby="cats">
-      <div class="section-head">
-        <h2 id="cats">카테고리</h2>
-      </div>
-      <div class="cats">
-        {
-          tree.map(({ cat, count, subs }) => (
-            <div class="cat">
-              <a class="cat-head" href={categoryUrl(cat)}>
-                <span class="name">{cat.name}</span>
-                <span class="count">{count}</span>
-              </a>
-              <ul>
-                {subs
-                  .filter((s) => s.count > 0)
-                  .map(({ sub, count }) => (
-                    <li>
-                      <a href={subUrl(cat, sub)}>
-                        <span>{sub.name}</span>
-                        <span class="n">{count}</span>
-                      </a>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          ))
-        }
-      </div>
-    </section>
+      <section class="recent" aria-labelledby="recent">
+        <div class="section-head">
+          <h2 id="recent">최근 글</h2>
+          <a href="/posts/">전체 {posts.length}개 보기 ›</a>
+        </div>
+        <div class="grid">
+          {recent.map((post) => <PostCard post={post} />)}
+        </div>
+      </section>
+    </div>
   </div>
 </Base>
 
 <style>
-  .hero {
-    padding: 104px 0 80px;
-    max-width: 720px;
+  .layout {
+    max-width: var(--page);
+    margin: 0 auto;
+    padding: 0 32px;
   }
-  .eyebrow {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--blue);
-    margin-bottom: 16px;
+  @media (max-width: 640px) {
+    .layout {
+      padding: 0 24px;
+    }
+  }
+  aside {
+    display: none;
+  }
+
+  /* ---------- 소개 ---------- */
+  .intro {
+    padding: 52px 0 22px;
+    max-width: 620px;
   }
   h1 {
-    font-size: 56px;
-    line-height: 1.15;
+    font-size: 24px;
     font-weight: 700;
-    letter-spacing: -0.04em;
-    margin: 0 0 22px;
+    letter-spacing: -0.025em;
+    line-height: 1.35;
+    word-break: keep-all;
+    margin: 0 0 10px;
   }
-  .hero p {
-    font-size: 20px;
-    line-height: 1.6;
+  .intro p {
+    font-size: 15px;
+    line-height: 1.65;
     color: var(--fg-2);
     margin: 0;
-    letter-spacing: -0.015em;
     word-break: keep-all;
   }
-  .links {
+  .meta {
     display: flex;
-    gap: 22px;
-    margin-top: 30px;
-    font-size: 16px;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+    margin-top: 14px;
+    font-size: 13.5px;
+    color: var(--fg-3);
+    font-variant-numeric: tabular-nums;
   }
-  .links a {
+  .dot {
+    opacity: 0.7;
+  }
+  .meta a {
     color: var(--blue);
   }
-  .links a:hover {
+  .meta a:hover {
     text-decoration: underline;
     text-underline-offset: 3px;
   }
 
-  section {
-    margin-bottom: 72px;
+  /* ---------- 최근 글 ---------- */
+  .recent {
+    margin: 24px 0 72px;
   }
   .grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-    margin-top: 20px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 16px;
   }
 
-  .cats {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-    margin-top: 20px;
-  }
-  .cat {
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 8px;
-  }
-  .cat-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding: 12px 14px 10px;
-    border-radius: 12px;
-    transition: background 0.2s var(--ease);
-  }
-  .cat-head:hover {
-    background: var(--bg-subtle);
-  }
-  .name {
-    font-size: 17px;
-    font-weight: 650;
-    letter-spacing: -0.02em;
-  }
-  .count {
-    font-size: 13px;
-    color: var(--fg-3);
-    font-variant-numeric: tabular-nums;
-  }
-  ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  li a {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 14px;
-    border-radius: 10px;
-    font-size: 14.5px;
-    color: var(--fg-2);
-    transition: background 0.2s var(--ease), color 0.2s var(--ease);
-  }
-  li a:hover {
-    background: var(--bg-subtle);
-    color: var(--fg);
-  }
-  .n {
-    font-size: 12.5px;
-    color: var(--fg-3);
-    font-variant-numeric: tabular-nums;
-  }
-
-  @media (max-width: 960px) {
-    .grid,
-    .cats {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+  @media (min-width: 1080px) {
+    .layout {
+      display: grid;
+      grid-template-columns: 200px minmax(0, 1fr);
+      gap: 64px;
+      padding-top: 72px;
     }
-  }
-  @media (max-width: 640px) {
-    .hero {
-      padding: 64px 0 52px;
+    aside {
+      display: block;
+    }
+    .intro {
+      padding: 0 0 28px;
     }
     h1 {
-      font-size: 34px;
+      font-size: 26px;
     }
-    .hero p {
-      font-size: 17px;
+    .recent {
+      margin-top: 0;
     }
-    .grid,
-    .cats {
+  }
+
+  @media (max-width: 640px) {
+    .grid {
       grid-template-columns: 1fr;
     }
     .grid :global(.card) {

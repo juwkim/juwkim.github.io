@@ -8,16 +8,19 @@ interface Props {
   current?: { cat?: string; sub?: string };
   /** sidebar: 넓은 화면용 왼쪽 목록, chips: 좁은 화면용 칩 줄 */
   mode: 'sidebar' | 'chips';
+  /** current.cat이 없을 때 '전체'를 현재 페이지로 강조할지 (홈에서는 false) */
+  highlightAll?: boolean;
 }
 
-const { posts, current = {}, mode } = Astro.props;
+const { posts, current = {}, mode, highlightAll = true } = Astro.props;
 const tree = countTree(posts);
 const active = tree.find((t) => t.cat.slug === current.cat);
+const allOn = highlightAll && !current.cat;
 ---
 
 {mode === 'sidebar' && (
 <nav class="sidebar" aria-label="카테고리">
-  <a href="/posts/" class:list={['all', { on: !current.cat }]} aria-current={!current.cat ? 'page' : undefined}>
+  <a href="/posts/" class:list={['all', { on: allOn }]} aria-current={allOn ? 'page' : undefined}>
     <span>전체</span><span class="n">{posts.length}</span>
   </a>
   {
@@ -55,7 +58,9 @@ const active = tree.find((t) => t.cat.slug === current.cat);
 {mode === 'chips' && (
 <nav class="chips-nav" aria-label="카테고리">
   <div class="row">
-    <a href="/posts/" class:list={['chip', { on: !current.cat }]}>전체 <span>{posts.length}</span></a>
+    <a href="/posts/" class:list={['chip', { on: allOn }]} aria-current={allOn ? 'page' : undefined}>
+      전체 <span>{posts.length}</span>
+    </a>
     {
       tree.map(({ cat, count }) => (
         <a href={categoryUrl(cat)} class:list={['chip', { on: current.cat === cat.slug }]}>

@@ -2,7 +2,6 @@
 export const SITE = {
   title: 'juwkim',
   homeTitle: 'juwkim의 이야기', // 홈 화면 브라우저 탭 이름
-  blogName: 'The Heuristic Learner',
   author: '김주원',
   authorEn: 'Juwon Kim',
   url: 'https://juwkim.github.io',
