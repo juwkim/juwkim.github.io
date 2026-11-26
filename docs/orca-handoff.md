@@ -7,7 +7,7 @@
 1. [`AGENTS.md`](../AGENTS.md)에서 위임, 답변 형식, 작업 범위를 확인합니다.
 2. [`docs/discussion-backlog.md`](discussion-backlog.md)에서 확정된 결정과 남은 일을 확인합니다.
 3. 새 글을 쓸 때는 [글쓰기 가이드](writing-guide.md), 기존 글을 다듬을 때는 [교정 가이드](editing-guide.md)를 읽습니다.
-4. [README](../README.md)에서 명령어와 브랜치 전략을 확인합니다.
+4. [README](../README.md)에서 명령어와 브랜치 전략을, [블로그 아키텍처와 개발 여정](blog-architecture-and-journey.md)에서 전체 설계 결정과 시행착오 이력을 확인합니다.
 
 ## 1. 목적
 
