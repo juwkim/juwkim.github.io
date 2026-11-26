@@ -90,9 +90,9 @@
 - **SEO**
   - Google과 Naver 소유 확인 HTML 태그를 배포했으며, 계속 유지합니다.
   - 사용자가 Google에는 사이트맵(`sitemap-index.xml`)을, Naver에는 사이트맵과 RSS(`rss.xml`)를 제출했습니다.
-  - 2026-11-22 콘솔 확인 결과:
-    - **Google Search Console**: 소유 확인 완료, `robots.txt` 유효, 직접 조치·보안 문제 없음. 루트(`https://juwkim.github.io/`) URL 검사에서는 색인 생성 확인(2026-11-22 12:30 크롤링)되었으나, 전체 `색인 생성 → 페이지` 리포트는 집계 대기 중이고 `/sitemap-index.xml`은 `가져올 수 없음`("일시적인 처리 오류", 실제 `sitemap-index.xml`·`sitemap-0.xml` HTTP 200 정상) 상태로 재확인이 필요합니다.
-    - **네이버 서치어드바이저**: 소유 확인 완료, 사이트맵(`2026-11-22 11:08:53`)·RSS(`2026-11-22 11:09:14`) 등록 완료. 사이트 진단·수집 현황·노출/클릭 리포트는 신규 등록 초기라 아직 집계 전입니다.
+  - 2026-11-26 콘솔 재확인 및 대응 결과:
+    - **Google Search Console**: `색인 생성 → 페이지` 1건(`https://juwkim.github.io/`, 최종 업데이트 11-23), 크롤링 요청 13건(90일), `robots.txt` 유효. `/sitemap-index.xml`이 여전히 `가져올 수 없음`(발견 0)이라 확정 대응대로 `sitemap-0.xml`을 추가 제출함(라이브 `sitemap-index.xml`·`sitemap-0.xml` 모두 HTTP 200 `application/xml`·133개 URL 정상 검증 완료). 신규 `github.io` 속성 초기 대기 상태로 제출 직후 `가져올 수 없음` 표시가 유지되므로 1주 뒤(`2026-12-03~06`) 경과를 재확인합니다.
+    - **네이버 서치어드바이저**: `수집 현황` 집계 시작(11-26 업데이트, 수집 완료 4페이지, 제한 0, 평균 다운로드 290ms). `사이트맵`(`sitemap-index.xml`)·`RSS`(`rss.xml`) 등록 유지·오류 없음, HTTPS 리다이렉션 정상. `사이트 진단`과 `콘텐츠 노출/클릭`은 아직 미집계 상태입니다.
 - **Dependabot**
   - npm과 GitHub Actions를 분기마다 점검해 PR을 만듭니다.
   - `.github/workflows/dependabot-auto-merge.yml`이 `Deploy` PR 빌드가 성공한 `1.x` 이상 minor/patch PR만 검증 후 자동 squash 머지하고 `deploy.yml`을 재실행합니다(2026-11-22). `semver-major`, `0.x` minor, `0.0.x` PR은 자동 머지하지 않고 수동 검토로 남깁니다.
@@ -116,7 +116,7 @@
 
 - **핵심**: 2026-12-18 이후 정보처리기사 실제 결과를 사용자에게 확인합니다. 결과에 따라 About의 "응시" 표기와 백로그를 갱신합니다.
 - **운영 확인**
-  - 구글·네이버 콘솔에서 검색 색인 집계 및 Google Search Console `/sitemap-index.xml` 처리 상태 재확인
+  - 구글·네이버 콘솔에서 검색 색인 집계 및 Google Search Console `/sitemap-index.xml`·`/sitemap-0.xml` 처리 경과 재확인(`2026-12-03~06`)
   - 분기별 `major`/`0.x minor` Dependabot PR 수동 검토는 Orca 예약 자동화(`블로그 Dependabot 수동 PR 점검`, 매주 월요일 10:00 KST, 열린 Dependabot PR이 있을 때만 실행)로 이관 완료(2026-11-23)
 
 ## 8. 위임과 보안
